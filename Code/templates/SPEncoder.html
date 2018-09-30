@@ -1,27 +1,69 @@
 <!doctype html>
 <html style="height: 100%">
-	<title>Hello from Flask</title>
+	<title>Session Pi Encoder</title>
 	<h1>Session Pi Encoder</h1>
 	<body style="height: 100%">
+		<!-- Loading jQuery for AJAX -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script>window.jQuery || document.write('<script src="{{
+  		  url_for('static', filename='jquery-3.3.1.min.js') }}">\x3C/script>')</script>
+  		<script type=text/javascript>
+  			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+		</script>
+
+		<!-- Dummy code for buttons, use separate .js file for real code -->
+		<script type=text/javascript>
+			$(document).ready(function() {
+				$('#encode').click(function(){
+					console.log("Encode");
+					$.getJSON($SCRIPT_ROOT + '/encode', {
+						sepi_code: $('textarea#sepi').val()
+					}, function(data) {
+						$('textarea#lipi').val(data.encoded);
+					});
+					return false;
+				});
+				$('#run-sepi').click(function(){
+					console.log("Run SePi");
+					$.getJSON($SCRIPT_ROOT + '/run_sepi', {
+						sepi_code: $('textarea#sepi').val()
+					}, function(data) {
+						$('div#sepi-terminal').text($('div#sepi-terminal').text() + '\n' + data.result)
+					});
+					return false;
+				});
+				$('#run-lipi').click(function(){
+					console.log("Run LiPi");
+					$.getJSON($SCRIPT_ROOT + '/run_lipi', {
+						lipi_code: $('textarea#lipi').val()
+					}, function(data) {
+						$('div#lipi-terminal').text($('div#lipi-terminal').text() + '\n' + data.result)
+					});
+					return false;
+				});
+			});
+		</script>
+
+		<!-- Main body of page -->
 		<div id="wrapper-row" style="display: flex; flex: 1; height: 100%;">
 			<div id="left-column" style="display: flex; flex: 1; flex-flow: column nowrap;">
 				<h2>Session Pi</h2>
 				<textarea id="sepi" style="flex: 1"></textarea>
 				<div id="button-row">
-					<button>Run</button>
+					<button id="run-sepi">Run</button>
 				</div>
-				<div id="terminal" style="flex: 1; padding: 10px; background: #cccccc">SePi Terminal</div>
+				<div id="sepi-terminal" style="flex: 1; padding: 10px; background: #cccccc; white-space: pre-line;">SePi Terminal</div>
 			</div>
 			<div class="splitter" style="display:flex; flex-shrink: 0; align-items: center;">
-				<button>Encode</button>
+				<button id="encode">Encode</button>
 			</div>
 			<div id="right-column" style="display: flex; flex: 1; flex-flow: column nowrap">
 				<h2>Linear Pi</h2>
 				<textarea id="lipi" style="flex: 1"></textarea>
 				<div id="button-row">
-					<button>Run</button>
+					<button id="run-lipi">Run</button>
 				</div>
-				<div id="terminal" style="flex: 1; padding: 10px; background: #cccccc">LiPi Terminal</div>
+				<div id="lipi-terminal" style="flex: 1; padding: 10px; background: #cccccc; white-space: pre-line;">LiPi Terminal</div>
 			</div>
 		</div>
 	</body>
