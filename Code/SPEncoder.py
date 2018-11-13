@@ -1,4 +1,9 @@
 from flask import Flask, render_template, jsonify, request
+from antlr4 import *
+from Grammars.PiCalcLexer import PiCalcLexer
+from Grammars.PiCalcParser import PiCalcParser
+from Grammars.PCLEncoder import PCLEncoder
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -9,7 +14,16 @@ def main_page():
 @app.route("/encode")
 def encode():
 	code = request.args.get('sepi_code', "", type=str)
-	return jsonify(encoded = "[[" + code + "]]")
+	lexer_input = InputStream(code)
+	lexer = PiCalcLexer(lexer_input)
+	stream = CommonTokenStream(lexer)
+	parser = PiCalcParser(stream)
+	tree = parser.process()
+	printer = PCLEncoder()
+	walker = ParseTreeWalker()
+	walker.walk(printer, tree)
+	encStr = printer.getEncodedString()
+	return jsonify(encoded = encStr)
 
 @app.route("/run_sepi")
 def run_sepi():
