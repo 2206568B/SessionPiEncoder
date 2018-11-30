@@ -20,6 +20,7 @@
 						sepi_code: $('textarea#sepi').val()
 					}, function(data) {
 						$('textarea#lipi').val(data.encoded);
+						$('div#sepi-terminal').text($('div#sepi-terminal').text() + '\n' + data.warnings + data.errors);
 					});
 					return false;
 				});
@@ -28,7 +29,7 @@
 					$.getJSON($SCRIPT_ROOT + '/run_sepi', {
 						sepi_code: $('textarea#sepi').val()
 					}, function(data) {
-						$('div#sepi-terminal').text($('div#sepi-terminal').text() + '\n' + data.result)
+						$('div#sepi-terminal').text($('div#sepi-terminal').text() + '\n' + data.result);
 					});
 					return false;
 				});
@@ -37,7 +38,7 @@
 					$.getJSON($SCRIPT_ROOT + '/run_lipi', {
 						lipi_code: $('textarea#lipi').val()
 					}, function(data) {
-						$('div#lipi-terminal').text($('div#lipi-terminal').text() + '\n' + data.result)
+						$('div#lipi-terminal').text($('div#lipi-terminal').text() + '\n' + data.result);
 					});
 					return false;
 				});

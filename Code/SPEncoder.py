@@ -3,6 +3,7 @@ from antlr4 import *
 from Grammars.PiCalcLexer import PiCalcLexer
 from Grammars.PiCalcParser import PiCalcParser
 from Grammars.PCLEncoder import PCLEncoder
+from Grammars.VariableNameCollector import VariableNameCollector
 
 app = Flask(__name__)
 
@@ -19,11 +20,15 @@ def encode():
 	stream = CommonTokenStream(lexer)
 	parser = PiCalcParser(stream)
 	tree = parser.process()
-	printer = PCLEncoder()
+	varNameColl = VariableNameCollector()
+	varWalker = ParseTreeWalker()
+	varWalker.walk(varNameColl, tree)
+	varNames = varNameColl.getVarNameList()
+	printer = PCLEncoder(varNames)
 	walker = ParseTreeWalker()
 	walker.walk(printer, tree)
-	encStr = printer.getEncodedString()
-	return jsonify(encoded = encStr)
+	encStr, warn, err = printer.getEncoding()
+	return jsonify(encoded = encStr, warnings = warn, errors = err)
 
 @app.route("/run_sepi")
 def run_sepi():
