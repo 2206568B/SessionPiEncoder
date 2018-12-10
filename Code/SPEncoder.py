@@ -19,7 +19,7 @@ def encode():
 	lexer = PiCalcLexer(lexer_input)
 	stream = CommonTokenStream(lexer)
 	parser = PiCalcParser(stream)
-	tree = parser.process()
+	tree = parser.encInput()
 	varNameColl = VariableNameCollector()
 	varWalker = ParseTreeWalker()
 	varWalker.walk(varNameColl, tree)

@@ -1,22 +1,27 @@
 grammar PiCalc;
 
-/** Declarations and Assignments */
+/** Overall input can be just a process, or a process preceded by type declarations */
 
-declAssign  : ID ':=' process                                                                                                     # ProcessNaming
-            | ID '=' value                                                                                                        # VariableAssignment
-            | 'type ' ID linearType                                                                                               # LinearTypeDecl
-            | 'type ' ID tType                                                                                                    # SessionTypeDecl
-            | 'type ' ID linearType '=' value                                                                                     # LTypeDeclAndAssign
-            | 'type ' ID tType '=' value                                                                                          # STypeDeclAndAssign
+encInput    : process                                                                                                             # JustProcesses
+            | decls process                                                                                                       # DeclAndProcs
             ;
 
-daLineEnd   : ',' declAssign                                                                                                      # NextDeclaration
-            | ';' process                                                                                                         # StartProcesses
+/** Declarations and Assignments */
+
+decls       : decs+=declAssign (',' decs+=declAssign)*;
+
+declAssign  : ID '=' value                                                                                                        # VariableAssignment
+            | ID ':=' process                                                                                                     # ProcessNaming
+            | 'type ' ID tType                                                                                                    # SessionTypeDecl
+            | 'type ' ID tType '=' value                                                                                          # SesTypeDeclAndAssign
+            | 'type ' ID linearType                                                                                               # LinearTypeDecl
+            | 'type ' ID linearType '=' value                                                                                     # LinTypeDeclAndAssign
             ;
 
 /** Processes */
 
-process	   : '0'                                                                                                                 # Termination
+process     : ID                                                                                                                  # NamedProcess
+            | '0'                                                                                                                 # Termination
             /** Send and Receive can have one or more payloads */
             | 'send(' channel=value (',' payload+=value)+ ').' process                                                            # Output
             | 'receive(' channel=value (',' payload+=value)+ ').' process                                                         # Input
@@ -34,38 +39,38 @@ process	   : '0'                                                                
 value       : '*'                                                                                                                 # UnitValue
             | ID                                                                                                                  # Name
             | ID '_' value                                                                                                        # VariantValue
-            | stringVal                                                                                                           # StringValue
-            | intVal                                                                                                              # IntegerValue
-            | booleanVal                                                                                                          # BooleanValue
+            | StringVal                                                                                                           # StringValue
+            | IntVal                                                                                                              # IntegerValue
+            | BooleanVal                                                                                                          # BooleanValue
             ;
 
 /** Types */
 
-linearType  : 'lo['linearType (',' linearType)? ']'                                                                               # LinearOutput
-            | 'li['linearType (',' linearType)? ']'                                                                               # LinearInput
-            | 'l#['linearType (',' linearType)? ']'                                                                               # LinearConnection
-            | '#['linearType (',' linearType)? ']'                                                                                # Connection
+basicType   : 'Unit'                                                                                                              # UnitType
+            | 'Bool'                                                                                                              # Boolean
+            | 'Int'                                                                                                               # Integer
+            | 'String'                                                                                                            # String
+            ;
+
+linearType  : 'lo['(payload+=linearType ',')* cont=linearType ']'                                                                 # LinearOutput
+            | 'li['payload+=linearType (',' cont=linearType)* ']'                                                                 # LinearInput
+            | 'l#['payload+=linearType (',' cont=linearType)* ']'                                                                 # LinearConnection
+            | '#['payload+=linearType (',' cont=linearType)* ']'                                                                  # Connection
             | '/[]'                                                                                                               # NoCapability
-            | '<' (ID '_' linearType ',')+ ID '_' linearType '>'                                                                  # VariantValue
-            | 'Unit'                                                                                                              # UnitValueLin
-            | 'Bool'                                                                                                              # BooleanLin
-            | 'Int'                                                                                                               # IntegerLin
-            | 'String'                                                                                                            # StringLin
+            | '<' (ID '_' linearType ',')+ ID '_' linearType '>'                                                                  # VariantType
+            | basicType                                                                                                           # BasicLinType
             ;
 
 tType       : sType                                                                                                               # SessionType
             | '#'tType                                                                                                            # ChannelType
-            | 'Unit'                                                                                                              # UnitValueSes
-            | 'Bool'                                                                                                              # BooleanSes
-            | 'Int'                                                                                                               # IntegerSes
-            | 'String'                                                                                                            # StringSes
+            | basicType                                                                                                           # BasicSesType
             ;
 
-sType       : 'end'                                                                                                               # Termination
-            | '?('tType(',' tType)? ').'sType                                                                                     # Receive
-            | '!('tType(',' tType)? ').'sType                                                                                     # Send
-            | '&{' (ID ':' sType ',')+ ID ':' sType '}'                                                                           # Branch
-            | '+{' (ID ':' sType ',')+ ID ':' sType '}'                                                                           # Select
+sType       : 'end'                                                                                                               # Terminate
+            | '?'payload=tType'.'sType                                                                                            # Receive
+            | '!'payload=tType'.'sType                                                                                            # Send
+            | '&{' (option+=value ':' cont+=sType ',')+ option+=value ':' cont+=sType '}'                                         # Branch
+            | '+{' (option+=value ':' cont+=sType ',')+ option+=value ':' cont+=sType '}'                                         # Select
             ;
 
 /** Tokens */
@@ -79,6 +84,7 @@ BooleanVal  : 'True'
 fragment
 AlphNum     : Char
             | Digit
+            ;
 fragment
 Char        : 'A'..'Z'
             | 'a'..'z'
