@@ -13,6 +13,15 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by PiCalcParser#JustDeclarations.
+    def enterJustDeclarations(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#JustDeclarations.
+    def exitJustDeclarations(self, ctx):
+        pass
+
+
     # Enter a parse tree produced by PiCalcParser#DeclAndProcs.
     def enterDeclAndProcs(self, ctx):
         pass

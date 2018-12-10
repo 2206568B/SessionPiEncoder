@@ -1,0 +1,32 @@
+.terminal {
+	flex:			1;
+	padding:		10px;
+	background:		#404040;
+	white-space:	pre-line;
+	color:			#ffffff;
+	font-family:	monospace;
+	font-size:		1.25em;
+	font-weight:	bold;
+}
+
+textarea {
+	flex:			1;
+}
+
+.column {
+	display:		flex;
+	flex:			1;
+	flex-flow:		column nowrap;
+}
+
+.splitter {
+	display:		flex;
+	flex-shrink:	0;
+	align-items:	center;
+}
+
+#wrapper-row {
+	display:		flex;
+	flex:			1;
+	height:			100%;
+}

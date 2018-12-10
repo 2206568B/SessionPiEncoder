@@ -62,6 +62,11 @@ class PCLEncoder(PiCalcListener):
 				self.branchStack.append('C')
 
 	def getEncoding(self):
+		# Attempt to remove any leftover placeholders, and display error if anything was removed 
+		oldStr = self.encodedStrBuilder
+		self.encodedStrBuilder = self.encodedStrBuilder.translate({ord(c): None for c in u'@$£^%'})
+		if (oldStr != self.encodedStrBuilder):
+			self.errorStrBuilder = self.errorStrBuilder + "ERROR: There seems to have been a problem with the encoding. Please check that your input is valid.\n"
 		return (self.encodedStrBuilder, self.warnStrBuilder, self.errorStrBuilder)
 
 
@@ -72,12 +77,17 @@ class PCLEncoder(PiCalcListener):
 	## ^ represents a placeholder process, % represents a placeholder value
 
 
-	# If no type declarations, place single process placeholder
+	# If just processes, place single process placeholder
 	def enterJustProcesses(self, ctx):
 		self.encodedStrBuilder = "^"
 
 
-	# If declarations present, place single decl placeholder and single process placeholder, separated by two newlines
+	# If just declarations, place single decl placeholder
+	def enterJustDeclarations(self, ctx):
+		self.encodedStrBuilder = "@"
+
+
+	# If decls and processes, place single decl placeholder and single process placeholder, separated by two newlines
 	def enterDeclAndProcs(self, ctx):
 		self.encodedStrBuilder = "@\n\n^"
 
