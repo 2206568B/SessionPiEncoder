@@ -11,23 +11,25 @@ app = Flask(__name__)
 def main_page():
 	return render_template("SPEncoder.html")
 
-# AJAX code for buttons, dummy code for now
 @app.route("/encode")
 def encode():
 	code = request.args.get('sepi_code', "", type=str)
-	lexer_input = InputStream(code)
-	lexer = PiCalcLexer(lexer_input)
-	stream = CommonTokenStream(lexer)
-	parser = PiCalcParser(stream)
-	tree = parser.encInput()
-	varNameColl = VariableNameCollector()
-	varWalker = ParseTreeWalker()
-	varWalker.walk(varNameColl, tree)
-	varNames = varNameColl.getVarNameList()
-	printer = PCLEncoder(varNames)
-	walker = ParseTreeWalker()
-	walker.walk(printer, tree)
-	encStr, warn, err = printer.getEncoding()
+	try:
+		lexer_input = InputStream(code)
+		lexer = PiCalcLexer(lexer_input)
+		stream = CommonTokenStream(lexer)
+		parser = PiCalcParser(stream)
+		tree = parser.encInput()
+		varNameColl = VariableNameCollector()
+		varWalker = ParseTreeWalker()
+		varWalker.walk(varNameColl, tree)
+		varNames = varNameColl.getVarNameList()
+		printer = PCLEncoder(varNames)
+		walker = ParseTreeWalker()
+		walker.walk(printer, tree)
+		encStr, warn, err = printer.getEncoding()
+	except:
+		encStr, warn, err = "", "", "ERROR: The pi calculus could not be encoded. Please check that your input is valid."
 	return jsonify(encoded = encStr, warnings = warn, errors = err)
 
 @app.route("/run_sepi")

@@ -62,11 +62,14 @@ class PCLEncoder(PiCalcListener):
 				self.branchStack.append('C')
 
 	def getEncoding(self):
-		# Attempt to remove any leftover placeholders, and display error if anything was removed 
+		# Attempt to remove any leftover placeholders, and display error if anything was removed
+		print(self.encodedStrBuilder)
 		oldStr = self.encodedStrBuilder
 		self.encodedStrBuilder = self.encodedStrBuilder.translate({ord(c): None for c in u'@$£^%'})
+		print(self.encodedStrBuilder)
 		if (oldStr != self.encodedStrBuilder):
-			self.errorStrBuilder = self.errorStrBuilder + "ERROR: There seems to have been a problem with the encoding. Please check that your input is valid.\n"
+			print("Mismatch")
+			self.errorStrBuilder = self.errorStrBuilder + "ERROR: The encoding seems to have failed. Please check that your input is valid."
 		return (self.encodedStrBuilder, self.warnStrBuilder, self.errorStrBuilder)
 
 

@@ -5,7 +5,7 @@ $(document).ready(function() {
 		}, function(data) {
 			$('textarea#lipi').val(data.encoded);
 			if(data.warnings !== "" || data.errors !== "") {
-				$('div#sepi-terminal').text($('div#sepi-terminal').text() + '\n' + data.warnings + data.errors);
+				$('div#sepi-term').text($('div#sepi-term').text() + '\n' + data.warnings + data.errors);
 			}
 		});
 		return false;
@@ -15,7 +15,7 @@ $(document).ready(function() {
 			sepi_code: $('textarea#sepi').val()
 		}, function(data) {
 			if(data.result != "") {
-				$('div#sepi-terminal').text($('div#sepi-terminal').text() + '\n' + data.result);
+				$('div#sepi-term').text($('div#sepi-term').text() + '\n' + data.result);
 			}
 		});
 		return false;
@@ -25,7 +25,7 @@ $(document).ready(function() {
 			lipi_code: $('textarea#lipi').val()
 		}, function(data) {
 			if(data.result != "") {
-				$('div#lipi-terminal').text($('div#lipi-terminal').text() + '\n' + data.result);
+				$('div#lipi-term').text($('div#lipi-term').text() + '\n' + data.result);
 			}
 		});
 		return false;
