@@ -52,14 +52,16 @@ class PCLEncoder(PiCalcListener):
 			return '*'
 		return self.encFunc.get(name, name)
 
-	def checkBranchStack(self, channel):
+	def checkBranchStack(self, isBranch):
 		if self.branchStack != []:
 			if self.branchStack[-1] != 'B':
-				self.branchStack.append('C')
+				if not(isBranch):
+					self.branchStack.append('C')
 			else:
 				if self.encFuncBackupStack != []:
 					self.encFunc = copy.deepcopy(self.encFuncBackupStack[-1])
-				self.branchStack.append('C')
+				if not(isBranch):
+					self.branchStack.append('C')
 
 	def getEncoding(self):
 		# Attempt to remove any leftover placeholders, and display error if anything was removed
@@ -121,7 +123,6 @@ class PCLEncoder(PiCalcListener):
 		self.encodedStrBuilder = self.encodedStrBuilder.replace("@", decStr, 1)
 
 
-
 	# Place type placeholder
 	def enterSesTypeDeclAndAssign(self, ctx):
 		decStr = "type " + ctx.ID().getText() + " $ = " + ctx.value().getText()
@@ -167,7 +168,7 @@ class PCLEncoder(PiCalcListener):
 
 	# Create new channel and send alongside encoded payloads
 	def enterOutput(self, ctx):
-		self.checkBranchStack(ctx.channel.getText())
+		self.checkBranchStack(False)
 		newChan = self.generateChannelName()
 		opStrBuilder = '(new ' + newChan + ')send(' + self.encodeName(ctx.channel.getText())
 		for pl in ctx.payload:
@@ -183,7 +184,7 @@ class PCLEncoder(PiCalcListener):
 
 	# Receive new channel alongside payloads
 	def enterInput(self, ctx):
-		self.checkBranchStack(ctx.channel.getText())
+		self.checkBranchStack(False)
 		ipStrBuilder = "receive(" + self.encodeName(ctx.channel.getText())
 		for pl in ctx.payload:
 			ipStrBuilder = ipStrBuilder + "," + pl.getText()
@@ -199,7 +200,7 @@ class PCLEncoder(PiCalcListener):
 
 	# Create new channel and send as variant value
 	def enterSelection(self, ctx):
-		self.checkBranchStack(ctx.channel.getText())
+		self.checkBranchStack(False)
 		newChan = self.generateChannelName()
 		selStr = '(new ' + newChan + ')send(' + self.encodeName(ctx.channel.getText()) + "," + ctx.selection.getText() + "_" + newChan + ').^'
 		self.encFunc[ctx.channel.getText()] = newChan
@@ -212,6 +213,7 @@ class PCLEncoder(PiCalcListener):
 
 	# Receive value then use for case statement
 	def enterBranching(self, ctx):
+		self.checkBranchStack(True)
 		caseVar = self.generateChannelName()
 		brnStrBuilder = "receive(" + self.encodeName(ctx.channel.getText()) + ',' + caseVar + ').case ' + caseVar + ' of { '
 		newChan = self.generateChannelName()
