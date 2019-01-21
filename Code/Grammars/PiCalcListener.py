@@ -4,24 +4,6 @@ from antlr4 import *
 # This class defines a complete listener for a parse tree produced by PiCalcParser.
 class PiCalcListener(ParseTreeListener):
 
-    # Enter a parse tree produced by PiCalcParser#JustProcesses.
-    def enterJustProcesses(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#JustProcesses.
-    def exitJustProcesses(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by PiCalcParser#JustDeclarations.
-    def enterJustDeclarations(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#JustDeclarations.
-    def exitJustDeclarations(self, ctx):
-        pass
-
-
     # Enter a parse tree produced by PiCalcParser#DeclAndProcs.
     def enterDeclAndProcs(self, ctx):
         pass
@@ -49,12 +31,39 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#ProcessNaming.
-    def enterProcessNaming(self, ctx):
+    # Enter a parse tree produced by PiCalcParser#ProcessNamingSes.
+    def enterProcessNamingSes(self, ctx):
         pass
 
-    # Exit a parse tree produced by PiCalcParser#ProcessNaming.
-    def exitProcessNaming(self, ctx):
+    # Exit a parse tree produced by PiCalcParser#ProcessNamingSes.
+    def exitProcessNamingSes(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#ProcessNamingLin.
+    def enterProcessNamingLin(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#ProcessNamingLin.
+    def exitProcessNamingLin(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#SessionTypeNaming.
+    def enterSessionTypeNaming(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#SessionTypeNaming.
+    def exitSessionTypeNaming(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#LinearTypeNaming.
+    def enterLinearTypeNaming(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#LinearTypeNaming.
+    def exitLinearTypeNaming(self, ctx):
         pass
 
 
@@ -94,66 +103,12 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#Branching.
-    def enterBranching(self, ctx):
+    # Enter a parse tree produced by PiCalcParser#NamedProcess.
+    def enterNamedProcess(self, ctx):
         pass
 
-    # Exit a parse tree produced by PiCalcParser#Branching.
-    def exitBranching(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by PiCalcParser#Input.
-    def enterInput(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#Input.
-    def exitInput(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by PiCalcParser#Composition.
-    def enterComposition(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#Composition.
-    def exitComposition(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by PiCalcParser#ChannelRestriction.
-    def enterChannelRestriction(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#ChannelRestriction.
-    def exitChannelRestriction(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by PiCalcParser#SessionRestriction.
-    def enterSessionRestriction(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#SessionRestriction.
-    def exitSessionRestriction(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by PiCalcParser#Selection.
-    def enterSelection(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#Selection.
-    def exitSelection(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by PiCalcParser#Output.
-    def enterOutput(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#Output.
-    def exitOutput(self, ctx):
+    # Exit a parse tree produced by PiCalcParser#NamedProcess.
+    def exitNamedProcess(self, ctx):
         pass
 
 
@@ -166,12 +121,84 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#NamedProcess.
-    def enterNamedProcess(self, ctx):
+    # Enter a parse tree produced by PiCalcParser#Output.
+    def enterOutput(self, ctx):
         pass
 
-    # Exit a parse tree produced by PiCalcParser#NamedProcess.
-    def exitNamedProcess(self, ctx):
+    # Exit a parse tree produced by PiCalcParser#Output.
+    def exitOutput(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#Composition.
+    def enterComposition(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#Composition.
+    def exitComposition(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#SessionRestriction.
+    def enterSessionRestriction(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#SessionRestriction.
+    def exitSessionRestriction(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#ChannelRestrictionSes.
+    def enterChannelRestrictionSes(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#ChannelRestrictionSes.
+    def exitChannelRestrictionSes(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#InputSes.
+    def enterInputSes(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#InputSes.
+    def exitInputSes(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#Branching.
+    def enterBranching(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#Branching.
+    def exitBranching(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#Selection.
+    def enterSelection(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#Selection.
+    def exitSelection(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#ChannelRestrictionLin.
+    def enterChannelRestrictionLin(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#ChannelRestrictionLin.
+    def exitChannelRestrictionLin(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#InputLin.
+    def enterInputLin(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#InputLin.
+    def exitInputLin(self, ctx):
         pass
 
 
@@ -274,6 +301,15 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by PiCalcParser#NamedLinType.
+    def enterNamedLinType(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#NamedLinType.
+    def exitNamedLinType(self, ctx):
+        pass
+
+
     # Enter a parse tree produced by PiCalcParser#LinearOutput.
     def enterLinearOutput(self, ctx):
         pass
@@ -337,6 +373,15 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by PiCalcParser#NamedTType.
+    def enterNamedTType(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#NamedTType.
+    def exitNamedTType(self, ctx):
+        pass
+
+
     # Enter a parse tree produced by PiCalcParser#SessionType.
     def enterSessionType(self, ctx):
         pass
@@ -361,6 +406,15 @@ class PiCalcListener(ParseTreeListener):
 
     # Exit a parse tree produced by PiCalcParser#BasicSesType.
     def exitBasicSesType(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#NamedSType.
+    def enterNamedSType(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#NamedSType.
+    def exitNamedSType(self, ctx):
         pass
 
 

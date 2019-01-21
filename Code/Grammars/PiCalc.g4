@@ -2,39 +2,43 @@ grammar PiCalc;
 
 /** Overall input can be just a process, or a process preceded by type declarations */
 
-encInput    : process                                                                                                             # JustProcesses
-            | decls                                                                                                               # JustDeclarations
-            | decls process                                                                                                       # DeclAndProcs
+encInput    : decls process                                                                                                       # DeclAndProcs
             ;
 
 /** Declarations and Assignments */
 
 decls       : decs+=declAssign (',' decs+=declAssign)*;
 
-declAssign  : ID '=' value                                                                                                        # VariableAssignment
-            | ID ':=' process                                                                                                     # ProcessNaming
-            | 'type ' ID tType                                                                                                    # SessionTypeDecl
-            | 'type ' ID tType '=' value                                                                                          # SesTypeDeclAndAssign
-            | 'type ' ID linearType                                                                                               # LinearTypeDecl
-            | 'type ' ID linearType '=' value                                                                                     # LinTypeDeclAndAssign
+declAssign  : var=ID '=' value                                                                                                    # VariableAssignment
+            | name=ID '(' value ':' tType ') :=' process                                                                          # ProcessNamingSes
+            | name=ID '(' value ':' linearType ') :=' process                                                                     # ProcessNamingLin
+            | 'type ' name=ID ':=' tType                                                                                          # SessionTypeNaming
+            | 'type ' name=ID ':=' linearType                                                                                     # LinearTypeNaming
+            | 'type ' var=ID tType                                                                                                # SessionTypeDecl
+            | 'type ' var=ID tType '=' value                                                                                      # SesTypeDeclAndAssign
+            | 'type ' var=ID linearType                                                                                           # LinearTypeDecl
+            | 'type ' var=ID linearType '=' value                                                                                 # LinTypeDeclAndAssign
             ;
 
 /** Processes */
 
-process     : ID                                                                                                                  # NamedProcess
+process     : name=ID '(' value ')'                                                                                               # NamedProcess
             | '0'                                                                                                                 # Termination
-            /** Send and Receive can have one or more payloads */
+            /** Send and Receive can have multiple payloads in linear pi calculus */
             | 'send(' channel=value (',' payload+=value)+ ').' process                                                            # Output
-            | 'receive(' channel=value (',' payload+=value)+ ').' process                                                         # Input
-            | process '|' process                                                                                                 # Composition
-            | '(new ' value ')' process                                                                                           # ChannelRestriction
+            | '(' process ')' '|' '(' process ')'                                                                                 # Composition
+            /** Input and Channel Restriction must be duplicated due to type annotations needing to allow both linear and session types
             /** Case and Branching must give two or more options, hence '(...)+ ...' structure */
-            /** Below rules are for linear pi Calculus */
-            | 'case ' case=value ' of {' (option+=value '>' cont+=process ',')+ option+=value '>' cont+=process '}'               # Case
             /** Below rules are for session pi calculus */
-            | '(new ' endpoint+=value endpoint+=value ')' process                                                                 # SessionRestriction
+            | '(new ' endpoint+=value endpoint+=value ':' sType ')' '(' process ')'                                               # SessionRestriction
+            | '(new ' value ':' tType ')' '(' process ')'                                                                         # ChannelRestrictionSes
+            | 'receive(' channel=value ',' payload=value ':' plType=tType ').' process                                            # InputSes
             | 'branch(' channel=value '){' (option+=value ':' cont+=process ',')+ option+=value ':' cont+=process '}'             # Branching
             | 'select(' channel=value ',' selection=value ').' process                                                            # Selection
+            /** Below rules are for linear pi Calculus */
+            | '(new ' value ':' linearType ')' '(' process ')'                                                                    # ChannelRestrictionLin
+            | 'receive(' channel=value (',' payload+=value ':' plType+=linearType )+ ').' process                                 # InputLin
+            | 'case ' case=value ' of {' (option+=value '>' cont+=process ',')+ option+=value '>' cont+=process '}'               # Case
             ;
 
 value       : '*'                                                                                                                 # UnitValue
@@ -53,21 +57,24 @@ basicType   : 'Unit'                                                            
             | 'String'                                                                                                            # String
             ;
 
-linearType  : 'lo['(payload+=linearType ',')* cont=linearType ']'                                                                 # LinearOutput
+linearType  : name=ID                                                                                                             # NamedLinType
+            | 'lo['(payload+=linearType ',')* cont=linearType ']'                                                                 # LinearOutput
             | 'li['payload+=linearType (',' cont=linearType)* ']'                                                                 # LinearInput
             | 'l#['payload+=linearType (',' cont=linearType)* ']'                                                                 # LinearConnection
             | '#['payload+=linearType (',' cont=linearType)* ']'                                                                  # Connection
-            | '/[]'                                                                                                               # NoCapability
+            | 'empty[]'                                                                                                           # NoCapability
             | '<' (ID '_' linearType ',')+ ID '_' linearType '>'                                                                  # VariantType
             | basicType                                                                                                           # BasicLinType
             ;
 
-tType       : sType                                                                                                               # SessionType
+tType       : name=ID                                                                                                             # NamedTType
+            | sType                                                                                                               # SessionType
             | '#'tType                                                                                                            # ChannelType
             | basicType                                                                                                           # BasicSesType
             ;
 
-sType       : 'end'                                                                                                               # Terminate
+sType       : name=ID                                                                                                             # NamedSType
+            | 'end'                                                                                                               # Terminate
             | '?'payload=tType'.'sType                                                                                            # Receive
             | '!'payload=tType'.'sType                                                                                            # Send
             | '&{' (option+=value ':' cont+=sType ',')+ option+=value ':' cont+=sType '}'                                         # Branch
@@ -99,6 +106,7 @@ fragment
 NameChar
             : NameStartChar
             | '0'..'9'
+            | '\u0027'
             | '\u00B7'
             | '\u0300'..'\u036F'
             | '\u203F'..'\u2040'
