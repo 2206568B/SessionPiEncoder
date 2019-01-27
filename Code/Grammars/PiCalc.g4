@@ -1,7 +1,5 @@
 grammar PiCalc;
 
-/** Overall input can be just a process, or a process preceded by type declarations */
-
 encInput    : decls process                                                                                                       # DeclAndProcs
             ;
 

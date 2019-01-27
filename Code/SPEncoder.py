@@ -26,11 +26,11 @@ def encode():
 	varWalker = ParseTreeWalker()
 	varWalker.walk(varNameColl, tree)
 	varNames = varNameColl.getVarNameList()
-	printer = SPEListener(True, True, varNames)
+	listener = SPEListener(True, True, varNames)
 	walker = ParseTreeWalker()
-	walker.walk(printer, tree)
-	encStr, warn, err = printer.getEncoding()
-	#printer.printDicts()
+	walker.walk(listener, tree)
+	encStr, warn, err = listener.getEncoding()
+	#listener.printDicts()
 #	except:
 #		encStr, warn, err = "", "", "ERROR: The encoding seems to have failed. Please check that your input is valid."
 	return jsonify(encoded = encStr, warnings = warn, errors = err)

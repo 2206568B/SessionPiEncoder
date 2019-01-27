@@ -2,13 +2,15 @@
 from antlr4 import *
 from PiCalcListener import PiCalcListener
 from PiCalcParser import PiCalcParser
+from PiCalcLexer import PiCalcLexer
 import copy
+import string
 
 class SPEListener(PiCalcListener):
 
-	def __init__(self, typecheck, encode ,varNameList):
+	def __init__(self, sesTypeCheck, encode ,varNameList):
 		## THESE VARIABLES ARE USED TO DECIDE WHAT OPERATIONS TO PERFORM
-		self.doTypeChecking = typecheck
+		self.doSesTypeChecking = sesTypeCheck
 		self.doEncoding = encode
 		## THESE VARIABLES ARE USED FOR TYPECHECKING
 		## gamma is the current type context
@@ -28,10 +30,21 @@ class SPEListener(PiCalcListener):
 		## warnStrBuilder is used to construct warning messages
 		## errorStrBuilder is used to construct error messages
 		## encFunc is the encoding function f that renames variables in the encoding
-		## i.e. replaces subsequent instances of session endpoint x with linear channel c
+		##   i.e. replaces subsequent instances of session endpoint x with linear channel c
+		## contChanTypes is used to store the ANTLR context of the type of a given channel's current form
+		##   i.e for channel x, contChanTypes[x] first contains the type of x, say ?T.S, then when x is used for some communication,
+		##   contChanTypes[x] is updated to contain the updatedd type of x, i.e. S
+		##   This is used to generate type annotations of continuation channels
+		##   As such, the context stored gets encoded
+		## contChanTypesStack stores copies of contChanTypes with different values for a particular channel
+		##   This is used for branch statements, so the continuation of the channel for each branch can be stored
+		## delayedProcesses stores the ANTLR contexts for named processes so they can be handled later
+		##   When a process P is named, the processing of P should not be performed until P appears in the user-input process.
+		##   So the ANTLR context for the process is stored until later.
+		##   The ANTLR context of the type in the type annotation is also stored.
 		## usedVarNames is a list of user-made variable names,
-		## collected by VariableNameCollector.py, used to prevent the encoding 
-		## from generating variables names that already exist in the code
+		##   collected by VariableNameCollector.py, used to prevent the encoding 
+		##   from generating variables names that already exist in the code
 		## branchStack is used to track when a process is part of a continuation of a branch
 		## encFuncBackupStack is used to store older version of encFunc for different continuations of a branch
 		##   When a branch is entered, a backup of encFunc is stored in encFuncBackupStack
@@ -46,6 +59,9 @@ class SPEListener(PiCalcListener):
 		self.warnStrBuilder = ""
 		self.errorStrBuilder = ""
 		self.encFunc = {}
+		self.contChanTypes = {}
+		self.contChanTypesStack = []
+		self.delayedProcesses = {}
 		self.usedVarNames = varNameList
 		self.branchStack = []
 		self.encFuncBackupStack = []
@@ -70,6 +86,18 @@ class SPEListener(PiCalcListener):
 			if isinstance(type, PiCalcParser.SessionTypeContext):
 				if not isinstance(type.sType(), PiCalcParser.TerminateContext):
 					return True
+
+
+	# Given an ANTLR context of a type, produce a context of the dual type
+	def getTypeDual(self, typeCtx):
+		typeStr = typeCtx.getText()
+		dualStr = typeStr.translate(dict(zip([ord(char) for char in u"?!&+"], [ord(char) for char in u"!?+&"])))
+		lex_inp = InputStream(dualStr)
+		lex = PiCalcLexer(lex_inp)
+		stream = CommonTokenStream(lex)
+		par = PiCalcParser(stream)
+		return par.sType()
+
 
 	def printDicts(self):
 		print(self.gamma)
@@ -101,6 +129,8 @@ class SPEListener(PiCalcListener):
 					self.encFunc = copy.deepcopy(self.encFuncBackupStack[-1])
 				if self.varNamesBackupStack != []:
 					self.usedVarNames = copy.deepcopy(self.varNamesBackupStack[-1])
+				if self.contChanTypesStack != []:
+					self.contChanTypes = copy.deepcopy(self.contChanTypesStack.pop())
 				if not(isBranch):
 					self.branchStack.append("C")
 
@@ -118,10 +148,10 @@ class SPEListener(PiCalcListener):
 	def getEncoding(self):
 		# Attempt to remove any leftover placeholders, and display error if anything was removed
 		oldStr = self.encodedStrBuilder
-		self.encodedStrBuilder = self.encodedStrBuilder.translate({ord(c): None for c in u"◼▲▼●⬥"})
-		if self.errorStrBuilder == "":
-			if (oldStr != self.encodedStrBuilder):
-				self.errorStrBuilder = self.errorStrBuilder + "ERROR: The pi calculus could not be encoded. Please check that your input is valid.\n"
+		#self.encodedStrBuilder = self.encodedStrBuilder.translate({ord(c): None for c in u"◼▲▼●⬥"})
+		#if self.errorStrBuilder == "":
+		#	if (oldStr != self.encodedStrBuilder):
+		#		self.errorStrBuilder = self.errorStrBuilder + "ERROR: The pi calculus could not be encoded. Please check that your input is valid.\n"
 		if self.errorStrBuilder != "":
 			self.encodedStrBuilder = ""
 		return (self.encodedStrBuilder, self.warnStrBuilder, self.errorStrBuilder)
@@ -133,10 +163,10 @@ class SPEListener(PiCalcListener):
 	## Reconstruct the string using temporary placeholders to ensure correct placement
 	## Since enter___ methods traverse tree in pre-order, desired process/value should be first placeholder, 
 	## so calling replace() with max = 1 should replace the correct placeholder
-	## ◼ represents placeholder type declarations, 
-	## ⬟ represents placeholder type annotations, ⭓ represents placeholder dual type annotations, ⬣ represent delayed placeholder type annotations
+	## ◼ represents placeholder type declarations,
 	## ▲ represents placeholder type, ▼ represents a placeholder type's dual,
-	## ● represents a placeholder process, ⬥ represents a placeholder value
+	## ● represents placeholder processes, ⬥ represents placeholder values,
+	## ⬟ represents placeholder process name declarations
 
 
 	def enterDeclAndProcs(self, ctx):
@@ -156,9 +186,9 @@ class SPEListener(PiCalcListener):
 			decPlaceholderStr = ""
 			for i in range(len(ctx.decs)):
 				if i != (len(ctx.decs) - 1):
-					decPlaceholderStr = decPlaceholderStr + u"◼,\n"
+					decPlaceholderStr = decPlaceholderStr + u"◼,\n\n"
 				else:
-					decPlaceholderStr = decPlaceholderStr + u"◼\n"
+					decPlaceholderStr = decPlaceholderStr + u"◼\n\n"
 			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decPlaceholderStr, 1)
 	
 	def exitDecls(self, ctx):
@@ -181,11 +211,21 @@ class SPEListener(PiCalcListener):
 	def enterProcessNamingSes(self, ctx):
 		if self.doEncoding:
 			self.enterProcessNamingSesEnc(ctx)
-	# Place process placeholder
+	# Save context for process naming for later
 	def enterProcessNamingSesEnc(self, ctx):
+		if isinstance(ctx.tType(), PiCalcParser.NamedTTypeContext):
+			if ctx.tType().getText() in self.typeNames:
+				fullType = self.typeNames[ctx.tType().getText()]
+				if isinstance(fullType, PiCalcParser.SessionTypeContext):
+					self.contChanTypes[ctx.value().getText()] = fullType.sType()
+		elif isinstance(ctx.tType(), PiCalcParser.SessionTypeContext):
+			self.contChanTypes[ctx.value().getText()] = ctx.tType().sType()
 		self.encFunc[ctx.name.text] = ctx.name.text + "'"
-		decStr = ctx.name.text + "'(" + ctx.value().getText() + u" : ▲) := ●"
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
+		self.delayedProcesses[ctx.name.text] = (copy.deepcopy(ctx.tType()), copy.deepcopy(ctx.process()))
+		for i in range(ctx.getChildCount()):
+			ctx.removeLastChild()
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", u"⬟", 1)
+
 
 	def exitProcessNamingSes(self, ctx):
 		if self.doEncoding:
@@ -196,8 +236,8 @@ class SPEListener(PiCalcListener):
 
 
 	def enterSessionTypeNaming(self, ctx):
-		if self.doTypeChecking:
-			self.enterSessionTypeNamingTCh(ctx)
+		if self.doSesTypeChecking:
+			self.enterSessionTypeNamingSTCh(ctx)
 		if self.doEncoding:
 			self.enterSessionTypeNamingEnc(ctx)
 	# Place type placeholder
@@ -205,8 +245,8 @@ class SPEListener(PiCalcListener):
 		self.encFunc[ctx.name.text] = ctx.name.text + "'"
 		decStr = "type " + ctx.name.text + u"' := ▲"
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
-	def enterSessionTypeNamingTCh(self, ctx):
-		self.typeNames[ctx.name.text] = ctx.tType().getText()
+	def enterSessionTypeNamingSTCh(self, ctx):
+		self.typeNames[ctx.name.text] = ctx.tType()
 
 	def exitSessionTypeNaming(self, ctx):
 		if self.doEncoding:
@@ -217,34 +257,36 @@ class SPEListener(PiCalcListener):
 
 
 	def enterSessionTypeDecl(self, ctx):
-		if self.doTypeChecking:
-			self.enterSessionTypeDeclTCh(ctx)
+		if self.doSesTypeChecking:
+			self.enterSessionTypeDeclSTCh(ctx)
 		if self.doEncoding:
 			self.enterSessionTypeDeclEnc(ctx)
 	# Place type placeholder
 	def enterSessionTypeDeclEnc(self, ctx):
 		decStr = "type " + ctx.var.text + u" ▲"
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
-	def enterSessionTypeDeclTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.tType().getText()
+		if isinstance(ctx.tType, PiCalcParser.SessionTypeContext):
+			self.contChanTypes[ctx.var.text] = ctx.tType()
+	def enterSessionTypeDeclSTCh(self, ctx):
+		self.gamma[ctx.var.text] = ctx.tType()
 
 
 	def enterSesTypeDeclAndAssign(self, ctx):
-		if self.doTypeChecking:
-			self.enterSessionTypeDeclTCh(ctx)
+		if self.doSesTypeChecking:
+			self.enterSessionTypeDeclSTCh(ctx)
 		if self.doEncoding:
 			self.enterSesTypeDeclAndAssignEnc(ctx)
 	# Place type placeholder
 	def enterSesTypeDeclAndAssignEnc(self, ctx):
 		decStr = "type " + ctx.var.text + u" ▲ = " + ctx.value().getText()
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
-	def enterSesTypeDeclAndAssignTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.tType().getText()
+		if isinstance(ctx.tType, PiCalcParser.SessionTypeContext):
+			self.contChanTypes[ctx.var.text] = ctx.tType()
+	def enterSesTypeDeclAndAssignSTCh(self, ctx):
+		self.gamma[ctx.var.text] = ctx.tType()
 
 
 	def enterLinearTypeNaming(self, ctx):
-		if self.doTypeChecking:
-			self.enterLinearTypeNamingTCh(ctx)
 		if self.doEncoding:
 			self.enterLinearTypeNamingEnc(ctx)
 	# Leave type declarations as is and display warning.
@@ -252,13 +294,9 @@ class SPEListener(PiCalcListener):
 		decStr = "type " + ctx.name.text + " := " + ctx.linearType().getText()
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
 		self.warnStrBuilder = self.warnStrBuilder + "WARNING: Linear type declarations found in session pi calculus.\n"
-	def enterLinearTypeNamingTCh(self, ctx):
-		self.typeNames[ctx.name.text] = ctx.linearType().getText()
 
 
 	def enterLinearTypeDecl(self, ctx):
-		if self.doTypeChecking:
-			self.enterLinearTypeDeclTCh(ctx)
 		if self.doEncoding:
 			self.enterLinearTypeDeclEnc(ctx)
 	# Leave linear type declarations as is and display warning.
@@ -266,13 +304,9 @@ class SPEListener(PiCalcListener):
 		decStr = "type " + ctx.var.text + " " + ctx.linearType.getText()
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
 		self.warnStrBuilder = self.warnStrBuilder + "WARNING: Linear type declarations found in session pi calculus.\n"
-	def enterLinearTypeDeclTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.linearType().getText()
 
 
 	def enterLinTypeDeclAndAssign(self, ctx):
-		if self.doTypeChecking:
-			self.enterLinTypeDeclAndAssignTch(ctx)
 		if self.doEncoding:
 			self.enterLinTypeDeclAndAssignEnc(ctx)
 	# Leave linear type declarations as is and display warning.
@@ -280,8 +314,6 @@ class SPEListener(PiCalcListener):
 		decStr = "type " + ctx.var.text + " " + ctx.linearType.getText() + " = " + ctx.value().getText()
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
 		self.warnStrBuilder = self.warnStrBuilder + "WARNING: Linear type declarations found in session pi calculus.\n"
-	def enterLinTypeDeclAndAssignTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.linearType().getText()
 
 
 
@@ -296,10 +328,16 @@ class SPEListener(PiCalcListener):
 	def enterNamedProcess(self, ctx):
 		if self.doEncoding:
 			self.enterNamedProcessEnc(ctx)
-	# Process name encoded homomorphically, process itself already encoded when assigned name
+	# Encode process name, and traverse stored subtrees of process name declaration
 	def enterNamedProcessEnc(self, ctx):
 		nmStr = self.encodeName(ctx.name.text) + "(" + self.encodeName(ctx.value().getText()) + ")"
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", nmStr, 1)
+		nmDecStr = self.encodeName(ctx.name.text) + "(" + self.encodeName(ctx.value().getText()) + u" : ▲) := ●"
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"⬟", nmDecStr, 1)
+		(delayType, delayProc) = self.delayedProcesses[ctx.name.text]
+		procWalker = ParseTreeWalker()
+		procWalker.walk(self, delayType)
+		procWalker.walk(self, delayProc)
 
 
 	def enterOutput(self, ctx):
@@ -310,7 +348,13 @@ class SPEListener(PiCalcListener):
 		self.checkBranchStack(False)
 		self.checkCompStack(False)
 		newChan = self.generateChannelName()
-		opStrBuilder = "(new " + newChan + u") (send(" + self.encodeName(ctx.channel.getText())
+		newChanType = self.contChanTypes[ctx.channel.getText()]
+		if isinstance(newChanType, PiCalcParser.SendContext):
+			newChanType = self.getTypeDual(newChanType.sType())
+		else:
+			newChanType = newChanType.sType()
+		self.contChanTypes[ctx.channel.getText()] = newChanType
+		opStrBuilder = "(new " + newChan + u" : ▲) (send(" + self.encodeName(ctx.channel.getText())
 		if (len(ctx.payload)) > 1:
 			self.errorStrBuilder = self.errorStrBuilder + "ERROR: send() cannot have multiple payloads in session pi calculus.\n"
 		for pl in ctx.payload:
@@ -318,6 +362,8 @@ class SPEListener(PiCalcListener):
 		opStrBuilder = opStrBuilder + ", " + newChan + u").●)"
 		self.encFunc[ctx.channel.getText()] = newChan
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", opStrBuilder, 1)
+		typeWalker = ParseTreeWalker()
+		typeWalker.walk(self, newChanType)
 
 	def exitOutput(self, ctx):
 		if self.doEncoding:
@@ -333,14 +379,24 @@ class SPEListener(PiCalcListener):
 		if self.doEncoding:
 			self.enterInputSesEnc(ctx)
 	# Receive new channel alongside payloads
+	# ★ used so type annotations appear in correct order
 	def enterInputSesEnc(self, ctx):
 		self.checkBranchStack(False)
 		self.checkCompStack(False)
-		ipStrBuilder = "receive(" + self.encodeName(ctx.channel.getText()) + "," + ctx.payload.getText() + u" : ▲"
+		ipStrBuilder = "receive(" + self.encodeName(ctx.channel.getText()) + ", " + ctx.payload.getText() + u" : ★"
 		newChan = self.generateChannelName()
-		ipStrBuilder = ipStrBuilder + ", " + newChan + u").●"
+		newChanType = self.contChanTypes[ctx.channel.getText()]
+		if isinstance(newChanType, PiCalcParser.SendContext):
+			newChanType = self.getTypeDual(newChanType.sType())
+		else:
+			newChanType = newChanType.sType()
+		self.contChanTypes[ctx.channel.getText()] = newChanType
+		ipStrBuilder = ipStrBuilder + ", " + newChan + u" : ▲).●"
 		self.encFunc[ctx.channel.getText()] = newChan
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", ipStrBuilder, 1)
+		typeWalker = ParseTreeWalker()
+		typeWalker.walk(self, newChanType)
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"★", u"▲", 1)
 
 	def exitInputSes(self, ctx):
 		if self.doEncoding:
@@ -356,13 +412,28 @@ class SPEListener(PiCalcListener):
 		if self.doEncoding:
 			self.enterSelectionEnc(ctx)
 	# Create new channel and send as variant value
+	# ★ used so type annotations appear in correct order
 	def enterSelectionEnc(self, ctx):
 		self.checkBranchStack(False)
 		self.checkCompStack(False)
 		newChan = self.generateChannelName()
-		selStr = "(new " + newChan + u") (send(" + self.encodeName(ctx.channel.getText()) + "," + ctx.selection.getText() + "_" + newChan + u").●)"
+		newChanType = self.contChanTypes[ctx.channel.getText()]
+		print(newChanType.getText())
+		selStrBuilder = "(new " + newChan + u" : ★) (send(" + self.encodeName(ctx.channel.getText()) + "," + ctx.selection.getText() + "_" + newChan + " : <\n"
+		for i in range(len(newChanType.option)):
+			selStrBuilder = selStrBuilder + "    " + newChanType.option[i].getText() +  u" : ▲"
+			if i != len(newChanType.option)-1:
+				selStrBuilder = selStrBuilder + ", \n"
+		selStrBuilder = selStrBuilder + u">)\n    .●)"
 		self.encFunc[ctx.channel.getText()] = newChan
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", selStr, 1)
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", selStrBuilder, 1)
+		for i in range(len(newChanType.cont)):
+			typeWalker = ParseTreeWalker()
+			typeWalker.walk(self, self.getTypeDual(newChanType.cont[i]) if isinstance(newChanType, PiCalcParser.SelectContext) else newChanType.cont[i])
+			if newChanType.option[i].getText() == ctx.selection.getText():
+				self.encodedStrBuilder = self.encodedStrBuilder.replace(u"★", u"▲", 1)
+				self.contChanTypes[ctx.channel.getText()] = self.getTypeDual(newChanType.cont[i]) if isinstance(newChanType, PiCalcParser.SelectContext) else newChanType.cont[i]
+				typeWalker.walk(self, self.getTypeDual(newChanType.cont[i]) if isinstance(newChanType, PiCalcParser.SelectContext) else newChanType.cont[i])
 
 	def exitSelection(self, ctx):
 		if self.doEncoding:
@@ -382,10 +453,20 @@ class SPEListener(PiCalcListener):
 		self.checkBranchStack(True)
 		self.checkCompStack(False)
 		caseVar = self.generateChannelName()
-		brnStrBuilder = "receive(" + self.encodeName(ctx.channel.getText()) + "," + caseVar + ").case " + caseVar + " of { \n"
+		caseVarType = self.contChanTypes[ctx.channel.getText()]
+		for i in range(len(caseVarType.cont)-1, -1, -1):
+			cctCopy = copy.deepcopy(self.contChanTypes)
+			cctCopy[ctx.channel.getText()] = caseVarType.cont[i]
+			self.contChanTypesStack.append(cctCopy)
+		brnStrBuilder = "receive(" + self.encodeName(ctx.channel.getText()) + "," + caseVar + " : <\n"
+		for i in range(len(caseVarType.option)):
+			brnStrBuilder = brnStrBuilder + "    " + caseVarType.option[i].getText() + u"_▲"
+			if i != len(caseVarType.option)-1:
+				brnStrBuilder = brnStrBuilder + ", \n"
+		brnStrBuilder = brnStrBuilder + ">)\n    .case " + caseVar + " of { \n"
 		newChan = self.generateChannelName()
 		for i in range(len(ctx.option)):
-			brnStrBuilder = brnStrBuilder + "\t" + ctx.option[i].getText() + "_(" + newChan + ")" + " > " + u"●"
+			brnStrBuilder = brnStrBuilder + "    " + ctx.option[i].getText() + "_(" + newChan + u" : ▲)" + " > " + u"\n        ●"
 			if i != (len(ctx.option) - 1):
 				brnStrBuilder = brnStrBuilder + ", \n"
 			else:
@@ -395,6 +476,11 @@ class SPEListener(PiCalcListener):
 		self.varNamesBackupStack.append(copy.deepcopy(self.usedVarNames))
 		self.branchStack.append("B")
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", brnStrBuilder, 1)
+		for i in range(2):
+			for i in range(len(caseVarType.cont)):
+				typeWalker = ParseTreeWalker()
+				typeWalker.walk(self, caseVarType.cont[i])
+
 
 	def exitBranching(self, ctx):
 		if self.doEncoding:
@@ -418,7 +504,7 @@ class SPEListener(PiCalcListener):
 		self.checkCompStack(True)
 		self.varNamesBackupStack.append(copy.deepcopy(self.usedVarNames))
 		self.compStack.append("C")
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", u"● | ●")
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", u"(●) | (●)")
 
 	def exitComposition(self, ctx):
 		if self.doEncoding:
@@ -439,6 +525,15 @@ class SPEListener(PiCalcListener):
 		for ep in ctx.endpoint:
 			self.encFunc[ep.getText()] = newChan
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "(new " + newChan + u" : ▲) (●)", 1)
+		if isinstance(ctx.sType(), PiCalcParser.NamedSTypeContext):
+			if ctx.sType().getText() in self.typeNames:
+				fullType = self.typeNames[ctx.sType().getText()]
+				if isinstance(fullType, PiCalcParser.SessionTypeContext):
+					self.contChanTypes[ctx.endpoint[0].getText()] = fullType.sType()
+					self.contChanTypes[ctx.endpoint[1].getText()] = self.getTypeDual(fullType.sType())
+		else:
+			self.contChanTypes[ctx.endpoint[0].getText()] = ctx.sType()
+			self.contChanTypes[ctx.endpoint[1].getText()] = self.getTypeDual(ctx.sType())
 
 
 	def enterChannelRestrictionSes(self, ctx):
@@ -508,7 +603,7 @@ class SPEListener(PiCalcListener):
 		for i in range(len(ctx.option)):
 			typeStrBuilder = typeStrBuilder + ctx.option[i].getText() + u"_▲"
 			if i != (len(ctx.option) - 1):
-				typeStrBuilder = typeStrBuilder + ", \n\t"
+				typeStrBuilder = typeStrBuilder + ", \n    "
 			else:
 				typeStrBuilder = typeStrBuilder + ">]"
 		if dual:
@@ -530,7 +625,7 @@ class SPEListener(PiCalcListener):
 		for i in range(len(ctx.option)):
 			typeStrBuilder = typeStrBuilder + ctx.option[i].getText() + u"_▼"
 			if i != (len(ctx.option) - 1):
-				typeStrBuilder = typeStrBuilder + ", \n\t"
+				typeStrBuilder = typeStrBuilder + ", \n    "
 			else:
 				typeStrBuilder = typeStrBuilder + ">]"
 		if dual:
