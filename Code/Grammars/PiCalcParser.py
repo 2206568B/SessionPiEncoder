@@ -8,156 +8,189 @@ import sys
 def serializedATN():
     with StringIO() as buf:
         buf.write(u"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3")
-        buf.write(u"\60\u014a\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7")
-        buf.write(u"\t\7\4\b\t\b\4\t\t\t\4\n\t\n\3\2\3\2\3\2\3\3\3\3\3\3")
-        buf.write(u"\7\3\33\n\3\f\3\16\3\36\13\3\3\4\3\4\3\4\3\4\3\4\3\4")
+        buf.write(u"\62\u018a\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7")
+        buf.write(u"\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\3\2\5")
+        buf.write(u"\2\32\n\2\3\2\3\2\3\3\3\3\3\3\7\3!\n\3\f\3\16\3$\13\3")
         buf.write(u"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4")
         buf.write(u"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4")
         buf.write(u"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4")
-        buf.write(u"\5\4M\n\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\6\5")
-        buf.write(u"Y\n\5\r\5\16\5Z\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3")
-        buf.write(u"\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3")
-        buf.write(u"\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3")
-        buf.write(u"\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\6\5\u008c")
-        buf.write(u"\n\5\r\5\16\5\u008d\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3")
-        buf.write(u"\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3")
-        buf.write(u"\5\3\5\3\5\3\5\3\5\3\5\3\5\6\5\u00ac\n\5\r\5\16\5\u00ad")
-        buf.write(u"\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\6\5\u00bb")
-        buf.write(u"\n\5\r\5\16\5\u00bc\3\5\3\5\3\5\3\5\3\5\5\5\u00c4\n\5")
-        buf.write(u"\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\5\6\u00ce\n\6\3\7\3")
-        buf.write(u"\7\3\7\3\7\5\7\u00d4\n\7\3\b\3\b\3\b\3\b\3\b\7\b\u00db")
-        buf.write(u"\n\b\f\b\16\b\u00de\13\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b")
-        buf.write(u"\7\b\u00e7\n\b\f\b\16\b\u00ea\13\b\3\b\3\b\3\b\3\b\3")
-        buf.write(u"\b\3\b\7\b\u00f2\n\b\f\b\16\b\u00f5\13\b\3\b\3\b\3\b")
-        buf.write(u"\3\b\3\b\3\b\7\b\u00fd\n\b\f\b\16\b\u0100\13\b\3\b\3")
-        buf.write(u"\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\6\b\u010b\n\b\r\b\16\b")
-        buf.write(u"\u010c\3\b\3\b\3\b\3\b\3\b\3\b\5\b\u0115\n\b\3\t\3\t")
-        buf.write(u"\3\t\3\t\3\t\5\t\u011c\n\t\3\n\3\n\3\n\3\n\3\n\3\n\3")
-        buf.write(u"\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\6\n\u0130")
-        buf.write(u"\n\n\r\n\16\n\u0131\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3")
-        buf.write(u"\n\3\n\3\n\6\n\u013f\n\n\r\n\16\n\u0140\3\n\3\n\3\n\3")
-        buf.write(u"\n\3\n\5\n\u0148\n\n\3\n\2\2\13\2\4\6\b\n\f\16\20\22")
-        buf.write(u"\2\2\2\u0176\2\24\3\2\2\2\4\27\3\2\2\2\6L\3\2\2\2\b\u00c3")
-        buf.write(u"\3\2\2\2\n\u00cd\3\2\2\2\f\u00d3\3\2\2\2\16\u0114\3\2")
-        buf.write(u"\2\2\20\u011b\3\2\2\2\22\u0147\3\2\2\2\24\25\5\4\3\2")
-        buf.write(u"\25\26\5\b\5\2\26\3\3\2\2\2\27\34\5\6\4\2\30\31\7\3\2")
-        buf.write(u"\2\31\33\5\6\4\2\32\30\3\2\2\2\33\36\3\2\2\2\34\32\3")
-        buf.write(u"\2\2\2\34\35\3\2\2\2\35\5\3\2\2\2\36\34\3\2\2\2\37 \7")
-        buf.write(u"/\2\2 !\7\4\2\2!M\5\n\6\2\"#\7/\2\2#$\7\5\2\2$%\5\n\6")
-        buf.write(u"\2%&\7\6\2\2&\'\5\20\t\2\'(\7\7\2\2()\5\b\5\2)M\3\2\2")
-        buf.write(u"\2*+\7/\2\2+,\7\5\2\2,-\5\n\6\2-.\7\6\2\2./\5\16\b\2")
-        buf.write(u"/\60\7\7\2\2\60\61\5\b\5\2\61M\3\2\2\2\62\63\7\b\2\2")
-        buf.write(u"\63\64\7/\2\2\64\65\7\t\2\2\65M\5\20\t\2\66\67\7\b\2")
-        buf.write(u"\2\678\7/\2\289\7\t\2\29M\5\16\b\2:;\7\b\2\2;<\7/\2\2")
-        buf.write(u"<M\5\20\t\2=>\7\b\2\2>?\7/\2\2?@\5\20\t\2@A\7\4\2\2A")
-        buf.write(u"B\5\n\6\2BM\3\2\2\2CD\7\b\2\2DE\7/\2\2EM\5\16\b\2FG\7")
-        buf.write(u"\b\2\2GH\7/\2\2HI\5\16\b\2IJ\7\4\2\2JK\5\n\6\2KM\3\2")
-        buf.write(u"\2\2L\37\3\2\2\2L\"\3\2\2\2L*\3\2\2\2L\62\3\2\2\2L\66")
-        buf.write(u"\3\2\2\2L:\3\2\2\2L=\3\2\2\2LC\3\2\2\2LF\3\2\2\2M\7\3")
-        buf.write(u"\2\2\2NO\7/\2\2OP\7\5\2\2PQ\5\n\6\2QR\7\n\2\2R\u00c4")
-        buf.write(u"\3\2\2\2S\u00c4\7\13\2\2TU\7\f\2\2UX\5\n\6\2VW\7\3\2")
-        buf.write(u"\2WY\5\n\6\2XV\3\2\2\2YZ\3\2\2\2ZX\3\2\2\2Z[\3\2\2\2")
-        buf.write(u"[\\\3\2\2\2\\]\7\r\2\2]^\5\b\5\2^\u00c4\3\2\2\2_`\7\5")
-        buf.write(u"\2\2`a\5\b\5\2ab\7\n\2\2bc\7\16\2\2cd\7\5\2\2de\5\b\5")
-        buf.write(u"\2ef\7\n\2\2f\u00c4\3\2\2\2gh\7\17\2\2hi\5\n\6\2ij\5")
-        buf.write(u"\n\6\2jk\7\6\2\2kl\5\22\n\2lm\7\n\2\2mn\7\5\2\2no\5\b")
-        buf.write(u"\5\2op\7\n\2\2p\u00c4\3\2\2\2qr\7\17\2\2rs\5\n\6\2st")
-        buf.write(u"\7\6\2\2tu\5\20\t\2uv\7\n\2\2vw\7\5\2\2wx\5\b\5\2xy\7")
-        buf.write(u"\n\2\2y\u00c4\3\2\2\2z{\7\20\2\2{|\5\n\6\2|}\7\3\2\2")
-        buf.write(u"}~\5\n\6\2~\177\7\6\2\2\177\u0080\5\20\t\2\u0080\u0081")
-        buf.write(u"\7\r\2\2\u0081\u0082\5\b\5\2\u0082\u00c4\3\2\2\2\u0083")
-        buf.write(u"\u0084\7\21\2\2\u0084\u0085\5\n\6\2\u0085\u008b\7\22")
-        buf.write(u"\2\2\u0086\u0087\5\n\6\2\u0087\u0088\7\6\2\2\u0088\u0089")
-        buf.write(u"\5\b\5\2\u0089\u008a\7\3\2\2\u008a\u008c\3\2\2\2\u008b")
-        buf.write(u"\u0086\3\2\2\2\u008c\u008d\3\2\2\2\u008d\u008b\3\2\2")
-        buf.write(u"\2\u008d\u008e\3\2\2\2\u008e\u008f\3\2\2\2\u008f\u0090")
-        buf.write(u"\5\n\6\2\u0090\u0091\7\6\2\2\u0091\u0092\5\b\5\2\u0092")
-        buf.write(u"\u0093\7\23\2\2\u0093\u00c4\3\2\2\2\u0094\u0095\7\24")
-        buf.write(u"\2\2\u0095\u0096\5\n\6\2\u0096\u0097\7\3\2\2\u0097\u0098")
-        buf.write(u"\5\n\6\2\u0098\u0099\7\r\2\2\u0099\u009a\5\b\5\2\u009a")
-        buf.write(u"\u00c4\3\2\2\2\u009b\u009c\7\17\2\2\u009c\u009d\5\n\6")
-        buf.write(u"\2\u009d\u009e\7\6\2\2\u009e\u009f\5\16\b\2\u009f\u00a0")
-        buf.write(u"\7\n\2\2\u00a0\u00a1\7\5\2\2\u00a1\u00a2\5\b\5\2\u00a2")
-        buf.write(u"\u00a3\7\n\2\2\u00a3\u00c4\3\2\2\2\u00a4\u00a5\7\20\2")
-        buf.write(u"\2\u00a5\u00ab\5\n\6\2\u00a6\u00a7\7\3\2\2\u00a7\u00a8")
-        buf.write(u"\5\n\6\2\u00a8\u00a9\7\6\2\2\u00a9\u00aa\5\16\b\2\u00aa")
-        buf.write(u"\u00ac\3\2\2\2\u00ab\u00a6\3\2\2\2\u00ac\u00ad\3\2\2")
-        buf.write(u"\2\u00ad\u00ab\3\2\2\2\u00ad\u00ae\3\2\2\2\u00ae\u00af")
-        buf.write(u"\3\2\2\2\u00af\u00b0\7\r\2\2\u00b0\u00b1\5\b\5\2\u00b1")
-        buf.write(u"\u00c4\3\2\2\2\u00b2\u00b3\7\25\2\2\u00b3\u00b4\5\n\6")
-        buf.write(u"\2\u00b4\u00ba\7\26\2\2\u00b5\u00b6\5\n\6\2\u00b6\u00b7")
-        buf.write(u"\7\27\2\2\u00b7\u00b8\5\b\5\2\u00b8\u00b9\7\3\2\2\u00b9")
-        buf.write(u"\u00bb\3\2\2\2\u00ba\u00b5\3\2\2\2\u00bb\u00bc\3\2\2")
-        buf.write(u"\2\u00bc\u00ba\3\2\2\2\u00bc\u00bd\3\2\2\2\u00bd\u00be")
-        buf.write(u"\3\2\2\2\u00be\u00bf\5\n\6\2\u00bf\u00c0\7\27\2\2\u00c0")
-        buf.write(u"\u00c1\5\b\5\2\u00c1\u00c2\7\23\2\2\u00c2\u00c4\3\2\2")
-        buf.write(u"\2\u00c3N\3\2\2\2\u00c3S\3\2\2\2\u00c3T\3\2\2\2\u00c3")
-        buf.write(u"_\3\2\2\2\u00c3g\3\2\2\2\u00c3q\3\2\2\2\u00c3z\3\2\2")
-        buf.write(u"\2\u00c3\u0083\3\2\2\2\u00c3\u0094\3\2\2\2\u00c3\u009b")
-        buf.write(u"\3\2\2\2\u00c3\u00a4\3\2\2\2\u00c3\u00b2\3\2\2\2\u00c4")
-        buf.write(u"\t\3\2\2\2\u00c5\u00ce\7\30\2\2\u00c6\u00ce\7/\2\2\u00c7")
-        buf.write(u"\u00c8\7/\2\2\u00c8\u00c9\7\31\2\2\u00c9\u00ce\5\n\6")
-        buf.write(u"\2\u00ca\u00ce\7,\2\2\u00cb\u00ce\7-\2\2\u00cc\u00ce")
-        buf.write(u"\7.\2\2\u00cd\u00c5\3\2\2\2\u00cd\u00c6\3\2\2\2\u00cd")
-        buf.write(u"\u00c7\3\2\2\2\u00cd\u00ca\3\2\2\2\u00cd\u00cb\3\2\2")
-        buf.write(u"\2\u00cd\u00cc\3\2\2\2\u00ce\13\3\2\2\2\u00cf\u00d4\7")
-        buf.write(u"\32\2\2\u00d0\u00d4\7\33\2\2\u00d1\u00d4\7\34\2\2\u00d2")
-        buf.write(u"\u00d4\7\35\2\2\u00d3\u00cf\3\2\2\2\u00d3\u00d0\3\2\2")
-        buf.write(u"\2\u00d3\u00d1\3\2\2\2\u00d3\u00d2\3\2\2\2\u00d4\r\3")
-        buf.write(u"\2\2\2\u00d5\u0115\7/\2\2\u00d6\u00dc\7\36\2\2\u00d7")
-        buf.write(u"\u00d8\5\16\b\2\u00d8\u00d9\7\3\2\2\u00d9\u00db\3\2\2")
-        buf.write(u"\2\u00da\u00d7\3\2\2\2\u00db\u00de\3\2\2\2\u00dc\u00da")
-        buf.write(u"\3\2\2\2\u00dc\u00dd\3\2\2\2\u00dd\u00df\3\2\2\2\u00de")
-        buf.write(u"\u00dc\3\2\2\2\u00df\u00e0\5\16\b\2\u00e0\u00e1\7\37")
-        buf.write(u"\2\2\u00e1\u0115\3\2\2\2\u00e2\u00e3\7 \2\2\u00e3\u00e8")
-        buf.write(u"\5\16\b\2\u00e4\u00e5\7\3\2\2\u00e5\u00e7\5\16\b\2\u00e6")
-        buf.write(u"\u00e4\3\2\2\2\u00e7\u00ea\3\2\2\2\u00e8\u00e6\3\2\2")
-        buf.write(u"\2\u00e8\u00e9\3\2\2\2\u00e9\u00eb\3\2\2\2\u00ea\u00e8")
-        buf.write(u"\3\2\2\2\u00eb\u00ec\7\37\2\2\u00ec\u0115\3\2\2\2\u00ed")
-        buf.write(u"\u00ee\7!\2\2\u00ee\u00f3\5\16\b\2\u00ef\u00f0\7\3\2")
-        buf.write(u"\2\u00f0\u00f2\5\16\b\2\u00f1\u00ef\3\2\2\2\u00f2\u00f5")
-        buf.write(u"\3\2\2\2\u00f3\u00f1\3\2\2\2\u00f3\u00f4\3\2\2\2\u00f4")
-        buf.write(u"\u00f6\3\2\2\2\u00f5\u00f3\3\2\2\2\u00f6\u00f7\7\37\2")
-        buf.write(u"\2\u00f7\u0115\3\2\2\2\u00f8\u00f9\7\"\2\2\u00f9\u00fe")
-        buf.write(u"\5\16\b\2\u00fa\u00fb\7\3\2\2\u00fb\u00fd\5\16\b\2\u00fc")
-        buf.write(u"\u00fa\3\2\2\2\u00fd\u0100\3\2\2\2\u00fe\u00fc\3\2\2")
-        buf.write(u"\2\u00fe\u00ff\3\2\2\2\u00ff\u0101\3\2\2\2\u0100\u00fe")
-        buf.write(u"\3\2\2\2\u0101\u0102\7\37\2\2\u0102\u0115\3\2\2\2\u0103")
-        buf.write(u"\u0115\7#\2\2\u0104\u010a\7$\2\2\u0105\u0106\7/\2\2\u0106")
-        buf.write(u"\u0107\7\31\2\2\u0107\u0108\5\16\b\2\u0108\u0109\7\3")
-        buf.write(u"\2\2\u0109\u010b\3\2\2\2\u010a\u0105\3\2\2\2\u010b\u010c")
-        buf.write(u"\3\2\2\2\u010c\u010a\3\2\2\2\u010c\u010d\3\2\2\2\u010d")
-        buf.write(u"\u010e\3\2\2\2\u010e\u010f\7/\2\2\u010f\u0110\7\31\2")
-        buf.write(u"\2\u0110\u0111\5\16\b\2\u0111\u0112\7\27\2\2\u0112\u0115")
-        buf.write(u"\3\2\2\2\u0113\u0115\5\f\7\2\u0114\u00d5\3\2\2\2\u0114")
-        buf.write(u"\u00d6\3\2\2\2\u0114\u00e2\3\2\2\2\u0114\u00ed\3\2\2")
-        buf.write(u"\2\u0114\u00f8\3\2\2\2\u0114\u0103\3\2\2\2\u0114\u0104")
-        buf.write(u"\3\2\2\2\u0114\u0113\3\2\2\2\u0115\17\3\2\2\2\u0116\u011c")
-        buf.write(u"\7/\2\2\u0117\u011c\5\22\n\2\u0118\u0119\7%\2\2\u0119")
-        buf.write(u"\u011c\5\20\t\2\u011a\u011c\5\f\7\2\u011b\u0116\3\2\2")
-        buf.write(u"\2\u011b\u0117\3\2\2\2\u011b\u0118\3\2\2\2\u011b\u011a")
-        buf.write(u"\3\2\2\2\u011c\21\3\2\2\2\u011d\u0148\7/\2\2\u011e\u0148")
-        buf.write(u"\7&\2\2\u011f\u0120\7\'\2\2\u0120\u0121\5\20\t\2\u0121")
-        buf.write(u"\u0122\7(\2\2\u0122\u0123\5\22\n\2\u0123\u0148\3\2\2")
-        buf.write(u"\2\u0124\u0125\7)\2\2\u0125\u0126\5\20\t\2\u0126\u0127")
-        buf.write(u"\7(\2\2\u0127\u0128\5\22\n\2\u0128\u0148\3\2\2\2\u0129")
-        buf.write(u"\u012f\7*\2\2\u012a\u012b\5\n\6\2\u012b\u012c\7\6\2\2")
-        buf.write(u"\u012c\u012d\5\22\n\2\u012d\u012e\7\3\2\2\u012e\u0130")
-        buf.write(u"\3\2\2\2\u012f\u012a\3\2\2\2\u0130\u0131\3\2\2\2\u0131")
-        buf.write(u"\u012f\3\2\2\2\u0131\u0132\3\2\2\2\u0132\u0133\3\2\2")
-        buf.write(u"\2\u0133\u0134\5\n\6\2\u0134\u0135\7\6\2\2\u0135\u0136")
-        buf.write(u"\5\22\n\2\u0136\u0137\7\23\2\2\u0137\u0148\3\2\2\2\u0138")
-        buf.write(u"\u013e\7+\2\2\u0139\u013a\5\n\6\2\u013a\u013b\7\6\2\2")
-        buf.write(u"\u013b\u013c\5\22\n\2\u013c\u013d\7\3\2\2\u013d\u013f")
-        buf.write(u"\3\2\2\2\u013e\u0139\3\2\2\2\u013f\u0140\3\2\2\2\u0140")
-        buf.write(u"\u013e\3\2\2\2\u0140\u0141\3\2\2\2\u0141\u0142\3\2\2")
-        buf.write(u"\2\u0142\u0143\5\n\6\2\u0143\u0144\7\6\2\2\u0144\u0145")
-        buf.write(u"\5\22\n\2\u0145\u0146\7\23\2\2\u0146\u0148\3\2\2\2\u0147")
-        buf.write(u"\u011d\3\2\2\2\u0147\u011e\3\2\2\2\u0147\u011f\3\2\2")
-        buf.write(u"\2\u0147\u0124\3\2\2\2\u0147\u0129\3\2\2\2\u0147\u0138")
-        buf.write(u"\3\2\2\2\u0148\23\3\2\2\2\25\34LZ\u008d\u00ad\u00bc\u00c3")
-        buf.write(u"\u00cd\u00d3\u00dc\u00e8\u00f3\u00fe\u010c\u0114\u011b")
-        buf.write(u"\u0131\u0140\u0147")
+        buf.write(u"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4")
+        buf.write(u"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4")
+        buf.write(u"\3\4\3\4\3\4\3\4\3\4\5\4l\n\4\3\5\3\5\3\5\3\5\3\5\3\5")
+        buf.write(u"\3\5\5\5u\n\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6")
+        buf.write(u"\6\6\u0081\n\6\r\6\16\6\u0082\3\6\3\6\3\6\3\6\3\6\3\6")
+        buf.write(u"\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6")
+        buf.write(u"\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6")
+        buf.write(u"\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6")
+        buf.write(u"\6\6\u00b2\n\6\r\6\16\6\u00b3\3\6\3\6\3\6\3\6\3\6\3\6")
+        buf.write(u"\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6")
+        buf.write(u"\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\6\6\u00d1\n\6\r\6\16")
+        buf.write(u"\6\u00d2\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\6")
+        buf.write(u"\6\6\u00e0\n\6\r\6\16\6\u00e1\3\6\3\6\3\6\3\6\3\6\3\6")
+        buf.write(u"\3\6\3\6\3\6\3\6\3\6\3\6\6\6\u00f0\n\6\r\6\16\6\u00f1")
+        buf.write(u"\3\6\3\6\3\6\5\6\u00f7\n\6\3\7\3\7\3\7\3\7\3\7\3\7\5")
+        buf.write(u"\7\u00ff\n\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b")
+        buf.write(u"\5\b\u010b\n\b\3\t\3\t\3\t\3\t\5\t\u0111\n\t\3\n\3\n")
+        buf.write(u"\3\n\3\n\3\n\7\n\u0118\n\n\f\n\16\n\u011b\13\n\3\n\3")
+        buf.write(u"\n\3\n\3\n\3\n\3\n\3\n\7\n\u0124\n\n\f\n\16\n\u0127\13")
+        buf.write(u"\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\7\n\u0130\n\n\f\n\16\n")
+        buf.write(u"\u0133\13\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\7\n\u013c\n\n")
+        buf.write(u"\f\n\16\n\u013f\13\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n")
+        buf.write(u"\3\n\3\n\6\n\u014b\n\n\r\n\16\n\u014c\3\n\3\n\3\n\3\n")
+        buf.write(u"\3\n\3\n\5\n\u0155\n\n\3\13\3\13\3\13\3\13\3\13\5\13")
+        buf.write(u"\u015c\n\13\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3")
+        buf.write(u"\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\6\f\u0170\n\f\r\f\16\f")
+        buf.write(u"\u0171\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\6")
+        buf.write(u"\f\u017f\n\f\r\f\16\f\u0180\3\f\3\f\3\f\3\f\3\f\5\f\u0188")
+        buf.write(u"\n\f\3\f\2\2\r\2\4\6\b\n\f\16\20\22\24\26\2\2\2\u01be")
+        buf.write(u"\2\31\3\2\2\2\4\35\3\2\2\2\6k\3\2\2\2\bt\3\2\2\2\n\u00f6")
+        buf.write(u"\3\2\2\2\f\u00fe\3\2\2\2\16\u010a\3\2\2\2\20\u0110\3")
+        buf.write(u"\2\2\2\22\u0154\3\2\2\2\24\u015b\3\2\2\2\26\u0187\3\2")
+        buf.write(u"\2\2\30\32\5\4\3\2\31\30\3\2\2\2\31\32\3\2\2\2\32\33")
+        buf.write(u"\3\2\2\2\33\34\5\b\5\2\34\3\3\2\2\2\35\"\5\6\4\2\36\37")
+        buf.write(u"\7\3\2\2\37!\5\6\4\2 \36\3\2\2\2!$\3\2\2\2\" \3\2\2\2")
+        buf.write(u"\"#\3\2\2\2#\5\3\2\2\2$\"\3\2\2\2%&\7\61\2\2&\'\7\4\2")
+        buf.write(u"\2\'l\5\f\7\2()\7\61\2\2)*\7\5\2\2*+\5\f\7\2+,\7\6\2")
+        buf.write(u"\2,-\7\61\2\2-.\7\7\2\2./\5\b\5\2/l\3\2\2\2\60\61\7\61")
+        buf.write(u"\2\2\61\62\7\5\2\2\62\63\5\f\7\2\63\64\7\6\2\2\64\65")
+        buf.write(u"\5\24\13\2\65\66\7\7\2\2\66\67\5\b\5\2\67l\3\2\2\289")
+        buf.write(u"\7\61\2\29:\7\5\2\2:;\5\f\7\2;<\7\6\2\2<=\5\22\n\2=>")
+        buf.write(u"\7\7\2\2>?\5\b\5\2?l\3\2\2\2@A\7\b\2\2AB\7\61\2\2BC\7")
+        buf.write(u"\t\2\2Cl\5\24\13\2DE\7\b\2\2EF\7\61\2\2FG\7\t\2\2Gl\5")
+        buf.write(u"\22\n\2HI\7\b\2\2IJ\7\61\2\2Jl\5\20\t\2KL\7\b\2\2LM\7")
+        buf.write(u"\61\2\2MN\5\20\t\2NO\7\4\2\2OP\5\f\7\2Pl\3\2\2\2QR\7")
+        buf.write(u"\b\2\2RS\7\61\2\2Sl\7\61\2\2TU\7\b\2\2UV\7\61\2\2VW\7")
+        buf.write(u"\61\2\2WX\7\4\2\2Xl\5\f\7\2YZ\7\b\2\2Z[\7\61\2\2[l\5")
+        buf.write(u"\24\13\2\\]\7\b\2\2]^\7\61\2\2^_\5\24\13\2_`\7\4\2\2")
+        buf.write(u"`a\5\f\7\2al\3\2\2\2bc\7\b\2\2cd\7\61\2\2dl\5\22\n\2")
+        buf.write(u"ef\7\b\2\2fg\7\61\2\2gh\5\22\n\2hi\7\4\2\2ij\5\f\7\2")
+        buf.write(u"jl\3\2\2\2k%\3\2\2\2k(\3\2\2\2k\60\3\2\2\2k8\3\2\2\2")
+        buf.write(u"k@\3\2\2\2kD\3\2\2\2kH\3\2\2\2kK\3\2\2\2kQ\3\2\2\2kT")
+        buf.write(u"\3\2\2\2kY\3\2\2\2k\\\3\2\2\2kb\3\2\2\2ke\3\2\2\2l\7")
+        buf.write(u"\3\2\2\2mu\5\n\6\2no\7\5\2\2op\5\b\5\2pq\7\n\2\2qr\5")
+        buf.write(u"\b\5\2rs\7\13\2\2su\3\2\2\2tm\3\2\2\2tn\3\2\2\2u\t\3")
+        buf.write(u"\2\2\2vw\7\61\2\2wx\7\5\2\2xy\5\f\7\2yz\7\13\2\2z\u00f7")
+        buf.write(u"\3\2\2\2{\u00f7\7\f\2\2|}\7\r\2\2}\u0080\5\f\7\2~\177")
+        buf.write(u"\7\3\2\2\177\u0081\5\f\7\2\u0080~\3\2\2\2\u0081\u0082")
+        buf.write(u"\3\2\2\2\u0082\u0080\3\2\2\2\u0082\u0083\3\2\2\2\u0083")
+        buf.write(u"\u0084\3\2\2\2\u0084\u0085\7\16\2\2\u0085\u0086\5\n\6")
+        buf.write(u"\2\u0086\u00f7\3\2\2\2\u0087\u0088\7\17\2\2\u0088\u0089")
+        buf.write(u"\5\f\7\2\u0089\u008a\7\6\2\2\u008a\u008b\7\61\2\2\u008b")
+        buf.write(u"\u008c\7\20\2\2\u008c\u008d\5\b\5\2\u008d\u008e\7\13")
+        buf.write(u"\2\2\u008e\u00f7\3\2\2\2\u008f\u0090\7\17\2\2\u0090\u0091")
+        buf.write(u"\5\f\7\2\u0091\u0092\5\f\7\2\u0092\u0093\7\6\2\2\u0093")
+        buf.write(u"\u0094\5\26\f\2\u0094\u0095\7\20\2\2\u0095\u0096\5\b")
+        buf.write(u"\5\2\u0096\u0097\7\13\2\2\u0097\u00f7\3\2\2\2\u0098\u0099")
+        buf.write(u"\7\17\2\2\u0099\u009a\5\f\7\2\u009a\u009b\7\6\2\2\u009b")
+        buf.write(u"\u009c\5\24\13\2\u009c\u009d\7\20\2\2\u009d\u009e\5\b")
+        buf.write(u"\5\2\u009e\u009f\7\13\2\2\u009f\u00f7\3\2\2\2\u00a0\u00a1")
+        buf.write(u"\7\21\2\2\u00a1\u00a2\5\f\7\2\u00a2\u00a3\7\3\2\2\u00a3")
+        buf.write(u"\u00a4\5\f\7\2\u00a4\u00a5\7\6\2\2\u00a5\u00a6\5\24\13")
+        buf.write(u"\2\u00a6\u00a7\7\16\2\2\u00a7\u00a8\5\n\6\2\u00a8\u00f7")
+        buf.write(u"\3\2\2\2\u00a9\u00aa\7\22\2\2\u00aa\u00ab\5\f\7\2\u00ab")
+        buf.write(u"\u00b1\7\23\2\2\u00ac\u00ad\5\f\7\2\u00ad\u00ae\7\6\2")
+        buf.write(u"\2\u00ae\u00af\5\n\6\2\u00af\u00b0\7\3\2\2\u00b0\u00b2")
+        buf.write(u"\3\2\2\2\u00b1\u00ac\3\2\2\2\u00b2\u00b3\3\2\2\2\u00b3")
+        buf.write(u"\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4\u00b5\3\2\2")
+        buf.write(u"\2\u00b5\u00b6\5\f\7\2\u00b6\u00b7\7\6\2\2\u00b7\u00b8")
+        buf.write(u"\5\n\6\2\u00b8\u00b9\7\24\2\2\u00b9\u00f7\3\2\2\2\u00ba")
+        buf.write(u"\u00bb\7\25\2\2\u00bb\u00bc\5\f\7\2\u00bc\u00bd\7\3\2")
+        buf.write(u"\2\u00bd\u00be\5\f\7\2\u00be\u00bf\7\16\2\2\u00bf\u00c0")
+        buf.write(u"\5\n\6\2\u00c0\u00f7\3\2\2\2\u00c1\u00c2\7\17\2\2\u00c2")
+        buf.write(u"\u00c3\5\f\7\2\u00c3\u00c4\7\6\2\2\u00c4\u00c5\5\22\n")
+        buf.write(u"\2\u00c5\u00c6\7\20\2\2\u00c6\u00c7\5\b\5\2\u00c7\u00c8")
+        buf.write(u"\7\13\2\2\u00c8\u00f7\3\2\2\2\u00c9\u00ca\7\21\2\2\u00ca")
+        buf.write(u"\u00d0\5\f\7\2\u00cb\u00cc\7\3\2\2\u00cc\u00cd\5\f\7")
+        buf.write(u"\2\u00cd\u00ce\7\6\2\2\u00ce\u00cf\5\22\n\2\u00cf\u00d1")
+        buf.write(u"\3\2\2\2\u00d0\u00cb\3\2\2\2\u00d1\u00d2\3\2\2\2\u00d2")
+        buf.write(u"\u00d0\3\2\2\2\u00d2\u00d3\3\2\2\2\u00d3\u00d4\3\2\2")
+        buf.write(u"\2\u00d4\u00d5\7\16\2\2\u00d5\u00d6\5\n\6\2\u00d6\u00f7")
+        buf.write(u"\3\2\2\2\u00d7\u00d8\7\26\2\2\u00d8\u00d9\5\f\7\2\u00d9")
+        buf.write(u"\u00df\7\27\2\2\u00da\u00db\5\16\b\2\u00db\u00dc\7\30")
+        buf.write(u"\2\2\u00dc\u00dd\5\n\6\2\u00dd\u00de\7\3\2\2\u00de\u00e0")
+        buf.write(u"\3\2\2\2\u00df\u00da\3\2\2\2\u00e0\u00e1\3\2\2\2\u00e1")
+        buf.write(u"\u00df\3\2\2\2\u00e1\u00e2\3\2\2\2\u00e2\u00e3\3\2\2")
+        buf.write(u"\2\u00e3\u00e4\5\16\b\2\u00e4\u00e5\7\30\2\2\u00e5\u00e6")
+        buf.write(u"\5\n\6\2\u00e6\u00e7\7\24\2\2\u00e7\u00f7\3\2\2\2\u00e8")
+        buf.write(u"\u00e9\7\r\2\2\u00e9\u00ef\5\f\7\2\u00ea\u00eb\7\3\2")
+        buf.write(u"\2\u00eb\u00ec\5\f\7\2\u00ec\u00ed\7\6\2\2\u00ed\u00ee")
+        buf.write(u"\5\22\n\2\u00ee\u00f0\3\2\2\2\u00ef\u00ea\3\2\2\2\u00f0")
+        buf.write(u"\u00f1\3\2\2\2\u00f1\u00ef\3\2\2\2\u00f1\u00f2\3\2\2")
+        buf.write(u"\2\u00f2\u00f3\3\2\2\2\u00f3\u00f4\7\16\2\2\u00f4\u00f5")
+        buf.write(u"\5\n\6\2\u00f5\u00f7\3\2\2\2\u00f6v\3\2\2\2\u00f6{\3")
+        buf.write(u"\2\2\2\u00f6|\3\2\2\2\u00f6\u0087\3\2\2\2\u00f6\u008f")
+        buf.write(u"\3\2\2\2\u00f6\u0098\3\2\2\2\u00f6\u00a0\3\2\2\2\u00f6")
+        buf.write(u"\u00a9\3\2\2\2\u00f6\u00ba\3\2\2\2\u00f6\u00c1\3\2\2")
+        buf.write(u"\2\u00f6\u00c9\3\2\2\2\u00f6\u00d7\3\2\2\2\u00f6\u00e8")
+        buf.write(u"\3\2\2\2\u00f7\13\3\2\2\2\u00f8\u00ff\7\31\2\2\u00f9")
+        buf.write(u"\u00ff\7\61\2\2\u00fa\u00ff\5\16\b\2\u00fb\u00ff\7.\2")
+        buf.write(u"\2\u00fc\u00ff\7/\2\2\u00fd\u00ff\7\60\2\2\u00fe\u00f8")
+        buf.write(u"\3\2\2\2\u00fe\u00f9\3\2\2\2\u00fe\u00fa\3\2\2\2\u00fe")
+        buf.write(u"\u00fb\3\2\2\2\u00fe\u00fc\3\2\2\2\u00fe\u00fd\3\2\2")
+        buf.write(u"\2\u00ff\r\3\2\2\2\u0100\u0101\7\61\2\2\u0101\u0102\7")
+        buf.write(u"\32\2\2\u0102\u010b\5\f\7\2\u0103\u0104\7\61\2\2\u0104")
+        buf.write(u"\u0105\7\33\2\2\u0105\u0106\5\f\7\2\u0106\u0107\7\6\2")
+        buf.write(u"\2\u0107\u0108\5\22\n\2\u0108\u0109\7\13\2\2\u0109\u010b")
+        buf.write(u"\3\2\2\2\u010a\u0100\3\2\2\2\u010a\u0103\3\2\2\2\u010b")
+        buf.write(u"\17\3\2\2\2\u010c\u0111\7\34\2\2\u010d\u0111\7\35\2\2")
+        buf.write(u"\u010e\u0111\7\36\2\2\u010f\u0111\7\37\2\2\u0110\u010c")
+        buf.write(u"\3\2\2\2\u0110\u010d\3\2\2\2\u0110\u010e\3\2\2\2\u0110")
+        buf.write(u"\u010f\3\2\2\2\u0111\21\3\2\2\2\u0112\u0155\7\61\2\2")
+        buf.write(u"\u0113\u0119\7 \2\2\u0114\u0115\5\22\n\2\u0115\u0116")
+        buf.write(u"\7\3\2\2\u0116\u0118\3\2\2\2\u0117\u0114\3\2\2\2\u0118")
+        buf.write(u"\u011b\3\2\2\2\u0119\u0117\3\2\2\2\u0119\u011a\3\2\2")
+        buf.write(u"\2\u011a\u011c\3\2\2\2\u011b\u0119\3\2\2\2\u011c\u011d")
+        buf.write(u"\5\22\n\2\u011d\u011e\7!\2\2\u011e\u0155\3\2\2\2\u011f")
+        buf.write(u"\u0125\7\"\2\2\u0120\u0121\5\22\n\2\u0121\u0122\7\3\2")
+        buf.write(u"\2\u0122\u0124\3\2\2\2\u0123\u0120\3\2\2\2\u0124\u0127")
+        buf.write(u"\3\2\2\2\u0125\u0123\3\2\2\2\u0125\u0126\3\2\2\2\u0126")
+        buf.write(u"\u0128\3\2\2\2\u0127\u0125\3\2\2\2\u0128\u0129\5\22\n")
+        buf.write(u"\2\u0129\u012a\7!\2\2\u012a\u0155\3\2\2\2\u012b\u0131")
+        buf.write(u"\7#\2\2\u012c\u012d\5\22\n\2\u012d\u012e\7\3\2\2\u012e")
+        buf.write(u"\u0130\3\2\2\2\u012f\u012c\3\2\2\2\u0130\u0133\3\2\2")
+        buf.write(u"\2\u0131\u012f\3\2\2\2\u0131\u0132\3\2\2\2\u0132\u0134")
+        buf.write(u"\3\2\2\2\u0133\u0131\3\2\2\2\u0134\u0135\5\22\n\2\u0135")
+        buf.write(u"\u0136\7!\2\2\u0136\u0155\3\2\2\2\u0137\u013d\7$\2\2")
+        buf.write(u"\u0138\u0139\5\22\n\2\u0139\u013a\7\3\2\2\u013a\u013c")
+        buf.write(u"\3\2\2\2\u013b\u0138\3\2\2\2\u013c\u013f\3\2\2\2\u013d")
+        buf.write(u"\u013b\3\2\2\2\u013d\u013e\3\2\2\2\u013e\u0140\3\2\2")
+        buf.write(u"\2\u013f\u013d\3\2\2\2\u0140\u0141\5\22\n\2\u0141\u0142")
+        buf.write(u"\7!\2\2\u0142\u0155\3\2\2\2\u0143\u0155\7%\2\2\u0144")
+        buf.write(u"\u014a\7&\2\2\u0145\u0146\7\61\2\2\u0146\u0147\7\32\2")
+        buf.write(u"\2\u0147\u0148\5\22\n\2\u0148\u0149\7\3\2\2\u0149\u014b")
+        buf.write(u"\3\2\2\2\u014a\u0145\3\2\2\2\u014b\u014c\3\2\2\2\u014c")
+        buf.write(u"\u014a\3\2\2\2\u014c\u014d\3\2\2\2\u014d\u014e\3\2\2")
+        buf.write(u"\2\u014e\u014f\7\61\2\2\u014f\u0150\7\32\2\2\u0150\u0151")
+        buf.write(u"\5\22\n\2\u0151\u0152\7\30\2\2\u0152\u0155\3\2\2\2\u0153")
+        buf.write(u"\u0155\5\20\t\2\u0154\u0112\3\2\2\2\u0154\u0113\3\2\2")
+        buf.write(u"\2\u0154\u011f\3\2\2\2\u0154\u012b\3\2\2\2\u0154\u0137")
+        buf.write(u"\3\2\2\2\u0154\u0143\3\2\2\2\u0154\u0144\3\2\2\2\u0154")
+        buf.write(u"\u0153\3\2\2\2\u0155\23\3\2\2\2\u0156\u015c\7\61\2\2")
+        buf.write(u"\u0157\u015c\5\26\f\2\u0158\u0159\7\'\2\2\u0159\u015c")
+        buf.write(u"\5\24\13\2\u015a\u015c\5\20\t\2\u015b\u0156\3\2\2\2\u015b")
+        buf.write(u"\u0157\3\2\2\2\u015b\u0158\3\2\2\2\u015b\u015a\3\2\2")
+        buf.write(u"\2\u015c\25\3\2\2\2\u015d\u0188\7\61\2\2\u015e\u0188")
+        buf.write(u"\7(\2\2\u015f\u0160\7)\2\2\u0160\u0161\5\24\13\2\u0161")
+        buf.write(u"\u0162\7*\2\2\u0162\u0163\5\26\f\2\u0163\u0188\3\2\2")
+        buf.write(u"\2\u0164\u0165\7+\2\2\u0165\u0166\5\24\13\2\u0166\u0167")
+        buf.write(u"\7*\2\2\u0167\u0168\5\26\f\2\u0168\u0188\3\2\2\2\u0169")
+        buf.write(u"\u016f\7,\2\2\u016a\u016b\5\f\7\2\u016b\u016c\7\6\2\2")
+        buf.write(u"\u016c\u016d\5\26\f\2\u016d\u016e\7\3\2\2\u016e\u0170")
+        buf.write(u"\3\2\2\2\u016f\u016a\3\2\2\2\u0170\u0171\3\2\2\2\u0171")
+        buf.write(u"\u016f\3\2\2\2\u0171\u0172\3\2\2\2\u0172\u0173\3\2\2")
+        buf.write(u"\2\u0173\u0174\5\f\7\2\u0174\u0175\7\6\2\2\u0175\u0176")
+        buf.write(u"\5\26\f\2\u0176\u0177\7\24\2\2\u0177\u0188\3\2\2\2\u0178")
+        buf.write(u"\u017e\7-\2\2\u0179\u017a\5\f\7\2\u017a\u017b\7\6\2\2")
+        buf.write(u"\u017b\u017c\5\26\f\2\u017c\u017d\7\3\2\2\u017d\u017f")
+        buf.write(u"\3\2\2\2\u017e\u0179\3\2\2\2\u017f\u0180\3\2\2\2\u0180")
+        buf.write(u"\u017e\3\2\2\2\u0180\u0181\3\2\2\2\u0181\u0182\3\2\2")
+        buf.write(u"\2\u0182\u0183\5\f\7\2\u0183\u0184\7\6\2\2\u0184\u0185")
+        buf.write(u"\5\26\f\2\u0185\u0186\7\24\2\2\u0186\u0188\3\2\2\2\u0187")
+        buf.write(u"\u015d\3\2\2\2\u0187\u015e\3\2\2\2\u0187\u015f\3\2\2")
+        buf.write(u"\2\u0187\u0164\3\2\2\2\u0187\u0169\3\2\2\2\u0187\u0178")
+        buf.write(u"\3\2\2\2\u0188\27\3\2\2\2\31\31\"kt\u0082\u00b3\u00d2")
+        buf.write(u"\u00e1\u00f1\u00f6\u00fe\u010a\u0110\u0119\u0125\u0131")
+        buf.write(u"\u013d\u014c\u0154\u015b\u0171\u0180\u0187")
         return buf.getvalue()
 
 
@@ -172,13 +205,13 @@ class PiCalcParser ( Parser ):
     sharedContextCache = PredictionContextCache()
 
     literalNames = [ u"<INVALID>", u"','", u"'='", u"'('", u"':'", u"') :='", 
-                     u"'type '", u"':='", u"')'", u"'0'", u"'send('", u"').'", 
-                     u"'|'", u"'(new '", u"'receive('", u"'branch('", u"'){'", 
-                     u"'}'", u"'select('", u"'case '", u"' of {'", u"'>'", 
-                     u"'*'", u"'_'", u"'Unit'", u"'Bool'", u"'Int'", u"'String'", 
-                     u"'lo['", u"']'", u"'li['", u"'l#['", u"'#['", u"'empty[]'", 
-                     u"'<'", u"'#'", u"'end'", u"'?'", u"'.'", u"'!'", u"'&{'", 
-                     u"'+{'" ]
+                     u"'type '", u"':='", u"'|'", u"')'", u"'0'", u"'send('", 
+                     u"').'", u"'(new '", u"') ('", u"'receive('", u"'branch('", 
+                     u"'){'", u"'}'", u"'select('", u"'case '", u"' of {'", 
+                     u"'>'", u"'*'", u"'_'", u"'_('", u"'Unit'", u"'Bool'", 
+                     u"'Int'", u"'String'", u"'lo['", u"']'", u"'li['", 
+                     u"'l#['", u"'#['", u"'empty[]'", u"'<'", u"'#'", u"'end'", 
+                     u"'?'", u"'.'", u"'!'", u"'&{'", u"'+{'" ]
 
     symbolicNames = [ u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
                       u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
@@ -190,21 +223,24 @@ class PiCalcParser ( Parser ):
                       u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
                       u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
                       u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
-                      u"<INVALID>", u"<INVALID>", u"StringVal", u"IntVal", 
-                      u"BooleanVal", u"ID", u"WS" ]
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"StringVal", u"IntVal", u"BooleanVal", u"ID", u"WS" ]
 
     RULE_encInput = 0
     RULE_decls = 1
     RULE_declAssign = 2
-    RULE_process = 3
-    RULE_value = 4
-    RULE_basicType = 5
-    RULE_linearType = 6
-    RULE_tType = 7
-    RULE_sType = 8
+    RULE_processPrim = 3
+    RULE_processSec = 4
+    RULE_value = 5
+    RULE_variantVal = 6
+    RULE_basicType = 7
+    RULE_linearType = 8
+    RULE_tType = 9
+    RULE_sType = 10
 
-    ruleNames =  [ u"encInput", u"decls", u"declAssign", u"process", u"value", 
-                   u"basicType", u"linearType", u"tType", u"sType" ]
+    ruleNames =  [ u"encInput", u"decls", u"declAssign", u"processPrim", 
+                   u"processSec", u"value", u"variantVal", u"basicType", 
+                   u"linearType", u"tType", u"sType" ]
 
     EOF = Token.EOF
     T__0=1
@@ -248,11 +284,13 @@ class PiCalcParser ( Parser ):
     T__38=39
     T__39=40
     T__40=41
-    StringVal=42
-    IntVal=43
-    BooleanVal=44
-    ID=45
-    WS=46
+    T__41=42
+    T__42=43
+    StringVal=44
+    IntVal=45
+    BooleanVal=46
+    ID=47
+    WS=48
 
     def __init__(self, input, output=sys.stdout):
         super(PiCalcParser, self).__init__(input, output=output)
@@ -284,11 +322,11 @@ class PiCalcParser ( Parser ):
             super(PiCalcParser.DeclAndProcsContext, self).__init__(parser)
             self.copyFrom(ctx)
 
+        def processPrim(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessPrimContext,0)
+
         def decls(self):
             return self.getTypedRuleContext(PiCalcParser.DeclsContext,0)
-
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
 
 
         def enterRule(self, listener):
@@ -308,10 +346,16 @@ class PiCalcParser ( Parser ):
         try:
             localctx = PiCalcParser.DeclAndProcsContext(self, localctx)
             self.enterOuterAlt(localctx, 1)
-            self.state = 18
-            self.decls()
-            self.state = 19
-            self.process()
+            self.state = 23
+            self._errHandler.sync(self)
+            la_ = self._interp.adaptivePredict(self._input,0,self._ctx)
+            if la_ == 1:
+                self.state = 22
+                self.decls()
+
+
+            self.state = 25
+            self.processPrim()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -356,19 +400,19 @@ class PiCalcParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 21
+            self.state = 27
             localctx._declAssign = self.declAssign()
             localctx.decs.append(localctx._declAssign)
-            self.state = 26
+            self.state = 32
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==PiCalcParser.T__0:
-                self.state = 22
+                self.state = 28
                 self.match(PiCalcParser.T__0)
-                self.state = 23
+                self.state = 29
                 localctx._declAssign = self.declAssign()
                 localctx.decs.append(localctx._declAssign)
-                self.state = 28
+                self.state = 34
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -396,79 +440,33 @@ class PiCalcParser ( Parser ):
 
 
 
-    class LinTypeDeclAndAssignContext(DeclAssignContext):
+    class ProcessNamingNmdContext(DeclAssignContext):
 
         def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
-            super(PiCalcParser.LinTypeDeclAndAssignContext, self).__init__(parser)
-            self.var = None # Token
-            self.copyFrom(ctx)
-
-        def linearType(self):
-            return self.getTypedRuleContext(PiCalcParser.LinearTypeContext,0)
-
-        def value(self):
-            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
-
-        def ID(self):
-            return self.getToken(PiCalcParser.ID, 0)
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterLinTypeDeclAndAssign"):
-                listener.enterLinTypeDeclAndAssign(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitLinTypeDeclAndAssign"):
-                listener.exitLinTypeDeclAndAssign(self)
-
-
-    class SessionTypeNamingContext(DeclAssignContext):
-
-        def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
-            super(PiCalcParser.SessionTypeNamingContext, self).__init__(parser)
+            super(PiCalcParser.ProcessNamingNmdContext, self).__init__(parser)
             self.name = None # Token
-            self.copyFrom(ctx)
-
-        def tType(self):
-            return self.getTypedRuleContext(PiCalcParser.TTypeContext,0)
-
-        def ID(self):
-            return self.getToken(PiCalcParser.ID, 0)
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterSessionTypeNaming"):
-                listener.enterSessionTypeNaming(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitSessionTypeNaming"):
-                listener.exitSessionTypeNaming(self)
-
-
-    class ProcessNamingLinContext(DeclAssignContext):
-
-        def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
-            super(PiCalcParser.ProcessNamingLinContext, self).__init__(parser)
-            self.name = None # Token
+            self.typeName = None # Token
             self.copyFrom(ctx)
 
         def value(self):
             return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
 
-        def linearType(self):
-            return self.getTypedRuleContext(PiCalcParser.LinearTypeContext,0)
+        def processPrim(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessPrimContext,0)
 
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
-
-        def ID(self):
-            return self.getToken(PiCalcParser.ID, 0)
+        def ID(self, i=None):
+            if i is None:
+                return self.getTokens(PiCalcParser.ID)
+            else:
+                return self.getToken(PiCalcParser.ID, i)
 
         def enterRule(self, listener):
-            if hasattr(listener, "enterProcessNamingLin"):
-                listener.enterProcessNamingLin(self)
+            if hasattr(listener, "enterProcessNamingNmd"):
+                listener.enterProcessNamingNmd(self)
 
         def exitRule(self, listener):
-            if hasattr(listener, "exitProcessNamingLin"):
-                listener.exitProcessNamingLin(self)
+            if hasattr(listener, "exitProcessNamingNmd"):
+                listener.exitProcessNamingNmd(self)
 
 
     class ProcessNamingSesContext(DeclAssignContext):
@@ -484,8 +482,8 @@ class PiCalcParser ( Parser ):
         def tType(self):
             return self.getTypedRuleContext(PiCalcParser.TTypeContext,0)
 
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
+        def processPrim(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessPrimContext,0)
 
         def ID(self):
             return self.getToken(PiCalcParser.ID, 0)
@@ -497,6 +495,32 @@ class PiCalcParser ( Parser ):
         def exitRule(self, listener):
             if hasattr(listener, "exitProcessNamingSes"):
                 listener.exitProcessNamingSes(self)
+
+
+    class NmdTypeDeclAndAssignContext(DeclAssignContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
+            super(PiCalcParser.NmdTypeDeclAndAssignContext, self).__init__(parser)
+            self.var = None # Token
+            self.typeName = None # Token
+            self.copyFrom(ctx)
+
+        def value(self):
+            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
+
+        def ID(self, i=None):
+            if i is None:
+                return self.getTokens(PiCalcParser.ID)
+            else:
+                return self.getToken(PiCalcParser.ID, i)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterNmdTypeDeclAndAssign"):
+                listener.enterNmdTypeDeclAndAssign(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitNmdTypeDeclAndAssign"):
+                listener.exitNmdTypeDeclAndAssign(self)
 
 
     class VariableAssignmentContext(DeclAssignContext):
@@ -565,6 +589,129 @@ class PiCalcParser ( Parser ):
                 listener.exitSessionTypeDecl(self)
 
 
+    class NamedTypeDeclContext(DeclAssignContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
+            super(PiCalcParser.NamedTypeDeclContext, self).__init__(parser)
+            self.var = None # Token
+            self.typeName = None # Token
+            self.copyFrom(ctx)
+
+        def ID(self, i=None):
+            if i is None:
+                return self.getTokens(PiCalcParser.ID)
+            else:
+                return self.getToken(PiCalcParser.ID, i)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterNamedTypeDecl"):
+                listener.enterNamedTypeDecl(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitNamedTypeDecl"):
+                listener.exitNamedTypeDecl(self)
+
+
+    class LinTypeDeclAndAssignContext(DeclAssignContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
+            super(PiCalcParser.LinTypeDeclAndAssignContext, self).__init__(parser)
+            self.var = None # Token
+            self.copyFrom(ctx)
+
+        def linearType(self):
+            return self.getTypedRuleContext(PiCalcParser.LinearTypeContext,0)
+
+        def value(self):
+            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
+
+        def ID(self):
+            return self.getToken(PiCalcParser.ID, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterLinTypeDeclAndAssign"):
+                listener.enterLinTypeDeclAndAssign(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitLinTypeDeclAndAssign"):
+                listener.exitLinTypeDeclAndAssign(self)
+
+
+    class SessionTypeNamingContext(DeclAssignContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
+            super(PiCalcParser.SessionTypeNamingContext, self).__init__(parser)
+            self.name = None # Token
+            self.copyFrom(ctx)
+
+        def tType(self):
+            return self.getTypedRuleContext(PiCalcParser.TTypeContext,0)
+
+        def ID(self):
+            return self.getToken(PiCalcParser.ID, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterSessionTypeNaming"):
+                listener.enterSessionTypeNaming(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitSessionTypeNaming"):
+                listener.exitSessionTypeNaming(self)
+
+
+    class ProcessNamingLinContext(DeclAssignContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
+            super(PiCalcParser.ProcessNamingLinContext, self).__init__(parser)
+            self.name = None # Token
+            self.copyFrom(ctx)
+
+        def value(self):
+            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
+
+        def linearType(self):
+            return self.getTypedRuleContext(PiCalcParser.LinearTypeContext,0)
+
+        def processPrim(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessPrimContext,0)
+
+        def ID(self):
+            return self.getToken(PiCalcParser.ID, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterProcessNamingLin"):
+                listener.enterProcessNamingLin(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitProcessNamingLin"):
+                listener.exitProcessNamingLin(self)
+
+
+    class BasTypeDeclAndAssignContext(DeclAssignContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
+            super(PiCalcParser.BasTypeDeclAndAssignContext, self).__init__(parser)
+            self.var = None # Token
+            self.copyFrom(ctx)
+
+        def basicType(self):
+            return self.getTypedRuleContext(PiCalcParser.BasicTypeContext,0)
+
+        def value(self):
+            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
+
+        def ID(self):
+            return self.getToken(PiCalcParser.ID, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterBasTypeDeclAndAssign"):
+                listener.enterBasTypeDeclAndAssign(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitBasTypeDeclAndAssign"):
+                listener.exitBasTypeDeclAndAssign(self)
+
+
     class LinearTypeDeclContext(DeclAssignContext):
 
         def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
@@ -585,6 +732,28 @@ class PiCalcParser ( Parser ):
         def exitRule(self, listener):
             if hasattr(listener, "exitLinearTypeDecl"):
                 listener.exitLinearTypeDecl(self)
+
+
+    class BasicTypeDeclContext(DeclAssignContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.DeclAssignContext)
+            super(PiCalcParser.BasicTypeDeclContext, self).__init__(parser)
+            self.var = None # Token
+            self.copyFrom(ctx)
+
+        def basicType(self):
+            return self.getTypedRuleContext(PiCalcParser.BasicTypeContext,0)
+
+        def ID(self):
+            return self.getToken(PiCalcParser.ID, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterBasicTypeDecl"):
+                listener.enterBasicTypeDecl(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitBasicTypeDecl"):
+                listener.exitBasicTypeDecl(self)
 
 
     class SesTypeDeclAndAssignContext(DeclAssignContext):
@@ -618,133 +787,204 @@ class PiCalcParser ( Parser ):
         localctx = PiCalcParser.DeclAssignContext(self, self._ctx, self.state)
         self.enterRule(localctx, 4, self.RULE_declAssign)
         try:
-            self.state = 74
+            self.state = 105
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,1,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,2,self._ctx)
             if la_ == 1:
                 localctx = PiCalcParser.VariableAssignmentContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
-                self.state = 29
+                self.state = 35
                 localctx.var = self.match(PiCalcParser.ID)
-                self.state = 30
+                self.state = 36
                 self.match(PiCalcParser.T__1)
-                self.state = 31
+                self.state = 37
                 self.value()
                 pass
 
             elif la_ == 2:
-                localctx = PiCalcParser.ProcessNamingSesContext(self, localctx)
+                localctx = PiCalcParser.ProcessNamingNmdContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 32
-                localctx.name = self.match(PiCalcParser.ID)
-                self.state = 33
-                self.match(PiCalcParser.T__2)
-                self.state = 34
-                self.value()
-                self.state = 35
-                self.match(PiCalcParser.T__3)
-                self.state = 36
-                self.tType()
-                self.state = 37
-                self.match(PiCalcParser.T__4)
                 self.state = 38
-                self.process()
+                localctx.name = self.match(PiCalcParser.ID)
+                self.state = 39
+                self.match(PiCalcParser.T__2)
+                self.state = 40
+                self.value()
+                self.state = 41
+                self.match(PiCalcParser.T__3)
+                self.state = 42
+                localctx.typeName = self.match(PiCalcParser.ID)
+                self.state = 43
+                self.match(PiCalcParser.T__4)
+                self.state = 44
+                self.processPrim()
                 pass
 
             elif la_ == 3:
-                localctx = PiCalcParser.ProcessNamingLinContext(self, localctx)
+                localctx = PiCalcParser.ProcessNamingSesContext(self, localctx)
                 self.enterOuterAlt(localctx, 3)
-                self.state = 40
-                localctx.name = self.match(PiCalcParser.ID)
-                self.state = 41
-                self.match(PiCalcParser.T__2)
-                self.state = 42
-                self.value()
-                self.state = 43
-                self.match(PiCalcParser.T__3)
-                self.state = 44
-                self.linearType()
-                self.state = 45
-                self.match(PiCalcParser.T__4)
                 self.state = 46
-                self.process()
+                localctx.name = self.match(PiCalcParser.ID)
+                self.state = 47
+                self.match(PiCalcParser.T__2)
+                self.state = 48
+                self.value()
+                self.state = 49
+                self.match(PiCalcParser.T__3)
+                self.state = 50
+                self.tType()
+                self.state = 51
+                self.match(PiCalcParser.T__4)
+                self.state = 52
+                self.processPrim()
                 pass
 
             elif la_ == 4:
-                localctx = PiCalcParser.SessionTypeNamingContext(self, localctx)
+                localctx = PiCalcParser.ProcessNamingLinContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
-                self.state = 48
-                self.match(PiCalcParser.T__5)
-                self.state = 49
+                self.state = 54
                 localctx.name = self.match(PiCalcParser.ID)
-                self.state = 50
-                self.match(PiCalcParser.T__6)
-                self.state = 51
-                self.tType()
+                self.state = 55
+                self.match(PiCalcParser.T__2)
+                self.state = 56
+                self.value()
+                self.state = 57
+                self.match(PiCalcParser.T__3)
+                self.state = 58
+                self.linearType()
+                self.state = 59
+                self.match(PiCalcParser.T__4)
+                self.state = 60
+                self.processPrim()
                 pass
 
             elif la_ == 5:
-                localctx = PiCalcParser.LinearTypeNamingContext(self, localctx)
+                localctx = PiCalcParser.SessionTypeNamingContext(self, localctx)
                 self.enterOuterAlt(localctx, 5)
-                self.state = 52
+                self.state = 62
                 self.match(PiCalcParser.T__5)
-                self.state = 53
+                self.state = 63
                 localctx.name = self.match(PiCalcParser.ID)
-                self.state = 54
+                self.state = 64
                 self.match(PiCalcParser.T__6)
-                self.state = 55
-                self.linearType()
+                self.state = 65
+                self.tType()
                 pass
 
             elif la_ == 6:
-                localctx = PiCalcParser.SessionTypeDeclContext(self, localctx)
+                localctx = PiCalcParser.LinearTypeNamingContext(self, localctx)
                 self.enterOuterAlt(localctx, 6)
-                self.state = 56
+                self.state = 66
                 self.match(PiCalcParser.T__5)
-                self.state = 57
-                localctx.var = self.match(PiCalcParser.ID)
-                self.state = 58
-                self.tType()
+                self.state = 67
+                localctx.name = self.match(PiCalcParser.ID)
+                self.state = 68
+                self.match(PiCalcParser.T__6)
+                self.state = 69
+                self.linearType()
                 pass
 
             elif la_ == 7:
-                localctx = PiCalcParser.SesTypeDeclAndAssignContext(self, localctx)
+                localctx = PiCalcParser.BasicTypeDeclContext(self, localctx)
                 self.enterOuterAlt(localctx, 7)
-                self.state = 59
+                self.state = 70
                 self.match(PiCalcParser.T__5)
-                self.state = 60
+                self.state = 71
                 localctx.var = self.match(PiCalcParser.ID)
-                self.state = 61
-                self.tType()
-                self.state = 62
-                self.match(PiCalcParser.T__1)
-                self.state = 63
-                self.value()
+                self.state = 72
+                self.basicType()
                 pass
 
             elif la_ == 8:
-                localctx = PiCalcParser.LinearTypeDeclContext(self, localctx)
+                localctx = PiCalcParser.BasTypeDeclAndAssignContext(self, localctx)
                 self.enterOuterAlt(localctx, 8)
-                self.state = 65
+                self.state = 73
                 self.match(PiCalcParser.T__5)
-                self.state = 66
+                self.state = 74
                 localctx.var = self.match(PiCalcParser.ID)
-                self.state = 67
-                self.linearType()
+                self.state = 75
+                self.basicType()
+                self.state = 76
+                self.match(PiCalcParser.T__1)
+                self.state = 77
+                self.value()
                 pass
 
             elif la_ == 9:
-                localctx = PiCalcParser.LinTypeDeclAndAssignContext(self, localctx)
+                localctx = PiCalcParser.NamedTypeDeclContext(self, localctx)
                 self.enterOuterAlt(localctx, 9)
-                self.state = 68
+                self.state = 79
                 self.match(PiCalcParser.T__5)
-                self.state = 69
+                self.state = 80
                 localctx.var = self.match(PiCalcParser.ID)
-                self.state = 70
-                self.linearType()
-                self.state = 71
+                self.state = 81
+                localctx.typeName = self.match(PiCalcParser.ID)
+                pass
+
+            elif la_ == 10:
+                localctx = PiCalcParser.NmdTypeDeclAndAssignContext(self, localctx)
+                self.enterOuterAlt(localctx, 10)
+                self.state = 82
+                self.match(PiCalcParser.T__5)
+                self.state = 83
+                localctx.var = self.match(PiCalcParser.ID)
+                self.state = 84
+                localctx.typeName = self.match(PiCalcParser.ID)
+                self.state = 85
                 self.match(PiCalcParser.T__1)
-                self.state = 72
+                self.state = 86
+                self.value()
+                pass
+
+            elif la_ == 11:
+                localctx = PiCalcParser.SessionTypeDeclContext(self, localctx)
+                self.enterOuterAlt(localctx, 11)
+                self.state = 87
+                self.match(PiCalcParser.T__5)
+                self.state = 88
+                localctx.var = self.match(PiCalcParser.ID)
+                self.state = 89
+                self.tType()
+                pass
+
+            elif la_ == 12:
+                localctx = PiCalcParser.SesTypeDeclAndAssignContext(self, localctx)
+                self.enterOuterAlt(localctx, 12)
+                self.state = 90
+                self.match(PiCalcParser.T__5)
+                self.state = 91
+                localctx.var = self.match(PiCalcParser.ID)
+                self.state = 92
+                self.tType()
+                self.state = 93
+                self.match(PiCalcParser.T__1)
+                self.state = 94
+                self.value()
+                pass
+
+            elif la_ == 13:
+                localctx = PiCalcParser.LinearTypeDeclContext(self, localctx)
+                self.enterOuterAlt(localctx, 13)
+                self.state = 96
+                self.match(PiCalcParser.T__5)
+                self.state = 97
+                localctx.var = self.match(PiCalcParser.ID)
+                self.state = 98
+                self.linearType()
+                pass
+
+            elif la_ == 14:
+                localctx = PiCalcParser.LinTypeDeclAndAssignContext(self, localctx)
+                self.enterOuterAlt(localctx, 14)
+                self.state = 99
+                self.match(PiCalcParser.T__5)
+                self.state = 100
+                localctx.var = self.match(PiCalcParser.ID)
+                self.state = 101
+                self.linearType()
+                self.state = 102
+                self.match(PiCalcParser.T__1)
+                self.state = 103
                 self.value()
                 pass
 
@@ -757,66 +997,52 @@ class PiCalcParser ( Parser ):
             self.exitRule()
         return localctx
 
-    class ProcessContext(ParserRuleContext):
+    class ProcessPrimContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
-            super(PiCalcParser.ProcessContext, self).__init__(parent, invokingState)
+            super(PiCalcParser.ProcessPrimContext, self).__init__(parent, invokingState)
             self.parser = parser
 
 
         def getRuleIndex(self):
-            return PiCalcParser.RULE_process
+            return PiCalcParser.RULE_processPrim
 
      
         def copyFrom(self, ctx):
-            super(PiCalcParser.ProcessContext, self).copyFrom(ctx)
+            super(PiCalcParser.ProcessPrimContext, self).copyFrom(ctx)
 
 
 
-    class BranchingContext(ProcessContext):
+    class SecondaryProcContext(ProcessPrimContext):
 
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
-            super(PiCalcParser.BranchingContext, self).__init__(parser)
-            self.channel = None # ValueContext
-            self._value = None # ValueContext
-            self.option = list() # of ValueContexts
-            self._process = None # ProcessContext
-            self.cont = list() # of ProcessContexts
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessPrimContext)
+            super(PiCalcParser.SecondaryProcContext, self).__init__(parser)
             self.copyFrom(ctx)
 
-        def value(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(PiCalcParser.ValueContext)
-            else:
-                return self.getTypedRuleContext(PiCalcParser.ValueContext,i)
-
-        def process(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(PiCalcParser.ProcessContext)
-            else:
-                return self.getTypedRuleContext(PiCalcParser.ProcessContext,i)
+        def processSec(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessSecContext,0)
 
 
         def enterRule(self, listener):
-            if hasattr(listener, "enterBranching"):
-                listener.enterBranching(self)
+            if hasattr(listener, "enterSecondaryProc"):
+                listener.enterSecondaryProc(self)
 
         def exitRule(self, listener):
-            if hasattr(listener, "exitBranching"):
-                listener.exitBranching(self)
+            if hasattr(listener, "exitSecondaryProc"):
+                listener.exitSecondaryProc(self)
 
 
-    class CompositionContext(ProcessContext):
+    class CompositionContext(ProcessPrimContext):
 
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessPrimContext)
             super(PiCalcParser.CompositionContext, self).__init__(parser)
             self.copyFrom(ctx)
 
-        def process(self, i=None):
+        def processPrim(self, i=None):
             if i is None:
-                return self.getTypedRuleContexts(PiCalcParser.ProcessContext)
+                return self.getTypedRuleContexts(PiCalcParser.ProcessPrimContext)
             else:
-                return self.getTypedRuleContext(PiCalcParser.ProcessContext,i)
+                return self.getTypedRuleContext(PiCalcParser.ProcessPrimContext,i)
 
 
         def enterRule(self, listener):
@@ -828,19 +1054,72 @@ class PiCalcParser ( Parser ):
                 listener.exitComposition(self)
 
 
-    class SessionRestrictionContext(ProcessContext):
 
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
-            super(PiCalcParser.SessionRestrictionContext, self).__init__(parser)
+    def processPrim(self):
+
+        localctx = PiCalcParser.ProcessPrimContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 6, self.RULE_processPrim)
+        try:
+            self.state = 114
+            self._errHandler.sync(self)
+            token = self._input.LA(1)
+            if token in [PiCalcParser.T__9, PiCalcParser.T__10, PiCalcParser.T__12, PiCalcParser.T__14, PiCalcParser.T__15, PiCalcParser.T__18, PiCalcParser.T__19, PiCalcParser.ID]:
+                localctx = PiCalcParser.SecondaryProcContext(self, localctx)
+                self.enterOuterAlt(localctx, 1)
+                self.state = 107
+                self.processSec()
+                pass
+            elif token in [PiCalcParser.T__2]:
+                localctx = PiCalcParser.CompositionContext(self, localctx)
+                self.enterOuterAlt(localctx, 2)
+                self.state = 108
+                self.match(PiCalcParser.T__2)
+                self.state = 109
+                self.processPrim()
+                self.state = 110
+                self.match(PiCalcParser.T__7)
+                self.state = 111
+                self.processPrim()
+                self.state = 112
+                self.match(PiCalcParser.T__8)
+                pass
+            else:
+                raise NoViableAltException(self)
+
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class ProcessSecContext(ParserRuleContext):
+
+        def __init__(self, parser, parent=None, invokingState=-1):
+            super(PiCalcParser.ProcessSecContext, self).__init__(parent, invokingState)
+            self.parser = parser
+
+
+        def getRuleIndex(self):
+            return PiCalcParser.RULE_processSec
+
+     
+        def copyFrom(self, ctx):
+            super(PiCalcParser.ProcessSecContext, self).copyFrom(ctx)
+
+
+
+    class BranchingContext(ProcessSecContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
+            super(PiCalcParser.BranchingContext, self).__init__(parser)
+            self.channel = None # ValueContext
             self._value = None # ValueContext
-            self.endpoint = list() # of ValueContexts
+            self.option = list() # of ValueContexts
+            self._processSec = None # ProcessSecContext
+            self.cont = list() # of ProcessSecContexts
             self.copyFrom(ctx)
-
-        def sType(self):
-            return self.getTypedRuleContext(PiCalcParser.STypeContext,0)
-
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
 
         def value(self, i=None):
             if i is None:
@@ -848,26 +1127,32 @@ class PiCalcParser ( Parser ):
             else:
                 return self.getTypedRuleContext(PiCalcParser.ValueContext,i)
 
+        def processSec(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(PiCalcParser.ProcessSecContext)
+            else:
+                return self.getTypedRuleContext(PiCalcParser.ProcessSecContext,i)
+
 
         def enterRule(self, listener):
-            if hasattr(listener, "enterSessionRestriction"):
-                listener.enterSessionRestriction(self)
+            if hasattr(listener, "enterBranching"):
+                listener.enterBranching(self)
 
         def exitRule(self, listener):
-            if hasattr(listener, "exitSessionRestriction"):
-                listener.exitSessionRestriction(self)
+            if hasattr(listener, "exitBranching"):
+                listener.exitBranching(self)
 
 
-    class SelectionContext(ProcessContext):
+    class SelectionContext(ProcessSecContext):
 
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
             super(PiCalcParser.SelectionContext, self).__init__(parser)
             self.channel = None # ValueContext
             self.selection = None # ValueContext
             self.copyFrom(ctx)
 
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
+        def processSec(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessSecContext,0)
 
         def value(self, i=None):
             if i is None:
@@ -885,37 +1170,34 @@ class PiCalcParser ( Parser ):
                 listener.exitSelection(self)
 
 
-    class OutputContext(ProcessContext):
+    class ChannelRestrictionNmdContext(ProcessSecContext):
 
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
-            super(PiCalcParser.OutputContext, self).__init__(parser)
-            self.channel = None # ValueContext
-            self._value = None # ValueContext
-            self.payload = list() # of ValueContexts
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
+            super(PiCalcParser.ChannelRestrictionNmdContext, self).__init__(parser)
+            self.typeName = None # Token
             self.copyFrom(ctx)
 
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
+        def value(self):
+            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
 
-        def value(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(PiCalcParser.ValueContext)
-            else:
-                return self.getTypedRuleContext(PiCalcParser.ValueContext,i)
+        def processPrim(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessPrimContext,0)
 
+        def ID(self):
+            return self.getToken(PiCalcParser.ID, 0)
 
         def enterRule(self, listener):
-            if hasattr(listener, "enterOutput"):
-                listener.enterOutput(self)
+            if hasattr(listener, "enterChannelRestrictionNmd"):
+                listener.enterChannelRestrictionNmd(self)
 
         def exitRule(self, listener):
-            if hasattr(listener, "exitOutput"):
-                listener.exitOutput(self)
+            if hasattr(listener, "exitChannelRestrictionNmd"):
+                listener.exitChannelRestrictionNmd(self)
 
 
-    class TerminationContext(ProcessContext):
+    class TerminationContext(ProcessSecContext):
 
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
             super(PiCalcParser.TerminationContext, self).__init__(parser)
             self.copyFrom(ctx)
 
@@ -929,9 +1211,9 @@ class PiCalcParser ( Parser ):
                 listener.exitTermination(self)
 
 
-    class ChannelRestrictionSesContext(ProcessContext):
+    class ChannelRestrictionSesContext(ProcessSecContext):
 
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
             super(PiCalcParser.ChannelRestrictionSesContext, self).__init__(parser)
             self.copyFrom(ctx)
 
@@ -941,8 +1223,8 @@ class PiCalcParser ( Parser ):
         def tType(self):
             return self.getTypedRuleContext(PiCalcParser.TTypeContext,0)
 
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
+        def processPrim(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessPrimContext,0)
 
 
         def enterRule(self, listener):
@@ -954,87 +1236,9 @@ class PiCalcParser ( Parser ):
                 listener.exitChannelRestrictionSes(self)
 
 
-    class ChannelRestrictionLinContext(ProcessContext):
+    class InputLinContext(ProcessSecContext):
 
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
-            super(PiCalcParser.ChannelRestrictionLinContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def value(self):
-            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
-
-        def linearType(self):
-            return self.getTypedRuleContext(PiCalcParser.LinearTypeContext,0)
-
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
-
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterChannelRestrictionLin"):
-                listener.enterChannelRestrictionLin(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitChannelRestrictionLin"):
-                listener.exitChannelRestrictionLin(self)
-
-
-    class NamedProcessContext(ProcessContext):
-
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
-            super(PiCalcParser.NamedProcessContext, self).__init__(parser)
-            self.name = None # Token
-            self.copyFrom(ctx)
-
-        def value(self):
-            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
-
-        def ID(self):
-            return self.getToken(PiCalcParser.ID, 0)
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterNamedProcess"):
-                listener.enterNamedProcess(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitNamedProcess"):
-                listener.exitNamedProcess(self)
-
-
-    class InputSesContext(ProcessContext):
-
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
-            super(PiCalcParser.InputSesContext, self).__init__(parser)
-            self.channel = None # ValueContext
-            self.payload = None # ValueContext
-            self.plType = None # TTypeContext
-            self.copyFrom(ctx)
-
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
-
-        def value(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(PiCalcParser.ValueContext)
-            else:
-                return self.getTypedRuleContext(PiCalcParser.ValueContext,i)
-
-        def tType(self):
-            return self.getTypedRuleContext(PiCalcParser.TTypeContext,0)
-
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterInputSes"):
-                listener.enterInputSes(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitInputSes"):
-                listener.exitInputSes(self)
-
-
-    class InputLinContext(ProcessContext):
-
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
             super(PiCalcParser.InputLinContext, self).__init__(parser)
             self.channel = None # ValueContext
             self._value = None # ValueContext
@@ -1043,8 +1247,8 @@ class PiCalcParser ( Parser ):
             self.plType = list() # of LinearTypeContexts
             self.copyFrom(ctx)
 
-        def process(self):
-            return self.getTypedRuleContext(PiCalcParser.ProcessContext,0)
+        def processSec(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessSecContext,0)
 
         def value(self, i=None):
             if i is None:
@@ -1068,28 +1272,31 @@ class PiCalcParser ( Parser ):
                 listener.exitInputLin(self)
 
 
-    class CaseContext(ProcessContext):
+    class CaseContext(ProcessSecContext):
 
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessContext)
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
             super(PiCalcParser.CaseContext, self).__init__(parser)
             self.case = None # ValueContext
-            self._value = None # ValueContext
-            self.option = list() # of ValueContexts
-            self._process = None # ProcessContext
-            self.cont = list() # of ProcessContexts
+            self._variantVal = None # VariantValContext
+            self.option = list() # of VariantValContexts
+            self._processSec = None # ProcessSecContext
+            self.cont = list() # of ProcessSecContexts
             self.copyFrom(ctx)
 
-        def value(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(PiCalcParser.ValueContext)
-            else:
-                return self.getTypedRuleContext(PiCalcParser.ValueContext,i)
+        def value(self):
+            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
 
-        def process(self, i=None):
+        def variantVal(self, i=None):
             if i is None:
-                return self.getTypedRuleContexts(PiCalcParser.ProcessContext)
+                return self.getTypedRuleContexts(PiCalcParser.VariantValContext)
             else:
-                return self.getTypedRuleContext(PiCalcParser.ProcessContext,i)
+                return self.getTypedRuleContext(PiCalcParser.VariantValContext,i)
+
+        def processSec(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(PiCalcParser.ProcessSecContext)
+            else:
+                return self.getTypedRuleContext(PiCalcParser.ProcessSecContext,i)
 
 
         def enterRule(self, listener):
@@ -1101,305 +1308,504 @@ class PiCalcParser ( Parser ):
                 listener.exitCase(self)
 
 
+    class SessionRestrictionContext(ProcessSecContext):
 
-    def process(self):
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
+            super(PiCalcParser.SessionRestrictionContext, self).__init__(parser)
+            self._value = None # ValueContext
+            self.endpoint = list() # of ValueContexts
+            self.copyFrom(ctx)
 
-        localctx = PiCalcParser.ProcessContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 6, self.RULE_process)
+        def sType(self):
+            return self.getTypedRuleContext(PiCalcParser.STypeContext,0)
+
+        def processPrim(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessPrimContext,0)
+
+        def value(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(PiCalcParser.ValueContext)
+            else:
+                return self.getTypedRuleContext(PiCalcParser.ValueContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterSessionRestriction"):
+                listener.enterSessionRestriction(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitSessionRestriction"):
+                listener.exitSessionRestriction(self)
+
+
+    class OutputContext(ProcessSecContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
+            super(PiCalcParser.OutputContext, self).__init__(parser)
+            self.channel = None # ValueContext
+            self._value = None # ValueContext
+            self.payload = list() # of ValueContexts
+            self.copyFrom(ctx)
+
+        def processSec(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessSecContext,0)
+
+        def value(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(PiCalcParser.ValueContext)
+            else:
+                return self.getTypedRuleContext(PiCalcParser.ValueContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterOutput"):
+                listener.enterOutput(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitOutput"):
+                listener.exitOutput(self)
+
+
+    class ChannelRestrictionLinContext(ProcessSecContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
+            super(PiCalcParser.ChannelRestrictionLinContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def value(self):
+            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
+
+        def linearType(self):
+            return self.getTypedRuleContext(PiCalcParser.LinearTypeContext,0)
+
+        def processPrim(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessPrimContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterChannelRestrictionLin"):
+                listener.enterChannelRestrictionLin(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitChannelRestrictionLin"):
+                listener.exitChannelRestrictionLin(self)
+
+
+    class OutputVariantsContext(ProcessSecContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
+            super(PiCalcParser.OutputVariantsContext, self).__init__(parser)
+            self.channel = None # ValueContext
+            self._value = None # ValueContext
+            self.payload = list() # of ValueContexts
+            self._linearType = None # LinearTypeContext
+            self.plType = list() # of LinearTypeContexts
+            self.copyFrom(ctx)
+
+        def processSec(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessSecContext,0)
+
+        def value(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(PiCalcParser.ValueContext)
+            else:
+                return self.getTypedRuleContext(PiCalcParser.ValueContext,i)
+
+        def linearType(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(PiCalcParser.LinearTypeContext)
+            else:
+                return self.getTypedRuleContext(PiCalcParser.LinearTypeContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterOutputVariants"):
+                listener.enterOutputVariants(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitOutputVariants"):
+                listener.exitOutputVariants(self)
+
+
+    class NamedProcessContext(ProcessSecContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
+            super(PiCalcParser.NamedProcessContext, self).__init__(parser)
+            self.name = None # Token
+            self.copyFrom(ctx)
+
+        def value(self):
+            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
+
+        def ID(self):
+            return self.getToken(PiCalcParser.ID, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterNamedProcess"):
+                listener.enterNamedProcess(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitNamedProcess"):
+                listener.exitNamedProcess(self)
+
+
+    class InputSesContext(ProcessSecContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ProcessSecContext)
+            super(PiCalcParser.InputSesContext, self).__init__(parser)
+            self.channel = None # ValueContext
+            self.payload = None # ValueContext
+            self.plType = None # TTypeContext
+            self.copyFrom(ctx)
+
+        def processSec(self):
+            return self.getTypedRuleContext(PiCalcParser.ProcessSecContext,0)
+
+        def value(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(PiCalcParser.ValueContext)
+            else:
+                return self.getTypedRuleContext(PiCalcParser.ValueContext,i)
+
+        def tType(self):
+            return self.getTypedRuleContext(PiCalcParser.TTypeContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterInputSes"):
+                listener.enterInputSes(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitInputSes"):
+                listener.exitInputSes(self)
+
+
+
+    def processSec(self):
+
+        localctx = PiCalcParser.ProcessSecContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 8, self.RULE_processSec)
         self._la = 0 # Token type
         try:
-            self.state = 193
+            self.state = 244
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,6,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,9,self._ctx)
             if la_ == 1:
                 localctx = PiCalcParser.NamedProcessContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
-                self.state = 76
+                self.state = 116
                 localctx.name = self.match(PiCalcParser.ID)
-                self.state = 77
+                self.state = 117
                 self.match(PiCalcParser.T__2)
-                self.state = 78
+                self.state = 118
                 self.value()
-                self.state = 79
-                self.match(PiCalcParser.T__7)
+                self.state = 119
+                self.match(PiCalcParser.T__8)
                 pass
 
             elif la_ == 2:
                 localctx = PiCalcParser.TerminationContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 81
-                self.match(PiCalcParser.T__8)
+                self.state = 121
+                self.match(PiCalcParser.T__9)
                 pass
 
             elif la_ == 3:
                 localctx = PiCalcParser.OutputContext(self, localctx)
                 self.enterOuterAlt(localctx, 3)
-                self.state = 82
-                self.match(PiCalcParser.T__9)
-                self.state = 83
+                self.state = 122
+                self.match(PiCalcParser.T__10)
+                self.state = 123
                 localctx.channel = self.value()
-                self.state = 86 
+                self.state = 126 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while True:
-                    self.state = 84
+                    self.state = 124
                     self.match(PiCalcParser.T__0)
-                    self.state = 85
+                    self.state = 125
                     localctx._value = self.value()
                     localctx.payload.append(localctx._value)
-                    self.state = 88 
+                    self.state = 128 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if not (_la==PiCalcParser.T__0):
                         break
 
-                self.state = 90
-                self.match(PiCalcParser.T__10)
-                self.state = 91
-                self.process()
+                self.state = 130
+                self.match(PiCalcParser.T__11)
+                self.state = 131
+                self.processSec()
                 pass
 
             elif la_ == 4:
-                localctx = PiCalcParser.CompositionContext(self, localctx)
+                localctx = PiCalcParser.ChannelRestrictionNmdContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
-                self.state = 93
-                self.match(PiCalcParser.T__2)
-                self.state = 94
-                self.process()
-                self.state = 95
-                self.match(PiCalcParser.T__7)
-                self.state = 96
-                self.match(PiCalcParser.T__11)
-                self.state = 97
-                self.match(PiCalcParser.T__2)
-                self.state = 98
-                self.process()
-                self.state = 99
-                self.match(PiCalcParser.T__7)
+                self.state = 133
+                self.match(PiCalcParser.T__12)
+                self.state = 134
+                self.value()
+                self.state = 135
+                self.match(PiCalcParser.T__3)
+                self.state = 136
+                localctx.typeName = self.match(PiCalcParser.ID)
+                self.state = 137
+                self.match(PiCalcParser.T__13)
+                self.state = 138
+                self.processPrim()
+                self.state = 139
+                self.match(PiCalcParser.T__8)
                 pass
 
             elif la_ == 5:
                 localctx = PiCalcParser.SessionRestrictionContext(self, localctx)
                 self.enterOuterAlt(localctx, 5)
-                self.state = 101
+                self.state = 141
                 self.match(PiCalcParser.T__12)
-                self.state = 102
+                self.state = 142
                 localctx._value = self.value()
                 localctx.endpoint.append(localctx._value)
-                self.state = 103
+                self.state = 143
                 localctx._value = self.value()
                 localctx.endpoint.append(localctx._value)
-                self.state = 104
+                self.state = 144
                 self.match(PiCalcParser.T__3)
-                self.state = 105
+                self.state = 145
                 self.sType()
-                self.state = 106
-                self.match(PiCalcParser.T__7)
-                self.state = 107
-                self.match(PiCalcParser.T__2)
-                self.state = 108
-                self.process()
-                self.state = 109
-                self.match(PiCalcParser.T__7)
+                self.state = 146
+                self.match(PiCalcParser.T__13)
+                self.state = 147
+                self.processPrim()
+                self.state = 148
+                self.match(PiCalcParser.T__8)
                 pass
 
             elif la_ == 6:
                 localctx = PiCalcParser.ChannelRestrictionSesContext(self, localctx)
                 self.enterOuterAlt(localctx, 6)
-                self.state = 111
+                self.state = 150
                 self.match(PiCalcParser.T__12)
-                self.state = 112
+                self.state = 151
                 self.value()
-                self.state = 113
+                self.state = 152
                 self.match(PiCalcParser.T__3)
-                self.state = 114
+                self.state = 153
                 self.tType()
-                self.state = 115
-                self.match(PiCalcParser.T__7)
-                self.state = 116
-                self.match(PiCalcParser.T__2)
-                self.state = 117
-                self.process()
-                self.state = 118
-                self.match(PiCalcParser.T__7)
+                self.state = 154
+                self.match(PiCalcParser.T__13)
+                self.state = 155
+                self.processPrim()
+                self.state = 156
+                self.match(PiCalcParser.T__8)
                 pass
 
             elif la_ == 7:
                 localctx = PiCalcParser.InputSesContext(self, localctx)
                 self.enterOuterAlt(localctx, 7)
-                self.state = 120
-                self.match(PiCalcParser.T__13)
-                self.state = 121
+                self.state = 158
+                self.match(PiCalcParser.T__14)
+                self.state = 159
                 localctx.channel = self.value()
-                self.state = 122
+                self.state = 160
                 self.match(PiCalcParser.T__0)
-                self.state = 123
+                self.state = 161
                 localctx.payload = self.value()
-                self.state = 124
+                self.state = 162
                 self.match(PiCalcParser.T__3)
-                self.state = 125
+                self.state = 163
                 localctx.plType = self.tType()
-                self.state = 126
-                self.match(PiCalcParser.T__10)
-                self.state = 127
-                self.process()
+                self.state = 164
+                self.match(PiCalcParser.T__11)
+                self.state = 165
+                self.processSec()
                 pass
 
             elif la_ == 8:
                 localctx = PiCalcParser.BranchingContext(self, localctx)
                 self.enterOuterAlt(localctx, 8)
-                self.state = 129
-                self.match(PiCalcParser.T__14)
-                self.state = 130
-                localctx.channel = self.value()
-                self.state = 131
+                self.state = 167
                 self.match(PiCalcParser.T__15)
-                self.state = 137 
+                self.state = 168
+                localctx.channel = self.value()
+                self.state = 169
+                self.match(PiCalcParser.T__16)
+                self.state = 175 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 132
+                        self.state = 170
                         localctx._value = self.value()
                         localctx.option.append(localctx._value)
-                        self.state = 133
+                        self.state = 171
                         self.match(PiCalcParser.T__3)
-                        self.state = 134
-                        localctx._process = self.process()
-                        localctx.cont.append(localctx._process)
-                        self.state = 135
+                        self.state = 172
+                        localctx._processSec = self.processSec()
+                        localctx.cont.append(localctx._processSec)
+                        self.state = 173
                         self.match(PiCalcParser.T__0)
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 139 
+                    self.state = 177 
                     self._errHandler.sync(self)
-                    _alt = self._interp.adaptivePredict(self._input,3,self._ctx)
+                    _alt = self._interp.adaptivePredict(self._input,5,self._ctx)
 
-                self.state = 141
+                self.state = 179
                 localctx._value = self.value()
                 localctx.option.append(localctx._value)
-                self.state = 142
+                self.state = 180
                 self.match(PiCalcParser.T__3)
-                self.state = 143
-                localctx._process = self.process()
-                localctx.cont.append(localctx._process)
-                self.state = 144
-                self.match(PiCalcParser.T__16)
+                self.state = 181
+                localctx._processSec = self.processSec()
+                localctx.cont.append(localctx._processSec)
+                self.state = 182
+                self.match(PiCalcParser.T__17)
                 pass
 
             elif la_ == 9:
                 localctx = PiCalcParser.SelectionContext(self, localctx)
                 self.enterOuterAlt(localctx, 9)
-                self.state = 146
-                self.match(PiCalcParser.T__17)
-                self.state = 147
+                self.state = 184
+                self.match(PiCalcParser.T__18)
+                self.state = 185
                 localctx.channel = self.value()
-                self.state = 148
+                self.state = 186
                 self.match(PiCalcParser.T__0)
-                self.state = 149
+                self.state = 187
                 localctx.selection = self.value()
-                self.state = 150
-                self.match(PiCalcParser.T__10)
-                self.state = 151
-                self.process()
+                self.state = 188
+                self.match(PiCalcParser.T__11)
+                self.state = 189
+                self.processSec()
                 pass
 
             elif la_ == 10:
                 localctx = PiCalcParser.ChannelRestrictionLinContext(self, localctx)
                 self.enterOuterAlt(localctx, 10)
-                self.state = 153
+                self.state = 191
                 self.match(PiCalcParser.T__12)
-                self.state = 154
+                self.state = 192
                 self.value()
-                self.state = 155
+                self.state = 193
                 self.match(PiCalcParser.T__3)
-                self.state = 156
+                self.state = 194
                 self.linearType()
-                self.state = 157
-                self.match(PiCalcParser.T__7)
-                self.state = 158
-                self.match(PiCalcParser.T__2)
-                self.state = 159
-                self.process()
-                self.state = 160
-                self.match(PiCalcParser.T__7)
+                self.state = 195
+                self.match(PiCalcParser.T__13)
+                self.state = 196
+                self.processPrim()
+                self.state = 197
+                self.match(PiCalcParser.T__8)
                 pass
 
             elif la_ == 11:
                 localctx = PiCalcParser.InputLinContext(self, localctx)
                 self.enterOuterAlt(localctx, 11)
-                self.state = 162
-                self.match(PiCalcParser.T__13)
-                self.state = 163
+                self.state = 199
+                self.match(PiCalcParser.T__14)
+                self.state = 200
                 localctx.channel = self.value()
-                self.state = 169 
+                self.state = 206 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while True:
-                    self.state = 164
+                    self.state = 201
                     self.match(PiCalcParser.T__0)
-                    self.state = 165
+                    self.state = 202
                     localctx._value = self.value()
                     localctx.payload.append(localctx._value)
-                    self.state = 166
+                    self.state = 203
                     self.match(PiCalcParser.T__3)
-                    self.state = 167
+                    self.state = 204
                     localctx._linearType = self.linearType()
                     localctx.plType.append(localctx._linearType)
-                    self.state = 171 
+                    self.state = 208 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if not (_la==PiCalcParser.T__0):
                         break
 
-                self.state = 173
-                self.match(PiCalcParser.T__10)
-                self.state = 174
-                self.process()
+                self.state = 210
+                self.match(PiCalcParser.T__11)
+                self.state = 211
+                self.processSec()
                 pass
 
             elif la_ == 12:
                 localctx = PiCalcParser.CaseContext(self, localctx)
                 self.enterOuterAlt(localctx, 12)
-                self.state = 176
-                self.match(PiCalcParser.T__18)
-                self.state = 177
-                localctx.case = self.value()
-                self.state = 178
+                self.state = 213
                 self.match(PiCalcParser.T__19)
-                self.state = 184 
+                self.state = 214
+                localctx.case = self.value()
+                self.state = 215
+                self.match(PiCalcParser.T__20)
+                self.state = 221 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 179
-                        localctx._value = self.value()
-                        localctx.option.append(localctx._value)
-                        self.state = 180
-                        self.match(PiCalcParser.T__20)
-                        self.state = 181
-                        localctx._process = self.process()
-                        localctx.cont.append(localctx._process)
-                        self.state = 182
+                        self.state = 216
+                        localctx._variantVal = self.variantVal()
+                        localctx.option.append(localctx._variantVal)
+                        self.state = 217
+                        self.match(PiCalcParser.T__21)
+                        self.state = 218
+                        localctx._processSec = self.processSec()
+                        localctx.cont.append(localctx._processSec)
+                        self.state = 219
                         self.match(PiCalcParser.T__0)
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 186 
+                    self.state = 223 
                     self._errHandler.sync(self)
-                    _alt = self._interp.adaptivePredict(self._input,5,self._ctx)
+                    _alt = self._interp.adaptivePredict(self._input,7,self._ctx)
 
-                self.state = 188
-                localctx._value = self.value()
-                localctx.option.append(localctx._value)
-                self.state = 189
-                self.match(PiCalcParser.T__20)
-                self.state = 190
-                localctx._process = self.process()
-                localctx.cont.append(localctx._process)
-                self.state = 191
-                self.match(PiCalcParser.T__16)
+                self.state = 225
+                localctx._variantVal = self.variantVal()
+                localctx.option.append(localctx._variantVal)
+                self.state = 226
+                self.match(PiCalcParser.T__21)
+                self.state = 227
+                localctx._processSec = self.processSec()
+                localctx.cont.append(localctx._processSec)
+                self.state = 228
+                self.match(PiCalcParser.T__17)
+                pass
+
+            elif la_ == 13:
+                localctx = PiCalcParser.OutputVariantsContext(self, localctx)
+                self.enterOuterAlt(localctx, 13)
+                self.state = 230
+                self.match(PiCalcParser.T__10)
+                self.state = 231
+                localctx.channel = self.value()
+                self.state = 237 
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                while True:
+                    self.state = 232
+                    self.match(PiCalcParser.T__0)
+                    self.state = 233
+                    localctx._value = self.value()
+                    localctx.payload.append(localctx._value)
+                    self.state = 234
+                    self.match(PiCalcParser.T__3)
+                    self.state = 235
+                    localctx._linearType = self.linearType()
+                    localctx.plType.append(localctx._linearType)
+                    self.state = 239 
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if not (_la==PiCalcParser.T__0):
+                        break
+
+                self.state = 241
+                self.match(PiCalcParser.T__11)
+                self.state = 242
+                self.processSec()
                 pass
 
 
@@ -1479,16 +1885,32 @@ class PiCalcParser ( Parser ):
                 listener.exitUnitValue(self)
 
 
+    class NamedValueContext(ValueContext):
+
+        def __init__(self, parser, ctx): # actually a PiCalcParser.ValueContext)
+            super(PiCalcParser.NamedValueContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def ID(self):
+            return self.getToken(PiCalcParser.ID, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterNamedValue"):
+                listener.enterNamedValue(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitNamedValue"):
+                listener.exitNamedValue(self)
+
+
     class VariantValueContext(ValueContext):
 
         def __init__(self, parser, ctx): # actually a PiCalcParser.ValueContext)
             super(PiCalcParser.VariantValueContext, self).__init__(parser)
             self.copyFrom(ctx)
 
-        def ID(self):
-            return self.getToken(PiCalcParser.ID, 0)
-        def value(self):
-            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
+        def variantVal(self):
+            return self.getTypedRuleContext(PiCalcParser.VariantValContext,0)
 
 
         def enterRule(self, listener):
@@ -1518,77 +1940,129 @@ class PiCalcParser ( Parser ):
                 listener.exitStringValue(self)
 
 
-    class NameContext(ValueContext):
-
-        def __init__(self, parser, ctx): # actually a PiCalcParser.ValueContext)
-            super(PiCalcParser.NameContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def ID(self):
-            return self.getToken(PiCalcParser.ID, 0)
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterName"):
-                listener.enterName(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitName"):
-                listener.exitName(self)
-
-
 
     def value(self):
 
         localctx = PiCalcParser.ValueContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 8, self.RULE_value)
+        self.enterRule(localctx, 10, self.RULE_value)
         try:
-            self.state = 203
+            self.state = 252
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,7,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,10,self._ctx)
             if la_ == 1:
                 localctx = PiCalcParser.UnitValueContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
-                self.state = 195
-                self.match(PiCalcParser.T__21)
+                self.state = 246
+                self.match(PiCalcParser.T__22)
                 pass
 
             elif la_ == 2:
-                localctx = PiCalcParser.NameContext(self, localctx)
+                localctx = PiCalcParser.NamedValueContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 196
+                self.state = 247
                 self.match(PiCalcParser.ID)
                 pass
 
             elif la_ == 3:
                 localctx = PiCalcParser.VariantValueContext(self, localctx)
                 self.enterOuterAlt(localctx, 3)
-                self.state = 197
-                self.match(PiCalcParser.ID)
-                self.state = 198
-                self.match(PiCalcParser.T__22)
-                self.state = 199
-                self.value()
+                self.state = 248
+                self.variantVal()
                 pass
 
             elif la_ == 4:
                 localctx = PiCalcParser.StringValueContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
-                self.state = 200
+                self.state = 249
                 self.match(PiCalcParser.StringVal)
                 pass
 
             elif la_ == 5:
                 localctx = PiCalcParser.IntegerValueContext(self, localctx)
                 self.enterOuterAlt(localctx, 5)
-                self.state = 201
+                self.state = 250
                 self.match(PiCalcParser.IntVal)
                 pass
 
             elif la_ == 6:
                 localctx = PiCalcParser.BooleanValueContext(self, localctx)
                 self.enterOuterAlt(localctx, 6)
-                self.state = 202
+                self.state = 251
                 self.match(PiCalcParser.BooleanVal)
+                pass
+
+
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class VariantValContext(ParserRuleContext):
+
+        def __init__(self, parser, parent=None, invokingState=-1):
+            super(PiCalcParser.VariantValContext, self).__init__(parent, invokingState)
+            self.parser = parser
+
+        def ID(self):
+            return self.getToken(PiCalcParser.ID, 0)
+
+        def value(self):
+            return self.getTypedRuleContext(PiCalcParser.ValueContext,0)
+
+
+        def linearType(self):
+            return self.getTypedRuleContext(PiCalcParser.LinearTypeContext,0)
+
+
+        def getRuleIndex(self):
+            return PiCalcParser.RULE_variantVal
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterVariantVal"):
+                listener.enterVariantVal(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitVariantVal"):
+                listener.exitVariantVal(self)
+
+
+
+
+    def variantVal(self):
+
+        localctx = PiCalcParser.VariantValContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 12, self.RULE_variantVal)
+        try:
+            self.state = 264
+            self._errHandler.sync(self)
+            la_ = self._interp.adaptivePredict(self._input,11,self._ctx)
+            if la_ == 1:
+                self.enterOuterAlt(localctx, 1)
+                self.state = 254
+                self.match(PiCalcParser.ID)
+                self.state = 255
+                self.match(PiCalcParser.T__23)
+                self.state = 256
+                self.value()
+                pass
+
+            elif la_ == 2:
+                self.enterOuterAlt(localctx, 2)
+                self.state = 257
+                self.match(PiCalcParser.ID)
+                self.state = 258
+                self.match(PiCalcParser.T__24)
+                self.state = 259
+                self.value()
+                self.state = 260
+                self.match(PiCalcParser.T__3)
+                self.state = 261
+                self.linearType()
+                self.state = 262
+                self.match(PiCalcParser.T__8)
                 pass
 
 
@@ -1684,34 +2158,34 @@ class PiCalcParser ( Parser ):
     def basicType(self):
 
         localctx = PiCalcParser.BasicTypeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 10, self.RULE_basicType)
+        self.enterRule(localctx, 14, self.RULE_basicType)
         try:
-            self.state = 209
+            self.state = 270
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PiCalcParser.T__23]:
+            if token in [PiCalcParser.T__25]:
                 localctx = PiCalcParser.UnitTypeContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
-                self.state = 205
-                self.match(PiCalcParser.T__23)
-                pass
-            elif token in [PiCalcParser.T__24]:
-                localctx = PiCalcParser.BooleanContext(self, localctx)
-                self.enterOuterAlt(localctx, 2)
-                self.state = 206
-                self.match(PiCalcParser.T__24)
-                pass
-            elif token in [PiCalcParser.T__25]:
-                localctx = PiCalcParser.IntegerContext(self, localctx)
-                self.enterOuterAlt(localctx, 3)
-                self.state = 207
+                self.state = 266
                 self.match(PiCalcParser.T__25)
                 pass
             elif token in [PiCalcParser.T__26]:
+                localctx = PiCalcParser.BooleanContext(self, localctx)
+                self.enterOuterAlt(localctx, 2)
+                self.state = 267
+                self.match(PiCalcParser.T__26)
+                pass
+            elif token in [PiCalcParser.T__27]:
+                localctx = PiCalcParser.IntegerContext(self, localctx)
+                self.enterOuterAlt(localctx, 3)
+                self.state = 268
+                self.match(PiCalcParser.T__27)
+                pass
+            elif token in [PiCalcParser.T__28]:
                 localctx = PiCalcParser.StringContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
-                self.state = 208
-                self.match(PiCalcParser.T__26)
+                self.state = 269
+                self.match(PiCalcParser.T__28)
                 pass
             else:
                 raise NoViableAltException(self)
@@ -1746,7 +2220,6 @@ class PiCalcParser ( Parser ):
             super(PiCalcParser.LinearOutputContext, self).__init__(parser)
             self._linearType = None # LinearTypeContext
             self.payload = list() # of LinearTypeContexts
-            self.cont = None # LinearTypeContext
             self.copyFrom(ctx)
 
         def linearType(self, i=None):
@@ -1771,7 +2244,6 @@ class PiCalcParser ( Parser ):
             super(PiCalcParser.LinearInputContext, self).__init__(parser)
             self._linearType = None # LinearTypeContext
             self.payload = list() # of LinearTypeContexts
-            self.cont = None # LinearTypeContext
             self.copyFrom(ctx)
 
         def linearType(self, i=None):
@@ -1794,6 +2266,10 @@ class PiCalcParser ( Parser ):
 
         def __init__(self, parser, ctx): # actually a PiCalcParser.LinearTypeContext)
             super(PiCalcParser.VariantTypeContext, self).__init__(parser)
+            self._ID = None # Token
+            self.variant = list() # of Tokens
+            self._linearType = None # LinearTypeContext
+            self.cont = list() # of LinearTypeContexts
             self.copyFrom(ctx)
 
         def ID(self, i=None):
@@ -1823,7 +2299,6 @@ class PiCalcParser ( Parser ):
             super(PiCalcParser.ConnectionContext, self).__init__(parser)
             self._linearType = None # LinearTypeContext
             self.payload = list() # of LinearTypeContexts
-            self.cont = None # LinearTypeContext
             self.copyFrom(ctx)
 
         def linearType(self, i=None):
@@ -1867,7 +2342,6 @@ class PiCalcParser ( Parser ):
             super(PiCalcParser.LinearConnectionContext, self).__init__(parser)
             self._linearType = None # LinearTypeContext
             self.payload = list() # of LinearTypeContexts
-            self.cont = None # LinearTypeContext
             self.copyFrom(ctx)
 
         def linearType(self, i=None):
@@ -1925,155 +2399,165 @@ class PiCalcParser ( Parser ):
     def linearType(self):
 
         localctx = PiCalcParser.LinearTypeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 12, self.RULE_linearType)
-        self._la = 0 # Token type
+        self.enterRule(localctx, 16, self.RULE_linearType)
         try:
-            self.state = 274
+            self.state = 338
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PiCalcParser.ID]:
                 localctx = PiCalcParser.NamedLinTypeContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
-                self.state = 211
+                self.state = 272
                 localctx.name = self.match(PiCalcParser.ID)
                 pass
-            elif token in [PiCalcParser.T__27]:
+            elif token in [PiCalcParser.T__29]:
                 localctx = PiCalcParser.LinearOutputContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 212
-                self.match(PiCalcParser.T__27)
-                self.state = 218
+                self.state = 273
+                self.match(PiCalcParser.T__29)
+                self.state = 279
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,13,self._ctx)
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt==1:
-                        self.state = 213
+                        self.state = 274
                         localctx._linearType = self.linearType()
                         localctx.payload.append(localctx._linearType)
-                        self.state = 214
+                        self.state = 275
                         self.match(PiCalcParser.T__0) 
-                    self.state = 220
+                    self.state = 281
                     self._errHandler.sync(self)
-                    _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
+                    _alt = self._interp.adaptivePredict(self._input,13,self._ctx)
 
-                self.state = 221
-                localctx.cont = self.linearType()
-                self.state = 222
-                self.match(PiCalcParser.T__28)
-                pass
-            elif token in [PiCalcParser.T__29]:
-                localctx = PiCalcParser.LinearInputContext(self, localctx)
-                self.enterOuterAlt(localctx, 3)
-                self.state = 224
-                self.match(PiCalcParser.T__29)
-                self.state = 225
+                self.state = 282
                 localctx._linearType = self.linearType()
                 localctx.payload.append(localctx._linearType)
-                self.state = 230
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
-                while _la==PiCalcParser.T__0:
-                    self.state = 226
-                    self.match(PiCalcParser.T__0)
-                    self.state = 227
-                    localctx.cont = self.linearType()
-                    self.state = 232
-                    self._errHandler.sync(self)
-                    _la = self._input.LA(1)
-
-                self.state = 233
-                self.match(PiCalcParser.T__28)
-                pass
-            elif token in [PiCalcParser.T__30]:
-                localctx = PiCalcParser.LinearConnectionContext(self, localctx)
-                self.enterOuterAlt(localctx, 4)
-                self.state = 235
+                self.state = 283
                 self.match(PiCalcParser.T__30)
-                self.state = 236
-                localctx._linearType = self.linearType()
-                localctx.payload.append(localctx._linearType)
-                self.state = 241
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
-                while _la==PiCalcParser.T__0:
-                    self.state = 237
-                    self.match(PiCalcParser.T__0)
-                    self.state = 238
-                    localctx.cont = self.linearType()
-                    self.state = 243
-                    self._errHandler.sync(self)
-                    _la = self._input.LA(1)
-
-                self.state = 244
-                self.match(PiCalcParser.T__28)
                 pass
             elif token in [PiCalcParser.T__31]:
-                localctx = PiCalcParser.ConnectionContext(self, localctx)
-                self.enterOuterAlt(localctx, 5)
-                self.state = 246
+                localctx = PiCalcParser.LinearInputContext(self, localctx)
+                self.enterOuterAlt(localctx, 3)
+                self.state = 285
                 self.match(PiCalcParser.T__31)
-                self.state = 247
+                self.state = 291
+                self._errHandler.sync(self)
+                _alt = self._interp.adaptivePredict(self._input,14,self._ctx)
+                while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
+                    if _alt==1:
+                        self.state = 286
+                        localctx._linearType = self.linearType()
+                        localctx.payload.append(localctx._linearType)
+                        self.state = 287
+                        self.match(PiCalcParser.T__0) 
+                    self.state = 293
+                    self._errHandler.sync(self)
+                    _alt = self._interp.adaptivePredict(self._input,14,self._ctx)
+
+                self.state = 294
                 localctx._linearType = self.linearType()
                 localctx.payload.append(localctx._linearType)
-                self.state = 252
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
-                while _la==PiCalcParser.T__0:
-                    self.state = 248
-                    self.match(PiCalcParser.T__0)
-                    self.state = 249
-                    localctx.cont = self.linearType()
-                    self.state = 254
-                    self._errHandler.sync(self)
-                    _la = self._input.LA(1)
-
-                self.state = 255
-                self.match(PiCalcParser.T__28)
+                self.state = 295
+                self.match(PiCalcParser.T__30)
                 pass
             elif token in [PiCalcParser.T__32]:
-                localctx = PiCalcParser.NoCapabilityContext(self, localctx)
-                self.enterOuterAlt(localctx, 6)
-                self.state = 257
+                localctx = PiCalcParser.LinearConnectionContext(self, localctx)
+                self.enterOuterAlt(localctx, 4)
+                self.state = 297
                 self.match(PiCalcParser.T__32)
+                self.state = 303
+                self._errHandler.sync(self)
+                _alt = self._interp.adaptivePredict(self._input,15,self._ctx)
+                while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
+                    if _alt==1:
+                        self.state = 298
+                        localctx._linearType = self.linearType()
+                        localctx.payload.append(localctx._linearType)
+                        self.state = 299
+                        self.match(PiCalcParser.T__0) 
+                    self.state = 305
+                    self._errHandler.sync(self)
+                    _alt = self._interp.adaptivePredict(self._input,15,self._ctx)
+
+                self.state = 306
+                localctx._linearType = self.linearType()
+                localctx.payload.append(localctx._linearType)
+                self.state = 307
+                self.match(PiCalcParser.T__30)
                 pass
             elif token in [PiCalcParser.T__33]:
+                localctx = PiCalcParser.ConnectionContext(self, localctx)
+                self.enterOuterAlt(localctx, 5)
+                self.state = 309
+                self.match(PiCalcParser.T__33)
+                self.state = 315
+                self._errHandler.sync(self)
+                _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
+                while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
+                    if _alt==1:
+                        self.state = 310
+                        localctx._linearType = self.linearType()
+                        localctx.payload.append(localctx._linearType)
+                        self.state = 311
+                        self.match(PiCalcParser.T__0) 
+                    self.state = 317
+                    self._errHandler.sync(self)
+                    _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
+
+                self.state = 318
+                localctx._linearType = self.linearType()
+                localctx.payload.append(localctx._linearType)
+                self.state = 319
+                self.match(PiCalcParser.T__30)
+                pass
+            elif token in [PiCalcParser.T__34]:
+                localctx = PiCalcParser.NoCapabilityContext(self, localctx)
+                self.enterOuterAlt(localctx, 6)
+                self.state = 321
+                self.match(PiCalcParser.T__34)
+                pass
+            elif token in [PiCalcParser.T__35]:
                 localctx = PiCalcParser.VariantTypeContext(self, localctx)
                 self.enterOuterAlt(localctx, 7)
-                self.state = 258
-                self.match(PiCalcParser.T__33)
-                self.state = 264 
+                self.state = 322
+                self.match(PiCalcParser.T__35)
+                self.state = 328 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 259
-                        self.match(PiCalcParser.ID)
-                        self.state = 260
-                        self.match(PiCalcParser.T__22)
-                        self.state = 261
-                        self.linearType()
-                        self.state = 262
+                        self.state = 323
+                        localctx._ID = self.match(PiCalcParser.ID)
+                        localctx.variant.append(localctx._ID)
+                        self.state = 324
+                        self.match(PiCalcParser.T__23)
+                        self.state = 325
+                        localctx._linearType = self.linearType()
+                        localctx.cont.append(localctx._linearType)
+                        self.state = 326
                         self.match(PiCalcParser.T__0)
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 266 
+                    self.state = 330 
                     self._errHandler.sync(self)
-                    _alt = self._interp.adaptivePredict(self._input,13,self._ctx)
+                    _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
 
-                self.state = 268
-                self.match(PiCalcParser.ID)
-                self.state = 269
-                self.match(PiCalcParser.T__22)
-                self.state = 270
-                self.linearType()
-                self.state = 271
-                self.match(PiCalcParser.T__20)
+                self.state = 332
+                localctx._ID = self.match(PiCalcParser.ID)
+                localctx.variant.append(localctx._ID)
+                self.state = 333
+                self.match(PiCalcParser.T__23)
+                self.state = 334
+                localctx._linearType = self.linearType()
+                localctx.cont.append(localctx._linearType)
+                self.state = 335
+                self.match(PiCalcParser.T__21)
                 pass
-            elif token in [PiCalcParser.T__23, PiCalcParser.T__24, PiCalcParser.T__25, PiCalcParser.T__26]:
+            elif token in [PiCalcParser.T__25, PiCalcParser.T__26, PiCalcParser.T__27, PiCalcParser.T__28]:
                 localctx = PiCalcParser.BasicLinTypeContext(self, localctx)
                 self.enterOuterAlt(localctx, 8)
-                self.state = 273
+                self.state = 337
                 self.basicType()
                 pass
             else:
@@ -2183,38 +2667,38 @@ class PiCalcParser ( Parser ):
     def tType(self):
 
         localctx = PiCalcParser.TTypeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 14, self.RULE_tType)
+        self.enterRule(localctx, 18, self.RULE_tType)
         try:
-            self.state = 281
+            self.state = 345
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,15,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,19,self._ctx)
             if la_ == 1:
                 localctx = PiCalcParser.NamedTTypeContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
-                self.state = 276
+                self.state = 340
                 localctx.name = self.match(PiCalcParser.ID)
                 pass
 
             elif la_ == 2:
                 localctx = PiCalcParser.SessionTypeContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 277
+                self.state = 341
                 self.sType()
                 pass
 
             elif la_ == 3:
                 localctx = PiCalcParser.ChannelTypeContext(self, localctx)
                 self.enterOuterAlt(localctx, 3)
-                self.state = 278
-                self.match(PiCalcParser.T__34)
-                self.state = 279
+                self.state = 342
+                self.match(PiCalcParser.T__36)
+                self.state = 343
                 self.tType()
                 pass
 
             elif la_ == 4:
                 localctx = PiCalcParser.BasicSesTypeContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
-                self.state = 280
+                self.state = 344
                 self.basicType()
                 pass
 
@@ -2392,122 +2876,122 @@ class PiCalcParser ( Parser ):
     def sType(self):
 
         localctx = PiCalcParser.STypeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 16, self.RULE_sType)
+        self.enterRule(localctx, 20, self.RULE_sType)
         try:
-            self.state = 325
+            self.state = 389
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PiCalcParser.ID]:
                 localctx = PiCalcParser.NamedSTypeContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
-                self.state = 283
+                self.state = 347
                 localctx.name = self.match(PiCalcParser.ID)
                 pass
-            elif token in [PiCalcParser.T__35]:
+            elif token in [PiCalcParser.T__37]:
                 localctx = PiCalcParser.TerminateContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 284
-                self.match(PiCalcParser.T__35)
-                pass
-            elif token in [PiCalcParser.T__36]:
-                localctx = PiCalcParser.ReceiveContext(self, localctx)
-                self.enterOuterAlt(localctx, 3)
-                self.state = 285
-                self.match(PiCalcParser.T__36)
-                self.state = 286
-                localctx.payload = self.tType()
-                self.state = 287
+                self.state = 348
                 self.match(PiCalcParser.T__37)
-                self.state = 288
-                self.sType()
                 pass
             elif token in [PiCalcParser.T__38]:
-                localctx = PiCalcParser.SendContext(self, localctx)
-                self.enterOuterAlt(localctx, 4)
-                self.state = 290
+                localctx = PiCalcParser.ReceiveContext(self, localctx)
+                self.enterOuterAlt(localctx, 3)
+                self.state = 349
                 self.match(PiCalcParser.T__38)
-                self.state = 291
+                self.state = 350
                 localctx.payload = self.tType()
-                self.state = 292
-                self.match(PiCalcParser.T__37)
-                self.state = 293
+                self.state = 351
+                self.match(PiCalcParser.T__39)
+                self.state = 352
                 self.sType()
                 pass
-            elif token in [PiCalcParser.T__39]:
+            elif token in [PiCalcParser.T__40]:
+                localctx = PiCalcParser.SendContext(self, localctx)
+                self.enterOuterAlt(localctx, 4)
+                self.state = 354
+                self.match(PiCalcParser.T__40)
+                self.state = 355
+                localctx.payload = self.tType()
+                self.state = 356
+                self.match(PiCalcParser.T__39)
+                self.state = 357
+                self.sType()
+                pass
+            elif token in [PiCalcParser.T__41]:
                 localctx = PiCalcParser.BranchContext(self, localctx)
                 self.enterOuterAlt(localctx, 5)
-                self.state = 295
-                self.match(PiCalcParser.T__39)
-                self.state = 301 
+                self.state = 359
+                self.match(PiCalcParser.T__41)
+                self.state = 365 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 296
+                        self.state = 360
                         localctx._value = self.value()
                         localctx.option.append(localctx._value)
-                        self.state = 297
+                        self.state = 361
                         self.match(PiCalcParser.T__3)
-                        self.state = 298
+                        self.state = 362
                         localctx._sType = self.sType()
                         localctx.cont.append(localctx._sType)
-                        self.state = 299
+                        self.state = 363
                         self.match(PiCalcParser.T__0)
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 303 
+                    self.state = 367 
                     self._errHandler.sync(self)
-                    _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
+                    _alt = self._interp.adaptivePredict(self._input,20,self._ctx)
 
-                self.state = 305
+                self.state = 369
                 localctx._value = self.value()
                 localctx.option.append(localctx._value)
-                self.state = 306
+                self.state = 370
                 self.match(PiCalcParser.T__3)
-                self.state = 307
+                self.state = 371
                 localctx._sType = self.sType()
                 localctx.cont.append(localctx._sType)
-                self.state = 308
-                self.match(PiCalcParser.T__16)
+                self.state = 372
+                self.match(PiCalcParser.T__17)
                 pass
-            elif token in [PiCalcParser.T__40]:
+            elif token in [PiCalcParser.T__42]:
                 localctx = PiCalcParser.SelectContext(self, localctx)
                 self.enterOuterAlt(localctx, 6)
-                self.state = 310
-                self.match(PiCalcParser.T__40)
-                self.state = 316 
+                self.state = 374
+                self.match(PiCalcParser.T__42)
+                self.state = 380 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 311
+                        self.state = 375
                         localctx._value = self.value()
                         localctx.option.append(localctx._value)
-                        self.state = 312
+                        self.state = 376
                         self.match(PiCalcParser.T__3)
-                        self.state = 313
+                        self.state = 377
                         localctx._sType = self.sType()
                         localctx.cont.append(localctx._sType)
-                        self.state = 314
+                        self.state = 378
                         self.match(PiCalcParser.T__0)
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 318 
+                    self.state = 382 
                     self._errHandler.sync(self)
-                    _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
+                    _alt = self._interp.adaptivePredict(self._input,21,self._ctx)
 
-                self.state = 320
+                self.state = 384
                 localctx._value = self.value()
                 localctx.option.append(localctx._value)
-                self.state = 321
+                self.state = 385
                 self.match(PiCalcParser.T__3)
-                self.state = 322
+                self.state = 386
                 localctx._sType = self.sType()
                 localctx.cont.append(localctx._sType)
-                self.state = 323
-                self.match(PiCalcParser.T__16)
+                self.state = 387
+                self.match(PiCalcParser.T__17)
                 pass
             else:
                 raise NoViableAltException(self)

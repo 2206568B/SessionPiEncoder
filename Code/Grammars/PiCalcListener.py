@@ -31,6 +31,15 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by PiCalcParser#ProcessNamingNmd.
+    def enterProcessNamingNmd(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#ProcessNamingNmd.
+    def exitProcessNamingNmd(self, ctx):
+        pass
+
+
     # Enter a parse tree produced by PiCalcParser#ProcessNamingSes.
     def enterProcessNamingSes(self, ctx):
         pass
@@ -64,6 +73,42 @@ class PiCalcListener(ParseTreeListener):
 
     # Exit a parse tree produced by PiCalcParser#LinearTypeNaming.
     def exitLinearTypeNaming(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#BasicTypeDecl.
+    def enterBasicTypeDecl(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#BasicTypeDecl.
+    def exitBasicTypeDecl(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#BasTypeDeclAndAssign.
+    def enterBasTypeDeclAndAssign(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#BasTypeDeclAndAssign.
+    def exitBasTypeDeclAndAssign(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#NamedTypeDecl.
+    def enterNamedTypeDecl(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#NamedTypeDecl.
+    def exitNamedTypeDecl(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#NmdTypeDeclAndAssign.
+    def enterNmdTypeDeclAndAssign(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#NmdTypeDeclAndAssign.
+    def exitNmdTypeDeclAndAssign(self, ctx):
         pass
 
 
@@ -103,6 +148,24 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by PiCalcParser#SecondaryProc.
+    def enterSecondaryProc(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#SecondaryProc.
+    def exitSecondaryProc(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#Composition.
+    def enterComposition(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#Composition.
+    def exitComposition(self, ctx):
+        pass
+
+
     # Enter a parse tree produced by PiCalcParser#NamedProcess.
     def enterNamedProcess(self, ctx):
         pass
@@ -130,12 +193,12 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#Composition.
-    def enterComposition(self, ctx):
+    # Enter a parse tree produced by PiCalcParser#ChannelRestrictionNmd.
+    def enterChannelRestrictionNmd(self, ctx):
         pass
 
-    # Exit a parse tree produced by PiCalcParser#Composition.
-    def exitComposition(self, ctx):
+    # Exit a parse tree produced by PiCalcParser#ChannelRestrictionNmd.
+    def exitChannelRestrictionNmd(self, ctx):
         pass
 
 
@@ -211,6 +274,15 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by PiCalcParser#OutputVariants.
+    def enterOutputVariants(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#OutputVariants.
+    def exitOutputVariants(self, ctx):
+        pass
+
+
     # Enter a parse tree produced by PiCalcParser#UnitValue.
     def enterUnitValue(self, ctx):
         pass
@@ -220,12 +292,12 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#Name.
-    def enterName(self, ctx):
+    # Enter a parse tree produced by PiCalcParser#NamedValue.
+    def enterNamedValue(self, ctx):
         pass
 
-    # Exit a parse tree produced by PiCalcParser#Name.
-    def exitName(self, ctx):
+    # Exit a parse tree produced by PiCalcParser#NamedValue.
+    def exitNamedValue(self, ctx):
         pass
 
 
@@ -262,6 +334,15 @@ class PiCalcListener(ParseTreeListener):
 
     # Exit a parse tree produced by PiCalcParser#BooleanValue.
     def exitBooleanValue(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#variantVal.
+    def enterVariantVal(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#variantVal.
+    def exitVariantVal(self, ctx):
         pass
 
 
