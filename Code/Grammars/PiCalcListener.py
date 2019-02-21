@@ -76,24 +76,6 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#BasicTypeDecl.
-    def enterBasicTypeDecl(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#BasicTypeDecl.
-    def exitBasicTypeDecl(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by PiCalcParser#BasTypeDeclAndAssign.
-    def enterBasTypeDeclAndAssign(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#BasTypeDeclAndAssign.
-    def exitBasTypeDeclAndAssign(self, ctx):
-        pass
-
-
     # Enter a parse tree produced by PiCalcParser#NamedTypeDecl.
     def enterNamedTypeDecl(self, ctx):
         pass
@@ -346,39 +328,75 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#UnitType.
-    def enterUnitType(self, ctx):
+    # Enter a parse tree produced by PiCalcParser#LUnitType.
+    def enterLUnitType(self, ctx):
         pass
 
-    # Exit a parse tree produced by PiCalcParser#UnitType.
-    def exitUnitType(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by PiCalcParser#Boolean.
-    def enterBoolean(self, ctx):
-        pass
-
-    # Exit a parse tree produced by PiCalcParser#Boolean.
-    def exitBoolean(self, ctx):
+    # Exit a parse tree produced by PiCalcParser#LUnitType.
+    def exitLUnitType(self, ctx):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#Integer.
-    def enterInteger(self, ctx):
+    # Enter a parse tree produced by PiCalcParser#LBoolean.
+    def enterLBoolean(self, ctx):
         pass
 
-    # Exit a parse tree produced by PiCalcParser#Integer.
-    def exitInteger(self, ctx):
+    # Exit a parse tree produced by PiCalcParser#LBoolean.
+    def exitLBoolean(self, ctx):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#String.
-    def enterString(self, ctx):
+    # Enter a parse tree produced by PiCalcParser#LInteger.
+    def enterLInteger(self, ctx):
         pass
 
-    # Exit a parse tree produced by PiCalcParser#String.
-    def exitString(self, ctx):
+    # Exit a parse tree produced by PiCalcParser#LInteger.
+    def exitLInteger(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#LString.
+    def enterLString(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#LString.
+    def exitLString(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#SUnitType.
+    def enterSUnitType(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#SUnitType.
+    def exitSUnitType(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#SBoolean.
+    def enterSBoolean(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#SBoolean.
+    def exitSBoolean(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#SInteger.
+    def enterSInteger(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#SInteger.
+    def exitSInteger(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#SString.
+    def enterSString(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#SString.
+    def exitSString(self, ctx):
         pass
 
 

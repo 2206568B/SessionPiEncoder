@@ -5,7 +5,7 @@ $(document).ready(function() {
 		}, function(data) {
 			$('textarea#lipi').val(data.encoded);
 			if(data.output !== "") {
-				$('div#sepi-term').text($('div#sepi-term').text() + '\n' + data.output);
+				$('div#sepi-term').text(data.output);
 			}
 		});
 		return false;
@@ -15,7 +15,7 @@ $(document).ready(function() {
 			sepi_code: $('textarea#sepi').val()
 		}, function(data) {
 			if(data.result != "") {
-				$('div#sepi-term').text($('div#sepi-term').text() + '\n' + data.result);
+				$('div#sepi-term').text(data.result);
 			}
 		});
 		return false;
@@ -25,7 +25,7 @@ $(document).ready(function() {
 			lipi_code: $('textarea#lipi').val()
 		}, function(data) {
 			if(data.result != "") {
-				$('div#lipi-term').text($('div#lipi-term').text() + '\n' + data.result);
+				$('div#lipi-term').text(data.result);
 			}
 		});
 		return false;
@@ -35,7 +35,7 @@ $(document).ready(function() {
 			sepi_code: $('textarea#sepi').val()
 		}, function(data) {
 			if(data.output != "") {
-				$('div#sepi-term').text($('div#sepi-term').text() + '\n' + data.output);
+				$('div#sepi-term').text(data.output);
 			}
 		});
 		return false;
@@ -45,7 +45,7 @@ $(document).ready(function() {
 			sepi_code: $('textarea#lipi').val()
 		}, function(data) {
 			if(data.output != "") {
-				$('div#lipi-term').text($('div#lipi-term').text() + '\n' + data.output);
+				$('div#lipi-term').text(data.output);
 			}
 		});
 		return false;

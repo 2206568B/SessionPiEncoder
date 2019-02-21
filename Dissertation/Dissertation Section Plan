@@ -1,0 +1,25 @@
+1. Introduction
+  1.1 Motivation
+  1.2 Aims
+  1.3 Outline
+
+2. Background
+  2.1 Pi Calculus
+  2.2 Session types
+  2.3 Linear types
+  2.4 Encoding
+
+3. Design
+  ???
+
+4. Implementation
+  4.1 Web interface
+  4.2 Encoding
+  4.3 Typechecking
+  4.4 Running
+
+5. Evaluation
+  5.1 Correctness
+  5.2 User-study
+
+6. Conclusion

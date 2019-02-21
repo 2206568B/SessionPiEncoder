@@ -13,9 +13,9 @@ declAssign  : var=ID '=' value                                                  
             | name=ID '(' value ':' linearType ') :=' processPrim                                                                     # ProcessNamingLin
             | 'type ' name=ID ':=' tType                                                                                              # SessionTypeNaming
             | 'type ' name=ID ':=' linearType                                                                                         # LinearTypeNaming
-            | 'type ' var=ID basicType                                                                                                # BasicTypeDecl
+/**            | 'type ' var=ID basicType                                                                                                # BasicTypeDecl
             | 'type ' var=ID basicType '=' value                                                                                      # BasTypeDeclAndAssign
-            | 'type ' var=ID typeName=ID                                                                                              # NamedTypeDecl
+*/          | 'type ' var=ID typeName=ID                                                                                              # NamedTypeDecl
             | 'type ' var=ID typeName=ID '=' value                                                                                    # NmdTypeDeclAndAssign
             | 'type ' var=ID tType                                                                                                    # SessionTypeDecl
             | 'type ' var=ID tType '=' value                                                                                          # SesTypeDeclAndAssign
@@ -63,34 +63,40 @@ variantVal  : ID '_' value
 
 /** Types */
 
-basicType   : 'Unit'                                                                                                              # UnitType
-            | 'Bool'                                                                                                              # Boolean
-            | 'Int'                                                                                                               # Integer
-            | 'String'                                                                                                            # String
+basicLType  : 'lUnit'                                                                                                                 # LUnitType
+            | 'lBool'                                                                                                                 # LBoolean
+            | 'lInt'                                                                                                                  # LInteger
+            | 'lString'                                                                                                               # LString
             ;
 
-linearType  : name=ID                                                                                                             # NamedLinType
-            | 'lo['(payload+=linearType ',')* payload+=linearType ']'                                                             # LinearOutput
-            | 'li['(payload+=linearType ',')* payload+=linearType']'                                                              # LinearInput
-            | 'l#['(payload+=linearType ',')* payload+=linearType']'                                                              # LinearConnection
-            | '#['(payload+=linearType ',')* payload+=linearType']'                                                               # Connection
-            | 'empty[]'                                                                                                           # NoCapability
-            | '<' (variant+=ID '_' cont+=linearType ',')+ variant+=ID '_' cont+=linearType '>'                                    # VariantType
-            | basicType                                                                                                           # BasicLinType
+basicSType  : 'sUnit'                                                                                                                 # SUnitType
+            | 'sBool'                                                                                                                 # SBoolean
+            | 'sInt'                                                                                                                  # SInteger
+            | 'sString'                                                                                                               # SString
             ;
 
-tType       : name=ID                                                                                                             # NamedTType
-            | sType                                                                                                               # SessionType
-            | '#'tType                                                                                                            # ChannelType
-            | basicType                                                                                                           # BasicSesType
+linearType  : name=ID                                                                                                                 # NamedLinType
+            | 'lo['(payload+=linearType ',')* payload+=linearType ']'                                                                 # LinearOutput
+            | 'li['(payload+=linearType ',')* payload+=linearType']'                                                                  # LinearInput
+            | 'l#['(payload+=linearType ',')* payload+=linearType']'                                                                  # LinearConnection
+            | '#['(payload+=linearType ',')* payload+=linearType']'                                                                   # Connection
+            | 'empty[]'                                                                                                               # NoCapability
+            | '<' (variant+=ID '_' cont+=linearType ',')+ variant+=ID '_' cont+=linearType '>'                                        # VariantType
+            | basicLType                                                                                                              # BasicLinType
             ;
 
-sType       : name=ID                                                                                                             # NamedSType
-            | 'end'                                                                                                               # Terminate
-            | '?'payload=tType'.'sType                                                                                            # Receive
-            | '!'payload=tType'.'sType                                                                                            # Send
-            | '&{' (option+=value ':' cont+=sType ',')+ option+=value ':' cont+=sType '}'                                         # Branch
-            | '+{' (option+=value ':' cont+=sType ',')+ option+=value ':' cont+=sType '}'                                         # Select
+tType       : name=ID                                                                                                                 # NamedTType
+            | sType                                                                                                                   # SessionType
+            | '#'tType                                                                                                                # ChannelType
+            | basicSType                                                                                                              # BasicSesType
+            ;
+
+sType       : name=ID                                                                                                                 # NamedSType
+            | 'end'                                                                                                                   # Terminate
+            | '?'payload=tType'.'sType                                                                                                # Receive
+            | '!'payload=tType'.'sType                                                                                                # Send
+            | '&{' (option+=value ':' cont+=sType ',')+ option+=value ':' cont+=sType '}'                                             # Branch
+            | '+{' (option+=value ':' cont+=sType ',')+ option+=value ':' cont+=sType '}'                                             # Select
             ;
 
 /** Tokens */

@@ -1,16 +1,49 @@
+html {
+	height:			100%;
+}
+
+body {
+	height:			100%;
+	background:		#262b35;
+}
+
+h1 {
+	color:			#5fb4b4;
+}
+
+h2 {
+	color:			#5fb4b4;
+}
+
 .terminal {
 	flex:			1;
 	padding:		10px;
-	background:		#404040;
-	white-space:	pre-line;
+	background:		#1f252a;
 	color:			#ffffff;
 	font-family:	monospace;
-	font-size:		1.25em;
+	font-size:		1em;
 	font-weight:	bold;
+	overflow:		scroll;
+}
+
+#term-header {
+	color:			#c695bd;
+}
+
+#sepi-term {
+	white-space: 	pre-wrap;
+}
+
+#lipi-term {
+	white-space: 	pre-wrap;
 }
 
 textarea {
 	flex:			1;
+	background:		#343d46;
+	border-color:	#2c333a;
+	border-style:	solid;
+	color:			#d8dee9;
 }
 
 .column {
