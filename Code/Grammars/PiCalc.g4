@@ -8,15 +8,13 @@ encInput    : decls? processPrim                                                
 decls       : decs+=declAssign (',' decs+=declAssign)*;
 
 declAssign  : var=ID '=' value                                                                                                        # VariableAssignment
-            | name=ID '(' value ':' typeName=ID ') :=' processPrim                                                                    # ProcessNamingNmd 
+            | name=ID '(' value ':' namedType ') :=' processPrim                                                                      # ProcessNamingNmd 
             | name=ID '(' value ':' tType ') :=' processPrim                                                                          # ProcessNamingSes
             | name=ID '(' value ':' linearType ') :=' processPrim                                                                     # ProcessNamingLin
             | 'type ' name=ID ':=' tType                                                                                              # SessionTypeNaming
             | 'type ' name=ID ':=' linearType                                                                                         # LinearTypeNaming
-/**            | 'type ' var=ID basicType                                                                                                # BasicTypeDecl
-            | 'type ' var=ID basicType '=' value                                                                                      # BasTypeDeclAndAssign
-*/          | 'type ' var=ID typeName=ID                                                                                              # NamedTypeDecl
-            | 'type ' var=ID typeName=ID '=' value                                                                                    # NmdTypeDeclAndAssign
+            | 'type ' var=ID namedType                                                                                                # NamedTypeDecl
+            | 'type ' var=ID namedType '=' value                                                                                      # NmdTypeDeclAndAssign
             | 'type ' var=ID tType                                                                                                    # SessionTypeDecl
             | 'type ' var=ID tType '=' value                                                                                          # SesTypeDeclAndAssign
             | 'type ' var=ID linearType                                                                                               # LinearTypeDecl
@@ -30,31 +28,50 @@ processPrim : processSec                                                        
             ;
 
 processSec  : name=ID '(' value ')'                                                                                                   # NamedProcess
-            | '0'                                                                                                                     # Termination
+            | 'end'                                                                                                                   # Termination
             /** Send and Receive can have multiple payloads in linear pi calculus */
-            | 'send(' channel=value (',' payload+=value)+ ').' processSec                                                             # Output
-            | '(new ' value ':' typeName=ID ') (' processPrim ')'                                                                     # ChannelRestrictionNmd
+            | 'send(' channel=value (',' payloads+=value)+ ').' processSec                                                            # Output
+            | '(new ' value ':' namedType ') (' processPrim ')'                                                                       # ChannelRestrictionNmd
             /** Input and Channel Restriction must be duplicated due to type annotations needing to allow both linear and session types
             /** Case and Branching must give two or more options, hence '(...)+ ...' structure */
             /** Below rules are for session pi calculus */
             | '(new ' endpoint+=value endpoint+=value ':' sType ') (' processPrim ')'                                                 # SessionRestriction
             | '(new ' value ':' tType ') (' processPrim ')'                                                                           # ChannelRestrictionSes
             | 'receive(' channel=value ',' payload=value ':' plType=tType ').' processSec                                             # InputSes
-            | 'branch(' channel=value '){' (option+=value ':' cont+=processSec ',')+ option+=value ':' cont+=processSec'}'            # Branching
+            | 'branch(' channel=value '){' (opts+=value ':' conts+=processSec ',')+ opts+=value ':' conts+=processSec'}'              # Branching
             | 'select(' channel=value ',' selection=value ').' processSec                                                             # Selection
             /** Below rules are for linear pi Calculus */
             | '(new ' value ':' linearType ') (' processPrim ')'                                                                      # ChannelRestrictionLin
-            | 'receive(' channel=value (',' payload+=value ':' plType+=linearType )+ ').' processSec                                  # InputLin
-            | 'case ' case=value ' of {' (option+=variantVal '>' cont+=processSec ',')+ option+=variantVal '>' cont+=processSec'}'    # Case
-            | 'send(' channel=value (',' payload+=value ':' plType+=linearType)+ ').' processSec                                      # OutputVariants
+            | 'receive(' channel=value (',' payloads+=value ':' plTypes+=linearType )+ ').' processSec                                # InputLin
+            | 'case ' case=value ' of {' (opts+=variantVal '>' conts+=processSec ',')+ opts+=variantVal '>' conts+=processSec'}'      # Case
+            | 'send(' channel=value (',' payloads+=variantVal ':' plTypes+=linearType)+ ').' processSec                               # OutputVariants
             ;
 
 value       : '*'                                                                                                                     # UnitValue
             | ID                                                                                                                      # NamedValue
-            | variantVal                                                                                                              # VariantValue
+            | '(' expression ')'                                                                                                      # ExprValue
             | StringVal                                                                                                               # StringValue
             | IntVal                                                                                                                  # IntegerValue
             | BooleanVal                                                                                                              # BooleanValue
+            | variantVal                                                                                                              # VariantValue
+            ;
+
+expression  : value '==' value                                                                                                        # Eql
+            | value '!=' value                                                                                                        # InEql
+            | value '+' value                                                                                                         # IntAdd
+            | value '-' value                                                                                                         # IntSub
+            | value '*' value                                                                                                         # IntMult
+            | value '/' value                                                                                                         # IntDiv
+            | value '%' value                                                                                                         # IntMod
+            | value '>' value                                                                                                         # IntGT
+            | value '>=' value                                                                                                        # IntGTEq
+            | value '<' value                                                                                                         # IntLT
+            | value '<=' value                                                                                                        # IntLTEq
+            | value '++' value                                                                                                        # StrConcat
+            | 'NOT ' value                                                                                                            # BoolNot
+            | value ' AND ' value                                                                                                     # BoolAnd
+            | value ' OR ' value                                                                                                      # BoolOr
+            | value ' XOR ' value                                                                                                     # BoolXor
             ;
 
 variantVal  : ID '_' value
@@ -75,34 +92,37 @@ basicSType  : 'sUnit'                                                           
             | 'sString'                                                                                                               # SString
             ;
 
-linearType  : name=ID                                                                                                                 # NamedLinType
-            | 'lo['(payload+=linearType ',')* payload+=linearType ']'                                                                 # LinearOutput
-            | 'li['(payload+=linearType ',')* payload+=linearType']'                                                                  # LinearInput
-            | 'l#['(payload+=linearType ',')* payload+=linearType']'                                                                  # LinearConnection
-            | '#['(payload+=linearType ',')* payload+=linearType']'                                                                   # Connection
+namedType   : ID
+            ;
+
+linearType  : namedType                                                                                                               # NamedLinType
+            | 'lo['(payloads+=linearType ',')* payloads+=linearType ']'                                                               # LinearOutput
+            | 'li['(payloads+=linearType ',')* payloads+=linearType']'                                                                # LinearInput
+            | 'l#['(payloads+=linearType ',')* payloads+=linearType']'                                                                # LinearConnection
+            | '#['(payloads+=linearType ',')* payloads+=linearType']'                                                                 # Connection
             | 'empty[]'                                                                                                               # NoCapability
-            | '<' (variant+=ID '_' cont+=linearType ',')+ variant+=ID '_' cont+=linearType '>'                                        # VariantType
+            | '<' (variants+=ID '_' conts+=linearType ',')+ variants+=ID '_' conts+=linearType '>'                                    # VariantType
             | basicLType                                                                                                              # BasicLinType
             ;
 
-tType       : name=ID                                                                                                                 # NamedTType
+tType       : namedType                                                                                                               # NamedTType
             | sType                                                                                                                   # SessionType
-            | '#'tType                                                                                                                # ChannelType
+            | ('#'tType | '#('tType')')                                                                                               # ChannelType
             | basicSType                                                                                                              # BasicSesType
             ;
 
-sType       : name=ID                                                                                                                 # NamedSType
+sType       : namedType                                                                                                               # NamedSType
             | 'end'                                                                                                                   # Terminate
-            | '?'payload=tType'.'sType                                                                                                # Receive
-            | '!'payload=tType'.'sType                                                                                                # Send
-            | '&{' (option+=value ':' cont+=sType ',')+ option+=value ':' cont+=sType '}'                                             # Branch
-            | '+{' (option+=value ':' cont+=sType ',')+ option+=value ':' cont+=sType '}'                                             # Select
+            | ('?'payload=tType'.'sType | '?('payload=tType').'sType )                                                                # Receive
+            | ('!'payload=tType'.'sType | '!('payload=tType').'sType )                                                                # Send
+            | '&{' (opts+=value ':' conts+=sType ',')+ opts+=value ':' conts+=sType '}'                                               # Branch
+            | '+{' (opts+=value ':' conts+=sType ',')+ opts+=value ':' conts+=sType '}'                                               # Select
             ;
 
 /** Tokens */
 
 StringVal   : '"'AlphNum+'"' ;
-IntVal      : Digit+ ;
+IntVal      : '-'? Digit+ ;
 BooleanVal  : 'True'
             | 'False'
             ;

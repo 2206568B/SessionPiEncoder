@@ -10,36 +10,25 @@ class VariableNameCollector(PiCalcListener):
 
 	## Parse pi calc to find all user-made variable names
 	## to prevent collisions from encoding-generated names
-	## This should be run before PCLEncoder
-
-	# # When process naming declaration found, save process for later
-	# def enterProcessNaming(self, ctx):
-	# 	print
-	# 	print
-	# 	print
-	# 	print("ASDASDASDASDASD")
-	# 	print(ctx.name.text)
-	# 	print("ASDASDASDASDASD")
-	# 	print
-	# 	print
-	# 	print
-	# 	self.delayedProcesses[ctx.name.text] = (copy.deepcopy(ctx.processPrim()))
-	# 	for i in range(ctx.getChildCount()):
-	# 		ctx.removeLastChild()
-	# def enterProcessNamingNmd(self, ctx):
-	# 	self.enterProcessNaming(ctx)
-	# def enterProcessNamingSes(self, ctx):
-	# 	self.enterProcessNaming(ctx)
-	# def enterProcessNamingLin(self, ctx):
-	# 	self.enterProcessNaming(ctx)
+	## This should be run before SPEListener
 
 	# When linear-typed send found, add variable name and output capability to list
 	def enterOutput(self, ctx):
-		self.capabilityList.append((ctx.channel.getText(), "Output"))
+		tempDict = dict(self.capabilityList)
+		if ctx.channel.getText() in tempDict and tempDict[ctx.channel.getText()] == "Input":
+			self.capabilityList.remove((ctx.channel.getText(), "Input"))
+			self.capabilityList.append((ctx.channel.getText(), "Both"))
+		elif ctx.channel.getText() not in tempDict:
+			self.capabilityList.append((ctx.channel.getText(), "Output"))
 
 	# When linear-typed receive found, add variable name and input capability to list
 	def enterInputLin(self, ctx):
-		self.capabilityList.append((ctx.channel.getText(), "Input"))
+		tempDict = dict(self.capabilityList)
+		if ctx.channel.getText() in tempDict and tempDict[ctx.channel.getText()] == "Output":
+			self.capabilityList.remove((ctx.channel.getText(), "Output"))
+			self.capabilityList.append((ctx.channel.getText(), "Both"))
+		elif ctx.channel.getText() not in tempDict:
+			self.capabilityList.append((ctx.channel.getText(), "Input"))
 
 	# When named process found, traverse saved process from declaration
 	def enterNamedProcess(self, ctx):
@@ -57,6 +46,9 @@ class VariableNameCollector(PiCalcListener):
 	def enterNamedValue(self, ctx):
 		if not (ctx.getText() in self.varNameList):
 			self.varNameList.append(ctx.getText())
+		tempDict = dict(self.capabilityList)
+		if ctx.getText() not in tempDict:
+			self.capabilityList.append((ctx.getText(), ""))
 
 	# Return list of variable names
 	def getVarNameList(self):

@@ -14,9 +14,17 @@ class SPEListener(PiCalcListener):
 		self.doSesTypeChecking = sesTypeCheck
 		self.doLinTypeChecking = linTypeCheck
 		self.doEncoding = encode
+		self.stateTest = ()
+		## THESE VARIABLES ARE USED REGARDLESS OF OPERATION
+		## delayedProcesses stores the ANTLR contexts for named processes so they can be handled later
+		##   When a process P is named, the processing of P should not be performed until P appears in the user-input process.
+		##   So the ANTLR context for the process is stored until later.
+		##   The ANTLR context of the type in the type annotation is also stored.
+		self.delayedProcesses = {}
 		## THESE VARIABLES ARE USED FOR TYPECHECKING
 		## typeCheckStrBuilder is used to display that the typechecking was succesful, and what typechecking rules were applied.
 		##   ◻ is used as a placeholder for the rules, ▵ is used as a placeholder for commas.
+		## tcStrIndent is used to indent the typechecking output for improved readability
 		## tcErrorStrBuilder is used to display any errors that occur while typechecking, i.e. why typechecking has failed.
 		## gamma is the current type context
 		## gammaStack is a stack of type contexts to be used
@@ -26,18 +34,25 @@ class SPEListener(PiCalcListener):
 		##   Composition pushes two different gammas, branch pushes multiple copies of the same gamma
 		##   gammaStack has an empty gamma by default, in case there are no type declarations given
 		##   This default is discarded if declarations are present
+		## exprGamma is used to save the gamma which should be used to typecheck an expression
+		##   Expression typechecking functions can not access gammas from the stack, so must be saved elsewhere
 		## typeNames is a dictionary containing any types which have been given names
 		##   i.e. if there is a statement 'type foo := ?Int.end', typeNames['foo'] contains a context representing ?Int.end
 		##   this is used when initially adding types to gamma, that is, gamma uses the full type, not the name
-		self.typeCheckStrBuilder = u"Typechecking successful. Rules used: \n◻"
+		## replacedVars is used to keep track of which variables are replaced due to named processes
+		##   i.e. if there is a process name declaration proc(a : T), and the main process contains proc(x),
+		##   a is replaced with x, so replacedVars[a] = x
+		self.typeCheckStrBuilder = u"<span class='success'>Typechecking successful.</span> Rules used: \n◻"
 		self.tcStrIndent = ""
 		self.tcErrorStrBuilder = ""
 		self.gamma = {}
 		self.gammaStack = [{}]
+		self.exprGamma = {}
 		self.typeNames = {}
+		self.replacedVars = {}
 		## THESE VARIABLES ARE USED FOR THE ENCODING
 		## encodedStrBuilder is used to reconstruct the pi calc string.
-		## warnStrBuilder is used to construct warning messages
+		## encStrIndent is used to indent the typechecking output for improved readability
 		## encErrorStrBuilder is used to construct error messages
 		## encFunc is the encoding function f that renames variables in the encoding
 		##   i.e. replaces subsequent instances of session endpoint x with linear channel c
@@ -48,10 +63,6 @@ class SPEListener(PiCalcListener):
 		##   As such, the context stored gets encoded
 		## contChanTypesStack stores copies of contChanTypes with different values for a particular channel
 		##   This is used for branch statements, so the continuation of the channel for each branch can be stored
-		## delayedProcesses stores the ANTLR contexts for named processes so they can be handled later
-		##   When a process P is named, the processing of P should not be performed until P appears in the user-input process.
-		##   So the ANTLR context for the process is stored until later.
-		##   The ANTLR context of the type in the type annotation is also stored.
 		## usedVarNames is a list of user-made variable names,
 		##   collected by VariableNameCollector.py, used to prevent the encoding 
 		##   from generating variables names that already exist in the code
@@ -67,12 +78,11 @@ class SPEListener(PiCalcListener):
 		## compStack is used similarly to branchStack, but for compositions
 		self.encodedStrBuilder = ""
 		self.encStrIndent = ""
-		self.warnStrBuilder = ""
+		self.encStrIndent = ""
 		self.encErrorStrBuilder = ""
 		self.encFunc = {}
 		self.contChanTypes = {}
 		self.contChanTypesStack = []
-		self.delayedProcesses = {}
 		self.usedVarNames = varNameList
 		self.branchStack = []
 		self.encFuncBackupStack = []
@@ -137,32 +147,69 @@ class SPEListener(PiCalcListener):
 	# Given a session-typed context gamma, return True if lin(gamma), false if un(gamma)
 	def sesLinGamma(self, gamma):
 		for v in gamma.values():
-			if isinstance(v, PiCalcParser.SessionTypeContext) and self.sesLinType(v.sType()):
+			if self.sesLinType(v):
 				return True
 		return False
 
 	# Given an ANTLR context of a session type, produce a context of the dual type
 	def getSesTypeDual(self, typeCtx):
 		typeStr = typeCtx.getText()
-		dualStr = typeStr.translate(dict(zip([ord(char) for char in u"?!&+"], [ord(char) for char in u"!?+&"])))
-		lex_inp = InputStream(dualStr)
-		lex = PiCalcLexer(lex_inp)
-		stream = CommonTokenStream(lex)
-		par = PiCalcParser(stream)
+		dualStr = ""
+		parenLayers = 0
+		for i in range(len(typeStr)):
+			if typeStr[i] == "(":
+				parenLayers += 1
+				dualStr = dualStr + "("
+			elif typeStr[i] == ")":
+				parenLayers -= 1
+				dualStr = dualStr + ")"
+			elif typeStr[i] == "!" and parenLayers == 0:
+				dualStr = dualStr + "?"
+			elif typeStr[i] == "?" and parenLayers == 0:
+				dualStr = dualStr + "!"
+			elif typeStr[i] == "+" and parenLayers == 0:
+				dualStr = dualStr + "&"
+			elif typeStr[i] == "&" and parenLayers == 0:
+				dualStr = dualStr + "+"
+			else:
+				dualStr = dualStr + typeStr[i]
+		# dualStr = typeStr.translate(dict(zip([ord(char) for char in u"?!&+"], [ord(char) for char in u"!?+&"])))
+		inStrm = InputStream(dualStr)
+		lex = PiCalcLexer(inStrm)
+		tknStrm = CommonTokenStream(lex)
+		par = PiCalcParser(tknStrm)
 		return par.sType()
 
 	# Given an ANTLR context of a literal value, return the context of that literal's type
 	def getBasicSesType(self, literalValue):
-		lex_inp = InputStream("")
+		inStrm = InputStream("")
 		if isinstance(literalValue, PiCalcParser.IntegerValueContext):
-			lex_inp = InputStream("sInt")
+			inStrm = InputStream("sInt")
 		elif isinstance(literalValue, PiCalcParser.StringValueContext):
-			lex_inp = InputStream("sString")
+			inStrm = InputStream("sString")
 		elif isinstance(literalValue, PiCalcParser.BooleanValueContext):
-			lex_inp = InputStream("sBool")
-		lex = PiCalcLexer(lex_inp)
-		stream = CommonTokenStream(lex)
-		par = PiCalcParser(stream)
+			inStrm = InputStream("sBool")
+		elif isinstance(literalValue, PiCalcParser.UnitValueContext):
+			inStrm = InputStream("sUnit")
+		elif isinstance(literalValue, PiCalcParser.ExprValueContext):
+			expr = literalValue.expression()
+			if isinstance(expr, PiCalcParser.StrConcatContext):
+				inStrm = InputStream("sString")
+			elif (
+				isinstance(expr, PiCalcParser.IntAddContext) or isinstance(expr, PiCalcParser.IntSubContext) or isinstance(expr, PiCalcParser.IntMultContext) or 
+				isinstance(expr, PiCalcParser.IntDivContext) or isinstance(expr, PiCalcParser.IntModContext)
+			):
+				inStrm = InputStream("sInt")
+			elif (
+				isinstance(expr, PiCalcParser.EqlContext) or isinstance(expr, PiCalcParser.InEqlContext) or isinstance(expr, PiCalcParser.IntGTContext) or 
+				isinstance(expr, PiCalcParser.IntGTEqContext) or isinstance(expr, PiCalcParser.IntLTContext) or isinstance(expr, PiCalcParser.IntLTEqContext) or 
+				isinstance(expr, PiCalcParser.BoolNotContext) or isinstance(expr, PiCalcParser.BoolAndContext) or isinstance(expr, PiCalcParser.BoolOrContext) or 
+				isinstance(expr, PiCalcParser.BoolXorContext)
+			):
+				inStrm = InputStream("sBool")
+		lex = PiCalcLexer(inStrm)
+		tknStrm = CommonTokenStream(lex)
+		par = PiCalcParser(tknStrm)
 		return par.basicSType()
 
 	# Given a linear-typed gamma G, creates two new gammas G1 and G2 such that G1 u G2 = G
@@ -176,21 +223,29 @@ class SPEListener(PiCalcListener):
 		capabilities = dict(g1LinList)
 		for (varName, varType) in gamma.items():
 			if self.linLinType(varType):
-				if varName in capabilities:
-					if isinstance(varType, PiCalcParser.LinearConnectionContext):
-						(varTypeIn, varTypeOut) = self.splitCapabilities(varType)
-						if capabilities[varName] == "Input":
-							gamma1[varName] = varTypeIn
-							gamma2[varName] = varTypeOut
-						elif capabilities[varName] == "Output":
-							gamma1[varName] = varTypeOut
-							gamma2[varName] = varTypeIn
+				if varName not in gamma1:
+					if varName in capabilities:
+						if capabilities[varName] == "Both" and not isinstance(varType, PiCalcParser.LinearConnectionContext):
+							gamma1[varName] = varType
+							gamma1[varName + u"▼"] = gamma[varName + u"▼"]
+						elif isinstance(varType, PiCalcParser.LinearConnectionContext):
+							if capabilities[varName] == "Both":
+								gamma1[varName] = varType
+							else:
+								(varTypeIn, varTypeOut) = self.splitCapabilities(varType)
+								if capabilities[varName] == "Input":
+									gamma1[varName] = varTypeIn
+									gamma2[varName] = varTypeOut
+								elif capabilities[varName] == "Output":
+									gamma1[varName] = varTypeOut
+									gamma2[varName] = varTypeIn
 						else:
 							gamma1[varName] = varType
-					else:
+					elif u"▼" in varName and varName[:-1] in capabilities and capabilities[varName[:-1]] == "Both":
 						gamma1[varName] = varType
-				else:
-					gamma2[varName] = varType
+						gamma1[varName[:-1]] = gamma[varName[:-1]]
+					else:
+						gamma2[varName] = varType
 			else:
 				gamma1[varName] = varType
 				gamma2[varName] = varType
@@ -200,7 +255,10 @@ class SPEListener(PiCalcListener):
 	def linLinType(self, varType):
 		if isinstance(varType, PiCalcParser.LinearOutputContext) or isinstance(varType, PiCalcParser.LinearInputContext) or isinstance(varType, PiCalcParser.LinearConnectionContext):
 			return True
-		### IMPLEMENT VARIANT
+		if isinstance(varType, PiCalcParser.VariantTypeContext):
+			for i in range(len(varType.conts)):
+				if isinstance(varType.conts[i], PiCalcParser.LinearOutputContext) or isinstance(varType.conts[i], PiCalcParser.LinearInputContext) or isinstance(varType.conts[i], PiCalcParser.LinearConnectionContext):
+					return True
 
 	# Given a linear-typed context gamma, return True if lin(gamma), false if un(gamma)
 	def linLinGamma(self, gamma):
@@ -214,42 +272,167 @@ class SPEListener(PiCalcListener):
 		linConStr = linCon.getText()
 		linInStr = "li" + linConStr[2:]
 		linOutStr = "lo" + linConStr[2:]
-		lex_inpIn = InputStream(linInStr)
-		lexIn = PiCalcLexer(lex_inpIn)
-		streamIn = CommonTokenStream(lexIn)
-		parIn = PiCalcParser(streamIn)
-		lex_inpOut = InputStream(linOutStr)
-		lexOut = PiCalcLexer(lex_inpOut)
-		streamOut = CommonTokenStream(lexOut)
-		parOut = PiCalcParser(streamOut)
+		inStrmIn = InputStream(linInStr)
+		lexIn = PiCalcLexer(inStrmIn)
+		tknStrmIn = CommonTokenStream(lexIn)
+		parIn = PiCalcParser(tknStrmIn)
+		inStrmOut = InputStream(linOutStr)
+		lexOut = PiCalcLexer(inStrmOut)
+		tknStrmOut = CommonTokenStream(lexOut)
+		parOut = PiCalcParser(tknStrmOut)
 		return (parIn.linearType(), parOut.linearType())
 
 	# Given an ANTLR context of a literal value, return the context of that literal's type
 	def getBasicLinType(self, literalValue):
-		lex_inp = InputStream("")
+		inStrm = InputStream("")
 		if isinstance(literalValue, PiCalcParser.IntegerValueContext):
-			lex_inp = InputStream("lInt")
+			inStrm = InputStream("lInt")
 		elif isinstance(literalValue, PiCalcParser.StringValueContext):
-			lex_inp = InputStream("lString")
+			inStrm = InputStream("lString")
 		elif isinstance(literalValue, PiCalcParser.BooleanValueContext):
-			lex_inp = InputStream("lBool")
-		lex = PiCalcLexer(lex_inp)
-		stream = CommonTokenStream(lex)
-		par = PiCalcParser(stream)
+			inStrm = InputStream("lBool")
+		elif isinstance(literalValue, PiCalcParser.UnitValueContext):
+			inStrm = InputStream("lUnit")
+		elif isinstance(literalValue, PiCalcParser.ExprValueContext):
+			expr = literalValue.expression()
+			if isinstance(expr, PiCalcParser.StrConcatContext):
+				inStrm = InputStream("lString")
+			elif (
+				isinstance(expr, PiCalcParser.IntAddContext) or isinstance(expr, PiCalcParser.IntSubContext) or isinstance(expr, PiCalcParser.IntMultContext) or 
+				isinstance(expr, PiCalcParser.IntDivContext) or isinstance(expr, PiCalcParser.IntModContext)
+			):
+				inStrm = InputStream("lInt")
+			elif (
+				isinstance(expr, PiCalcParser.EqlContext) or isinstance(expr, PiCalcParser.InEqlContext) or isinstance(expr, PiCalcParser.IntGTContext) or 
+				isinstance(expr, PiCalcParser.IntGTEqContext) or isinstance(expr, PiCalcParser.IntLTContext) or isinstance(expr, PiCalcParser.IntLTEqContext) or 
+				isinstance(expr, PiCalcParser.BoolNotContext) or isinstance(expr, PiCalcParser.BoolAndContext) or isinstance(expr, PiCalcParser.BoolOrContext) or 
+				isinstance(expr, PiCalcParser.BoolXorContext)
+			):
+				inStrm = InputStream("lBool")
+		lex = PiCalcLexer(inStrm)
+		tknStrm = CommonTokenStream(lex)
+		par = PiCalcParser(tknStrm)
 		return par.basicLType()
 
 	# Given an ANTLR context of a linear type, produce a context of the dual type
 	def getLinTypeDual(self, typeCtx):
 		typeStr = typeCtx.getText()
 		dualStr = typeStr[:2].translate(dict(zip([ord(char) for char in "io"], [ord(char) for char in "oi"]))) + typeStr[2:]
-		lex_inp = InputStream(dualStr)
-		lex = PiCalcLexer(lex_inp)
-		stream = CommonTokenStream(lex)
-		par = PiCalcParser(stream)
+		inStrm = InputStream(dualStr)
+		lex = PiCalcLexer(inStrm)
+		tknStrm = CommonTokenStream(lex)
+		par = PiCalcParser(tknStrm)
 		return par.linearType()
+
+	# Given an ANTLR context for a variable, retrieve the variable which has replaced it due to process naming
+	def getReplacement(self, var):
+		return self.replacedVars.get(var.getText(), var)
+
+
+	# Given an ANTLR context for a variable, replace the next placeholder in the typeCheckStrBuilder with the rule for that value
+	def printVariableTypeRule(self, varCtx, gamma):
+		if isinstance(varCtx, PiCalcParser.NamedValueContext):
+			if self.doSesTypeChecking:
+				tempGamma = copy.deepcopy(gamma)
+				del tempGamma[varCtx.getText()]
+				if self.sesLinGamma(tempGamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Var (" + varCtx.getText() + ") failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-Var (" + varCtx.getText() + ")", 1)
+			elif self.doLinTypeChecking:
+				tempGamma = copy.deepcopy(gamma)
+				del tempGamma[varCtx.getText()]
+				if self.linLinGamma(tempGamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-Var (" + varCtx.getText() + ") failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Var (" + varCtx.getText() + ")", 1)
+		elif isinstance(varCtx, PiCalcParser.IntegerValueContext):
+			if self.doSesTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Integer failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-Integer", 1)
+			elif self.doLinTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-Integer failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Integer", 1)
+		elif isinstance(varCtx, PiCalcParser.StringValueContext):
+			if self.doSesTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-String failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-String", 1)
+			elif self.doLinTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-String failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-String", 1)
+		elif isinstance(varCtx, PiCalcParser.BooleanValueContext) and varCtx.getText == "True":
+			if self.doSesTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-True failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-True", 1)
+			elif self.doLinTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-True failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-True", 1)
+		elif isinstance(varCtx, PiCalcParser.BooleanValueContext) and varCtx.getText == "False":
+			if self.doSesTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-False failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-False", 1)
+			elif self.doLinTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-False failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-False", 1)
+		elif isinstance(varCtx, PiCalcParser.UnitValueContext):
+			if self.doSesTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Unit failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-Unit", 1)
+			elif self.doLinTypeChecking:
+				if self.sesLinGamma(gamma):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-Unit failed. Context is still linear.</span>\n"
+					raise self.typecheckException
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Unit", 1)
+		elif isinstance(varCtx, PiCalcParser.VariantValueContext):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed due to " + varCtx.getText() + ". Variant values are not allowed in session-typed pi calculus.</span>\n"
+				raise self.typecheckException
+			if self.doLinTypeChecking:
+				if varCtx.variantVal().value().getText() not in gamma:
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-LVal (" + varCtx.getText() + ") failed. Variant value " + varCtx.variantVal().getText() + "'s channel " + varCtx.variantVal().value().getText() + "not in context.</span>\n"
+					raise self.typecheckException
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-LVal (" + varCtx.getText() + ")", 1)
+		elif isinstance(varCtx, PiCalcParser.ExprValueContext):
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"☆", 1)
+			self.exprGamma = gamma
 
 
 	def getTypeCheckResults(self):
+		oldStr = self.typeCheckStrBuilder
+		self.typeCheckStrBuilder = self.typeCheckStrBuilder.translate({ord(c): None for c in u"◻"})
+		if self.tcErrorStrBuilder == "" and self.encErrorStrBuilder == "":
+			if oldStr != self.typeCheckStrBuilder:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: The typechecking encountered some kind of problem and could not be performed. Please check that your code is valid.</span>\n"
 		if self.tcErrorStrBuilder != "" or self.encErrorStrBuilder != "":
 			self.typeCheckStrBuilder = ""
 		else:
@@ -301,14 +484,14 @@ class SPEListener(PiCalcListener):
 
 	def getEncoding(self):
 		# Attempt to remove any leftover placeholders, and display error if anything was removed
-		#oldStr = self.encodedStrBuilder
-		#self.encodedStrBuilder = self.encodedStrBuilder.translate({ord(c): None for c in u"◼▲▼●⬥⬟"})
-		#if self.encErrorStrBuilder == "" and self.tcErrorStrBuilder == "":
-		#	if (oldStr != self.encodedStrBuilder):
-		#		self.encErrorStrBuilder = self.encErrorStrBuilder + "ERROR: The pi calculus could not be encoded. Please check that your input is valid.\n"
-		#if self.encErrorStrBuilder != "" or self.tcErrorStrBuilder != "":
-		#	self.encodedStrBuilder = ""
-		return (self.encodedStrBuilder, self.warnStrBuilder, self.encErrorStrBuilder)
+		oldStr = self.encodedStrBuilder
+		self.encodedStrBuilder = self.encodedStrBuilder.translate({ord(c): None for c in u"◼▲▼●⬟"})
+		if self.encErrorStrBuilder == "" and self.tcErrorStrBuilder == "":
+			if (oldStr != self.encodedStrBuilder):
+				self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: The encoding encountered some kind of problem and could not be performed. Please check that your code is valid.</span>\n"
+		if self.encErrorStrBuilder != "" or self.tcErrorStrBuilder != "":
+			self.encodedStrBuilder = ""
+		return (self.encodedStrBuilder, self.encErrorStrBuilder)
 
 
 	## LISTENER METHODS
@@ -319,9 +502,10 @@ class SPEListener(PiCalcListener):
 	## so calling replace() with max = 1 should replace the correct placeholder
 	## ◼ represents placeholder type declarations,
 	## ▲ represents placeholder type, ▼ represents a placeholder type's dual,
-	## ● represents placeholder processes, ⬥ represents placeholder values,
-	## ⬟ represents placeholder process name declarations
+	## ● represents placeholder processes, ⬟ represents placeholder process name declarations
 
+
+	## DECLARATIONS
 
 	def enterDeclAndProcs(self, ctx):
 		if self.doEncoding:
@@ -369,43 +553,85 @@ class SPEListener(PiCalcListener):
 	def enterVariableAssignment(self, ctx):
 		if self.doEncoding:
 			self.enterVariableAssignmentEnc(ctx)
+		if self.doSesTypeChecking:
+			self.enterVariableAssignmentSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterVariableAssignmentLTCh(ctx)
 	# No type, so no change needed
 	def enterVariableAssignmentEnc(self, ctx):
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", ctx.getText(), 1)
+	def enterVariableAssignmentSTCh(self, ctx):
+		if ctx.var.text not in self.gamma:
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. " + ctx.var.text + " is assigned a value before being declared with a type.</span>\n"
+			raise self.typecheckException
+		else:
+			valType = self.getBasicSesType(ctx.value())
+			if not isinstance(valType, type(self.gamma[ctx.var.text])):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. " + ctx.var.text + " is type " + self.gamma[ctx.var.text].getText() + ", but is being assigned a value of type " + valType.getText() + ".</span>\n"
+				raise self.typecheckException
+	def enterVariableAssignmentLTCh(self, ctx):
+		if ctx.var.text not in self.gamma:
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. " + ctx.var.text + " is assigned a value before being declared with a type.</span>\n"
+			raise self.typecheckException
+		else:
+			valType = self.getBasicLinType(ctx.value())
+			if not isinstance(valType, type(self.gamma[ctx.var.text])):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. " + ctx.var.text + " is type " + self.gamma[ctx.var.text].getText() + ", but is being assigned a value of type " + valType.getText() + ".</span>\n"
+				raise self.typecheckException
+		
 
 
 	def enterProcessNamingNmd(self, ctx):
 		if self.doEncoding:
 			self.enterProcessNamingNmdEnc(ctx)
-		self.delayedProcesses[ctx.name.text] = (copy.deepcopy(ctx.value()), copy.deepcopy(self.typeNames[ctx.typeName.text]), copy.deepcopy(ctx.processPrim()))
-		for i in range(ctx.getChildCount()):
-			ctx.removeLastChild()
+		self.delayedProcesses[ctx.name.text] = (copy.deepcopy(ctx.value()), copy.deepcopy(ctx.namedType()), copy.deepcopy(ctx.processPrim()))
+		self.stateTest = copy.deepcopy((self.doSesTypeChecking, self.doLinTypeChecking, self.doEncoding))
+		self.doSesTypeChecking = False
+		self.doLinTypeChecking = False
+		self.doEncoding = False
 	# Save context for process naming for later
 	def enterProcessNamingNmdEnc(self, ctx):
-		fullType = self.typeNames.get(ctx.typeName.text)
+		fullType = self.typeNames.get(ctx.namedType().getText())
 		if isinstance(fullType, PiCalcParser.LinearTypeContext):
-			self.encErrorStrBuilder = self.encErrorStrBuilder + "ERROR: Process naming containing linear types are not supported in session pi calculus.\n"
+			self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: Encoding failed. Process naming containing linear types is not supported in session-typed pi calculus.</span>\n"
 			raise self.encodingException
 		elif isinstance(fullType, PiCalcParser.SessionTypeContext):
 			self.contChanTypes[ctx.value().getText()] = fullType.sType()
 		self.encFunc[ctx.name.text] = ctx.name.text + "'"
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", u"⬟", 1)
 
+	def exitProcessNamingNmd(self, ctx):
+		(savedDSTCH, savedDLTCH, savedDEnc) = self.stateTest
+		self.doSesTypeChecking = savedDSTCH
+		self.doLinTypeChecking = savedDLTCH
+		self.doEncoding = savedDEnc
+		if self.doEncoding:
+			self.exitProcessNamingSesEnc(ctx)
+	def exitProcessNamingNmdEnc(self, ctx):
+		if self.varNamesBackupStack != []:
+			self.usedVarNames = copy.deepcopy(self.varNamesBackupStack[-1])
+
 
 	def enterProcessNamingSes(self, ctx):
 		if self.doEncoding:
 			self.enterProcessNamingSesEnc(ctx)
 		self.delayedProcesses[ctx.name.text] = (copy.deepcopy(ctx.value()), copy.deepcopy(ctx.tType()), copy.deepcopy(ctx.processPrim()))
-		for i in range(ctx.getChildCount()):
-			ctx.removeLastChild()
+		self.stateTest = copy.deepcopy((self.doSesTypeChecking, self.doLinTypeChecking, self.doEncoding))
+		self.doSesTypeChecking = False
+		self.doLinTypeChecking = False
+		self.doEncoding = False
 	# Save context for process naming for later
 	def enterProcessNamingSesEnc(self, ctx):
-		self.contChanTypes[ctx.value().getText()] = ctx.tType().sType()
+		if isinstance(ctx.tType(), PiCalcParser.SessionTypeContext):
+			self.contChanTypes[ctx.value().getText()] = ctx.tType()
 		self.encFunc[ctx.name.text] = ctx.name.text + "'"
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", u"⬟", 1)
 
-
 	def exitProcessNamingSes(self, ctx):
+		(savedDSTCH, savedDLTCH, savedDEnc) = self.stateTest
+		self.doSesTypeChecking = savedDSTCH
+		self.doLinTypeChecking = savedDLTCH
+		self.doEncoding = savedDEnc
 		if self.doEncoding:
 			self.exitProcessNamingSesEnc(ctx)
 	def exitProcessNamingSesEnc(self, ctx):
@@ -417,17 +643,27 @@ class SPEListener(PiCalcListener):
 		if self.doEncoding:
 			self.enterProcessNamingLinEnc(ctx)
 		self.delayedProcesses[ctx.name.text] = (copy.deepcopy(ctx.value()), copy.deepcopy(ctx.linearType()), copy.deepcopy(ctx.processPrim()))
-		for i in range(ctx.getChildCount()):
-			ctx.removeLastChild()
+		self.stateTest = copy.deepcopy((self.doSesTypeChecking, self.doLinTypeChecking, self.doEncoding))
+		self.doSesTypeChecking = False
+		self.doLinTypeChecking = False
+		self.doEncoding = False
 	# Raise error if linear version of process naming is used in encoding
 	def enterProcessNamingLinEnc(self, ctx):
-		self.encErrorStrBuilder = self.encErrorStrBuilder + "ERROR: Process naming containing linear types are not supported in session pi calculus.\n"
+		self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: Encoding failed. Process naming containing linear types is not supported in session-typed pi calculus.</span>\n"
 		raise self.encodingException
+
+	def exitProcessNamingLin(self, ctx):
+		(savedDSTCH, savedDLTCH, savedDEnc) = self.stateTest
+		self.doSesTypeChecking = savedDSTCH
+		self.doLinTypeChecking = savedDLTCH
+		self.doEncoding = savedDEnc
 
 
 	def enterSessionTypeNaming(self, ctx):
 		if self.doSesTypeChecking:
 			self.enterSessionTypeNamingSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterSessionTypeNamingLTCh(ctx)
 		if self.doEncoding:
 			self.enterSessionTypeNamingEnc(ctx)
 	# Place type placeholder
@@ -438,6 +674,9 @@ class SPEListener(PiCalcListener):
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
 	def enterSessionTypeNamingSTCh(self, ctx):
 		self.typeNames[ctx.name.text] = ctx.tType()
+	def enterSessionTypeNamingLTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Session type naming is not supported in linear-typed pi calculus.</span>\n"
+		raise self.typecheckException
 
 	def exitSessionTypeNaming(self, ctx):
 		if self.doEncoding:
@@ -445,40 +684,6 @@ class SPEListener(PiCalcListener):
 	def exitSessionTypeNamingEnc(self, ctx):
 		if self.varNamesBackupStack != []:
 			self.usedVarNames = copy.deepcopy(self.varNamesBackupStack[-1])
-
-
-	def enterBasicTypeDecl(self, ctx):
-		if self.doSesTypeChecking:
-			self.enterBasicTypeDeclSTCh(ctx)
-		if self.doLinTypeChecking:
-			self.enterBasicTypeDeclLTCh(ctx)
-		if self.doEncoding:
-			self.enterBasicTypeDeclEnc(ctx)
-	# Place type placeholder
-	def enterBasicTypeDeclEnc(self, ctx):
-		decStr = "type " + ctx.var.text + u" ▲"
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
-	def enterBasicTypeDeclSTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.basicType()
-	def enterBasicTypeDeclLTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.basicType()
-
-
-	def enterBasTypeDeclAndAssign(self, ctx):
-		if self.doSesTypeChecking:
-			self.enterBasTypeDeclAndAssignSTCh(ctx)
-		if self.doLinTypeChecking:
-			self.enterBasTypeDeclAndAssignLTCh(ctx)
-		if self.doEncoding:
-			self.enterBasTypeDeclAndAssignEnc(ctx)
-	# Place type placeholder
-	def enterBasTypeDeclAndAssignEnc(self, ctx):
-		decStr = "type " + ctx.var.text + u" ▲ = " + ctx.value().getText()
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
-	def enterBasTypeDeclAndAssignSTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.basicType()
-	def enterBasTypeDeclAndAssignLTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.basicType()
 
 
 	def enterNamedTypeDecl(self, ctx):
@@ -493,15 +698,15 @@ class SPEListener(PiCalcListener):
 		decStr = "type " + ctx.var.text + u" ▲"
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
 	def enterNamedTypeDeclSTCh(self, ctx):
-		fullType = self.typeNames.get(ctx.typeName.text)
+		fullType = self.typeNames.get(ctx.namedType().getText())
 		if fullType == None:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Type declaration contains undeclared type name.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Type declaration contains undeclared type name.</span>\n"
 			raise self.typecheckException
 		self.gamma[ctx.var.text] = fullType
 	def enterNamedTypeDeclLTCh(self, ctx):
-		fullType = self.typeNames.get(ctx.typeName.text)
+		fullType = self.typeNames.get(ctx.namedType().getText())
 		if fullType == None:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Type declaration contains undeclared type name.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Type declaration contains undeclared type name.</span>\n"
 			raise self.typecheckException
 		self.gamma[ctx.var.text] = fullType
 
@@ -518,15 +723,15 @@ class SPEListener(PiCalcListener):
 		decStr = "type " + ctx.var.text + u" ▲ = " + ctx.value().getText()
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
 	def enterNmdTypeDeclAndAssignSTCh(self, ctx):
-		fullType = self.typeNames.get(ctx.typeName.text)
+		fullType = self.typeNames.get(ctx.namedType().getText())
 		if fullType == None:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Type declaration contains undeclared type name.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Type declaration contains undeclared type name.</span>\n"
 			raise self.typecheckException
 		self.gamma[ctx.var.text] = fullType
 	def enterNmdTypeDeclAndAssignLTCh(self, ctx):
-		fullType = self.typeNames.get(ctx.typeName.text)
+		fullType = self.typeNames.get(ctx.namedType().getText())
 		if fullType == None:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Type declaration contains undeclared type name.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Type declaration contains undeclared type name.</span>\n"
 			raise self.typecheckException
 		self.gamma[ctx.var.text] = fullType
 
@@ -545,12 +750,20 @@ class SPEListener(PiCalcListener):
 		if isinstance(ctx.tType(), PiCalcParser.SessionTypeContext):
 			self.contChanTypes[ctx.var.text] = ctx.tType()
 	def enterSessionTypeDeclSTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.tType()
+		if isinstance(ctx.tType(), PiCalcParser.BasicSesTypeContext):
+			self.gamma[ctx.var.text] = ctx.tType().basicSType()
+		else:
+			self.gamma[ctx.var.text] = ctx.tType()
+	def enterSessionTypeDeclLTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Session type declarations are not supported in linear-typed pi calculus.</span>\n"
+		raise self.typecheckException
 
 
 	def enterSesTypeDeclAndAssign(self, ctx):
 		if self.doSesTypeChecking:
-			self.enterSessionTypeDeclSTCh(ctx)
+			self.enterSesTypeDeclAndAssignSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterSesTypeDeclAndAssignLTCh(ctx)
 		if self.doEncoding:
 			self.enterSesTypeDeclAndAssignEnc(ctx)
 	# Place type placeholder
@@ -560,7 +773,21 @@ class SPEListener(PiCalcListener):
 		if isinstance(ctx.tType(), PiCalcParser.SessionTypeContext):
 			self.contChanTypes[ctx.var.text] = ctx.tType()
 	def enterSesTypeDeclAndAssignSTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.tType()
+		if isinstance(ctx.tType(), PiCalcParser.BasicSesTypeContext):
+			self.gamma[ctx.var.text] = ctx.tType().basicSType()
+			valType = self.getBasicSesType(ctx.value())
+			if not isinstance(valType, type(ctx.tType().basicSType())):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. " + ctx.var.text + " is type " + ctx.tType() + ", but is being assigned a value of type " + valType + ".</span>\n"
+				raise self.typecheckException
+		else:
+			self.gamma[ctx.var.text] = ctx.tType()
+			valType = self.getBasicSesType(ctx.value())
+			if not isinstance(valType, type(ctx.tType())):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. " + ctx.var.text + " is type " + ctx.tType() + ", but is being assigned a value of type " + valType + ".</span>\n"
+				raise self.typecheckException
+	def enterSesTypeDeclAndAssignLTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Session type declarations found in linear-typed pi calculus.</span>\n"
+		raise self.typecheckException
 
 
 	def enterLinearTypeNaming(self, ctx):
@@ -568,11 +795,14 @@ class SPEListener(PiCalcListener):
 			self.enterLinearTypeNamingLTCh(ctx)
 		if self.doEncoding:
 			self.enterLinearTypeNamingEnc(ctx)
-	# Leave type declarations as is and display warning.
 	def enterLinearTypeNamingEnc(self, ctx):
 		decStr = "type " + ctx.name.text + " := " + ctx.linearType().getText()
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
-		self.warnStrBuilder = self.warnStrBuilder + "WARNING: Linear type declarations found in session pi calculus.\n"
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Linear type naming found in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
+	def enterLinearTypeNamingSTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Linear type naming found in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
 	def enterLinearTypeNamingLTCh(self, ctx):
 		self.typeNames[ctx.name.text] = ctx.linearType()
 
@@ -582,13 +812,19 @@ class SPEListener(PiCalcListener):
 			self.enterLinearTypeDeclLTCh(ctx)
 		if self.doEncoding:
 			self.enterLinearTypeDeclEnc(ctx)
-	# Leave linear type declarations as is and display warning.
 	def enterLinearTypeDeclEnc(self, ctx):
 		decStr = "type " + ctx.var.text + " " + ctx.linearType().getText()
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
-		self.warnStrBuilder = self.warnStrBuilder + "WARNING: Linear type declarations found in session pi calculus.\n"
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Linear type declarations found in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
+	def enterLinearTypeDeclSTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Linear type declarations found in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
 	def enterLinearTypeDeclLTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.linearType()
+		if isinstance(ctx.linearType(), PiCalcParser.BasicLinTypeContext):
+			self.gamma[ctx.var.text] = ctx.linearType().basicLType()
+		else:
+			self.gamma[ctx.var.text] = ctx.linearType()
 
 
 	def enterLinTypeDeclAndAssign(self, ctx):
@@ -596,15 +832,31 @@ class SPEListener(PiCalcListener):
 			self.enterLinTypeDeclAndAssignLTCh(ctx)
 		if self.doEncoding:
 			self.enterLinTypeDeclAndAssignEnc(ctx)
-	# Leave linear type declarations as is and display warning.
 	def enterLinTypeDeclAndAssignEnc(self, ctx):
 		decStr = "type " + ctx.var.text + " " + ctx.linearType.getText() + " = " + ctx.value().getText()
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"◼", decStr, 1)
-		self.warnStrBuilder = self.warnStrBuilder + "WARNING: Linear type declarations found in session pi calculus.\n"
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Linear type declarations found in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
+	def enterLinTypeDeclAndAssignSTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Linear type declarations found in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
 	def enterLinTypeDeclAndAssignLTCh(self, ctx):
-		self.gamma[ctx.var.text] = ctx.linearType()
+		if isinstance(ctx.linearType(), PiCalcParser.BasicLinTypeContext):
+			self.gamma[ctx.var.text] = ctx.linearType().basicLType()
+			valType = self.getBasicLinType(ctx.value())
+			if not isinstance(valType, type(ctx.linearType().basicLType())):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. " + ctx.var.text + " is type " + ctx.linearType() + ", but is being assigned a value of type " + valType + ".</span>\n"
+				raise self.typecheckException
+		else:
+			self.gamma[ctx.var.text] = ctx.linearType()
+			valType = self.getBasicLinType(ctx.value())
+			if not isinstance(valType, type(ctx.linearType())):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. " + ctx.var.text + " is type " + ctx.linearType() + ", but is being assigned a value of type " + valType + ".</span>\n"
+				raise self.typecheckException
 
 
+
+	## PROCESSES
 
 	def enterTermination(self, ctx):
 		if self.doSesTypeChecking:
@@ -615,17 +867,17 @@ class SPEListener(PiCalcListener):
 			self.enterTerminationEnc(ctx)
 	# Termination encoded homomorphically
 	def enterTerminationEnc(self, ctx):
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "0", 1)
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "end", 1)
 	def enterTerminationSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
 		if self.sesLinGamma(self.gamma):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Termination occurs while context is still linear.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Inact failed. Termination occurs while context is still linear.</span>\n"
 			raise self.typecheckException
 		self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Inact", 1)
 	def enterTerminationLTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
 		if self.linLinGamma(self.gamma):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Termination occurs while context is still linear.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Inact failed. Termination occurs while context is still linear.</span>\n"
 			raise self.typecheckException
 		self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Inact", 1)
 
@@ -650,25 +902,25 @@ class SPEListener(PiCalcListener):
 		self.encFunc[delayChan.getText()] = self.encFunc[ctx.value().getText()]
 	def enterNamedProcessSTCh(self, ctx, delayChan, delayType, delayProc):
 		self.gamma = self.gammaStack.pop()
-		if isinstance(delayType, PiCalcParser.NamedSTypeContext) or isinstance(delayType, PiCalcParser.NamedTTypeContext):
+		if isinstance(delayType, PiCalcParser.NamedSTypeContext) or isinstance(delayType, PiCalcParser.NamedTTypeContext) or isinstance(delayType, PiCalcParser.NamedTypeContext):
 			delayType = self.typeNames[delayType.getText()]
 		if isinstance(delayType, PiCalcParser.SessionTypeContext):
 			delayType = delayType.sType()
 		if not isinstance(delayType, type(self.gamma.get(ctx.value().getText()))):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.value.getText() + ". Channel type used in named process does not match named process declaration.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed due to " + ctx.value().getText() + ". Variable type used in named process does not match named process declaration.</span>\n"
 			raise self.typecheckException
 		else:
-			self.gamma[delayChan.getText()] = self.gamma[ctx.value().getText()]
+			self.replacedVars[delayChan.getText()] = ctx.value()
 			self.gammaStack.append(self.gamma)
 	def enterNamedProcessLTCh(self, ctx, delayChan, delayType, delayProc):
 		self.gamma = self.gammaStack.pop()
-		if isinstance(delayType, PiCalcParser.NamedLinTypeContext):
+		if isinstance(delayType, PiCalcParser.NamedLinTypeContext) or isinstance(delayType, PiCalcParser.NamedTypeContext):
 			delayType = self.typeNames[delayType.getText()]
 		if not isinstance(delayType, type(self.gamma.get(ctx.value().getText()))):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.value().getText() + ". Channel type used in named process does not match named process declaration.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed due to " + ctx.value().getText() + ". Variable type used in named process does not match named process declaration.</span>\n"
 			raise self.typecheckException
 		else:
-			self.gamma[delayChan.getText()] = self.gamma[ctx.value().getText()]
+			self.replacedVars[delayChan.getText()] = ctx.value()
 			self.gammaStack.append(self.gamma)
 
 
@@ -684,63 +936,83 @@ class SPEListener(PiCalcListener):
 		self.checkBranchStack(False)
 		self.checkCompStack(False)
 		if isinstance(self.contChanTypes[ctx.channel.getText()], PiCalcParser.ChannelTypeContext):
-			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "send(" + ctx.channel.getText() + ", " + ctx.payload[0].getText() + u").●", 1)
+			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "send(" + ctx.channel.getText() + ", " + ctx.payloads[0].getText() + u").●", 1)
 		else:
 			newChan = self.generateChannelName()
 			newChanType = self.contChanTypes[ctx.channel.getText()].sType()
 			self.contChanTypes[ctx.channel.getText()] = newChanType
 			opStrBuilder = "(new " + newChan + u" : ▲) (send(" + self.encodeName(ctx.channel.getText())
-			if (len(ctx.payload)) > 1:
-				self.encErrorStrBuilder = self.encErrorStrBuilder + "ERROR: send() cannot have multiple payloads in session pi calculus.\n"
+			if (len(ctx.payloads)) > 1:
+				self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: Encoding failed. Output processes containing multiple payloads are not supported in session-typed pi calculus.</span>\n"
 				raise self.encodingException
-			opStrBuilder = opStrBuilder + ", " + self.encodeName(ctx.payload[0].getText()) + ", " + newChan + u").●)"
+			opStrBuilder = opStrBuilder + ", " + self.encodeName(ctx.payloads[0].getText()) + ", " + newChan + u").●)"
 			self.encFunc[ctx.channel.getText()] = newChan
 			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", opStrBuilder, 1)
 			typeWalker = ParseTreeWalker()
 			typeWalker.walk(self, newChanType)
 	def enterOutputSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
-		(gamma1, gamma2_3) = self.splitGamma(self.gamma, [ctx.channel.getText()])
-		if (len(ctx.payload)) > 1:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: send() cannot have multiple payloads in session pi calculus.\n"
+		trueChan = self.getReplacement(ctx.channel)
+		truePL = self.getReplacement(ctx.payloads[0])
+		(gamma1, gamma2_3) = self.splitGamma(self.gamma, [trueChan.getText()])
+		if (len(ctx.payloads)) > 1:
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Out failed. Output processes containing multiple payloads are not supported in session-typed pi calculus.\n</span>"
 			raise self.typecheckException
-		(gamma2, gamma3) = self.splitGamma(gamma2_3, [ctx.payload[0].getText()])
-		chanType = gamma1.get(ctx.channel.getText())
-		if isinstance(ctx.payload[0], PiCalcParser.NamedValueContext):
-			payloadType = gamma2.get(ctx.payload[0].getText())
-		## Handle literals
+		(gamma2, gamma3) = self.splitGamma(gamma2_3, [truePL.getText()])
+		chanType = gamma1.get(trueChan.getText())
+		if isinstance(truePL, PiCalcParser.NamedValueContext):
+			payloadType = gamma2.get(truePL.getText())
+		## Handle literals and expressions
 		else:
-			payloadType = self.getBasicSesType(ctx.payload[0])
+			payloadType = self.getBasicSesType(truePL)
 		if isinstance(payloadType, PiCalcParser.BasicSesTypeContext):
 			payloadType = payloadType.basicSType()
+		elif isinstance(payloadType, PiCalcParser.SessionTypeContext):
+			payloadType = payloadType.sType()
 		if not isinstance(chanType, PiCalcParser.ChannelTypeContext):
 			if not isinstance(chanType, PiCalcParser.SendContext):
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.channel.getText() + ". Output process on channel not of output type.\n"
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Out failed due to " + trueChan.getText() + ". Output process on channel not of output type.</span>\n"
 				raise self.typecheckException
-			elif not isinstance(payloadType, type(chanType.tType().basicSType()) if isinstance(chanType.tType(), PiCalcParser.BasicSesTypeContext) else type(chanType.tType())):
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.payload[0].getText() + ". Output process payload does not match channel type.\n"
+			chanPLType = chanType.tType()
+			if isinstance(chanPLType, PiCalcParser.BasicSesTypeContext):
+				chanPLType = chanPLType.basicSType()
+			elif isinstance(chanPLType, PiCalcParser.SessionTypeContext):
+				chanPLType = chanPLType.sType()
+			if not isinstance(payloadType, type(chanPLType)):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking ruel T-Out failed due to " + truePL.getText() + ". Output process payload does not match channel type.</span>\n"
 				raise self.typecheckException
 			else:
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Var▵◻", 1)
-				augmentations = {ctx.channel.getText(): chanType.sType()}
+				augmentations = {trueChan.getText(): chanType.sType()}
 				gamma3 = self.augmentGamma(gamma3, augmentations)
 				self.gammaStack.append(gamma3)
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Out▵◻", 1)
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"◻▵◻▵T-Out▵◻", 1)
+				self.printVariableTypeRule(trueChan, gamma1)
+				self.printVariableTypeRule(truePL, gamma2)
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻", 1)
 		else:
-			if not isinstance(payloadType, type(chanType.tType().basicSType()) if isinstance(chanType.tType(), PiCalcParser.BasicSesTypeContext) else type(chanType.tType())):
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.payload[0].getText() + ". Output process payload does not match channel type.\n"
+			chanPLType = chanType.tType()
+			if isinstance(chanPLType, PiCalcParser.BasicSesTypeContext):
+				chanPLType = chanPLType.basicSType()
+			elif isinstance(chanPLType, PiCalcParser.SessionTypeContext):
+				chanPLType = chanPLType.sType()
+			if not isinstance(payloadType, type(chanPLType)):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-StndOut failed due to " + truePL.getText() + ". Output process payload does not match channel type.</span>\n"
 				raise self.typecheckException
 			else:
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Var▵◻", 1)
-				augmentations = {ctx.channel.getText(): chanType}
+				augmentations = {trueChan.getText(): chanType}
 				gamma3 = self.augmentGamma(gamma3, augmentations)
 				self.gammaStack.append(gamma3)
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-StndOut▵◻", 1)
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"◻▵◻▵T-StndOut▵◻", 1)
+				self.printVariableTypeRule(trueChan, gamma1)
+				self.printVariableTypeRule(truePL, gamma2)
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻", 1)
 	def enterOutputLTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
-		(gamma1, gamma2_3) = self.combineGamma(self.gamma, [(ctx.channel.getText(), "Output")])
+		trueChan = self.getReplacement(ctx.channel)
+		truePLs = [self.getReplacement(pl) for pl in ctx.payloads]
+		(gamma1, gamma2_3) = self.combineGamma(self.gamma, [(trueChan.getText(), "Output")])
 		plCaps = []
-		for pl in ctx.payload:
+		for pl in truePLs:
 			if pl.getText() + u"▼" in gamma2_3:
 				plCaps.append((pl.getText() + u"▼", ""))
 			else:
@@ -751,80 +1023,62 @@ class SPEListener(PiCalcListener):
 			if u"▼" in name:
 				gamma2[name[:-1]] = gamma2[name]
 				del gamma2[name]
-		chanType = gamma1.get(ctx.channel.getText())
-		payloadTypes = [[] for i in range(len(ctx.payload))]
-		for i in range(len(ctx.payload)):
-			if isinstance(ctx.payload[i], PiCalcParser.NamedValueContext) or isinstance(ctx.payload[i], PiCalcParser.VariantValueContext):
-				payloadTypes[i] = gamma2.get(ctx.payload[i].getText())
-			## Handle literals
+		gamma2lst = [[] for i in range(len(truePLs))]
+		gamma2lst[0] = gamma2
+		for i in range(len(truePLs)-1):
+			(gamma2lst[i], gamma2lst[i+1]) = self.combineGamma(gamma2lst[i], [(truePLs[i].getText(), "")])
+		chanType = gamma1.get(trueChan.getText())
+		payloadTypes = [[] for i in range(len(truePLs))]
+		for i in range(len(truePLs)):
+			if isinstance(truePLs[i], PiCalcParser.NamedValueContext):
+				payloadTypes[i] = gamma2lst[i].get(truePLs[i].getText())
+			## Handle literals and expressions
 			else:
-				payloadTypes[i] = self.getBasicLinType(ctx.payload[i])
+				payloadTypes[i] = self.getBasicLinType(truePLs[i])
 			if isinstance(payloadTypes[i], PiCalcParser.BasicLinTypeContext):
 				payloadTypes[i] = payloadTypes[i].basicLType()
 		if not isinstance(chanType, PiCalcParser.ConnectionContext):
 			if not isinstance(chanType, PiCalcParser.LinearOutputContext):
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.channel.getText() + ". Output process on channel not of output type.\n"
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Out failed due to " + trueChan.getText() + ". Output process on channel not of output type.</span>\n"
 				raise self.typecheckException
 			else:
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Var▵◻", 1)
+				chanPLTypes = chanType.payloads
 				for i in range(len(payloadTypes)):
-					if not isinstance(payloadTypes[i], type(chanType.payload[i].basicLType()) if isinstance(chanType.payload[i], PiCalcParser.BasicLinTypeContext) else type(chanType.payload[i])):
-						self.tcErrorStrBuilder = self.tcErrorStrBuilder + "EEROR: Typechecking failed due to " + ctx.payload[i].getText() + ". Output process payload does not match channel type.\n"
+					if isinstance(chanPLTypes[i], PiCalcParser.BasicLinTypeContext):
+						chanPLTypes[i] = chanPLTypes[i].basicLType()
+					if not isinstance(payloadTypes[i], type(chanPLTypes[i])):
+						self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Out failed due to " + truePLs[i].getText() + ". Output process payload does not match channel type.</span>\n"
 						raise self.typecheckException
 				self.gammaStack.append(gamma3)
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Out▵◻", 1)
+				tcLinOutStrBuilder = u"◻▵"
+				for i in range(len(truePLs)):
+					tcLinOutStrBuilder = tcLinOutStrBuilder + u"◻▵"
+				tcLinOutStrBuilder = tcLinOutStrBuilder + u"Tπ-Out▵◻"
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", tcLinOutStrBuilder, 1)
+				self.printVariableTypeRule(trueChan, gamma1)
+				for i in range(len(truePLs)):
+					self.printVariableTypeRule(truePLs[i], gamma2lst[i])
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻", 1)
 		else:
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Var▵◻", 1)
+			chanPLTypes = chanType.payloads
 			for i in range(len(payloadTypes)):
-					if not isinstance(payloadTypes[i], type(chanType.payload[i].basicLType()) if isinstance(chanType.payload[i], PiCalcParser.BasicLinTypeContext) else type(chanType.payload[i])):
-						self.tcErrorStrBuilder = self.tcErrorStrBuilder + "EEROR: Typechecking failed due to " + ctx.payload[i].getText() + ". Output process payload does not match channel type.\n"
-						raise self.typecheckException
-			augmentations = {ctx.channel.getText(): chanType}
+				if isinstance(chanPLTypes[i], PiCalcParser.BasicLinTypeContext):
+					chanPLTypes[i] = chanPLTypes[i].basicLType()
+				if not isinstance(payloadTypes[i], type(chanPLTypes[i])):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-StndOut failed due to " + truePLs[i].getText() + ". Output process payload does not match channel type.</span>\n"
+					raise self.typecheckException
+			augmentations = {trueChan.getText(): chanType}
 			gamma3 = self.augmentGamma(gamma3, augmentations)
 			self.gammaStack.append(gamma3)
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-StndOut▵◻", 1)
-
-
-	# Output of variants, such as encoding of select, uses separate rule to allow for type annotations
-	def enterOutputVariants(self, ctx):
-		if self.doLinTypeChecking:
-			self.enterOutputVariantsLTCh(ctx)
-	def enterOutputVariantsLTCh(self, ctx):
-		self.gamma = self.gammaStack.pop()
-		(gamma1, gamma2_3) = self.combineGamma(self.gamma, [(ctx.channel.getText(), "Output")])
-		plCaps = []
-		for pl in ctx.payload:
-			plCaps.append((pl.getText(), ""))
-			if (pl.getText() + u"▼").split("_")[1] in gamma2_3:
-				plCaps.append(((pl.getText() + u"▼").split("_")[1], ""))
-		(gamma2, gamma3) = self.combineGamma(gamma2_3, plCaps)
-		chanType = gamma1.get(ctx.channel.getText())
-		payloadTypes = [[] for i in range(len(ctx.payload))]
-		for i in range(len(ctx.payload)):
-			payloadTypes[i] = ctx.plType[i]
-		if not isinstance(chanType, PiCalcParser.ConnectionContext):
-			if not isinstance(chanType, PiCalcParser.LinearOutputContext):
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.channel.getText() + ". Output process on channel not of output type.\n"
-				raise self.typecheckException
-			else:
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Var▵◻", 1)
-				for i in range(len(payloadTypes)):
-					if not isinstance(payloadTypes[i], type(chanType.payload[i])):
-						self.tcErrorStrBuilder = self.tcErrorStrBuilder + "EEROR: Typechecking failed due to " + ctx.payload[i].getText() + ". Output process payload does not match channel type.\n"
-						raise self.typecheckException
-				self.gammaStack.append(gamma3)
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Out▵◻", 1)
-		else:
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Var▵◻", 1)
-			for i in range(len(payloadTypes)):
-					if not isinstance(payloadTypes[i], type(chanType.payload[i])):
-						self.tcErrorStrBuilder = self.tcErrorStrBuilder + "EEROR: Typechecking failed due to " + ctx.payload[i].getText() + ". Output process payload does not match channel type.\n"
-						raise self.typecheckException
-			augmentations = {ctx.channel.getText(): chanType}
-			gamma3 = self.augmentGamma(gamma3, augmentations)
-			self.gammaStack.append(gamma3)
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-StndOut▵◻", 1)
-
+			tcLinOutStrBuilder = u"◻▵"
+			for i in range(len(truePLs)):
+				tcLinOutStrBuilder = tcLinOutStrBuilder + u"◻▵"
+			tcLinOutStrBuilder = tcLinOutStrBuilder + u"Tπ-StndOut▵◻"
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", tcLinOutStrBuilder, 1)
+			self.printVariableTypeRule(trueChan, gamma1)
+			for pl in truePLs:
+				self.printVariableTypeRule(pl, gamma2)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻", 1)
 
 	def exitOutput(self, ctx):
 		if self.doEncoding:
@@ -836,9 +1090,84 @@ class SPEListener(PiCalcListener):
 			self.compStack.pop()
 
 
+	# Output of variants, such as encoding of select, uses separate rule to allow for type annotations
+	def enterOutputVariants(self, ctx):
+		if self.doEncoding:
+			self.enterOutputVariantsEnc(ctx)
+		if self.doSesTypeChecking:
+			self.enterOutputVariantsSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterOutputVariantsLTCh(ctx)
+	def enterOutputVariantsEnc(self, ctx):
+		self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: Encoding failed. Variant values found in session-typed pi calculus.</span>\n"
+		raise self.encodingException
+	def enterOutputVariantsSTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Variant values found in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
+	def enterOutputVariantsLTCh(self, ctx):
+		self.gamma = self.gammaStack.pop()
+		trueChan = self.getReplacement(ctx.channel)
+		truePLs = [self.getReplacement(pl) for pl in ctx.payloads]
+		(gamma1, gamma2_3) = self.combineGamma(self.gamma, [(trueChan.getText(), "Output")])
+		plCaps = []
+		for i in range(len(truePLs)):
+			gamma2_3[truePLs[i].getText()] = ctx.plTypes[i]
+			plCaps.append((truePLs[i].getText(), ""))
+			if (truePLs[i].getText() + u"▼").split("_")[1] in gamma2_3:
+				plCaps.append(((truePLs[i].getText() + u"▼").split("_")[1], ""))
+		(gamma2, gamma3) = self.combineGamma(gamma2_3, plCaps)
+		## Remove dual triangle from variables in gamma2
+		for name in gamma2.keys():
+			if u"▼" in name:
+				gamma2[name[:-1]] = gamma2[name]
+				del gamma2[name]
+		chanType = gamma1.get(trueChan.getText())
+		payloadTypes = [[] for i in range(len(truePLs))]
+		for i in range(len(truePLs)):
+			payloadTypes[i] = ctx.plTypes[i]
+		if not isinstance(chanType, PiCalcParser.ConnectionContext):
+			if not isinstance(chanType, PiCalcParser.LinearOutputContext):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking Tπ-Out failed due to " + trueChan.getText() + ". Output process on channel not of output type.</span>\n"
+				raise self.typecheckException
+			else:
+				for i in range(len(payloadTypes)):
+					if not isinstance(payloadTypes[i], type(chanType.payloads[i])):
+						self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Out failed due to " + truePLs[i].getText() + ". Output process payload does not match channel type.</span>\n"
+						raise self.typecheckException
+				self.gammaStack.append(gamma3)
+				tcLinOutStrBuilder = u"◻▵"
+				for i in range(len(truePLs)):
+					tcLinOutStrBuilder = tcLinOutStrBuilder + u"◻▵"
+				tcLinOutStrBuilder = tcLinOutStrBuilder + u"Tπ-Out▵◻"
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", tcLinOutStrBuilder, 1)
+				self.printVariableTypeRule(trueChan, gamma1)
+				for pl in truePLs:
+					self.printVariableTypeRule(pl, gamma2)
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻", 1)
+		else:
+			for i in range(len(payloadTypes)):
+					if not isinstance(payloadTypes[i], type(chanType.payloads[i])):
+						self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-StndOut failed due to " + truePLs[i].getText() + ". Output process payload does not match channel type.</span>\n"
+						raise self.typecheckException
+			augmentations = {trueChan.getText(): chanType}
+			gamma3 = self.augmentGamma(gamma3, augmentations)
+			self.gammaStack.append(gamma3)
+			tcLinOutStrBuilder = u"◻▵"
+			for i in range(len(truePLs)):
+				tcLinOutStrBuilder = tcLinOutStrBuilder + u"◻▵"
+			tcLinOutStrBuilder = tcLinOutStrBuilder + u"Tπ-StndOut▵◻"
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", tcLinOutStrBuilder, 1)
+			self.printVariableTypeRule(trueChan, gamma1)
+			for pl in truePLs:
+				self.printVariableTypeRule(pl, gamma2)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻", 1)
+
+
 	def enterInputSes(self, ctx):
 		if self.doSesTypeChecking:
 			self.enterInputSesSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterInputSesLTCh(ctx)
 		if self.doEncoding:
 			self.enterInputSesEnc(ctx)
 	# Receive new channel alongside payloads
@@ -853,6 +1182,8 @@ class SPEListener(PiCalcListener):
 			newChan = self.generateChannelName()
 			newChanType = self.contChanTypes[ctx.channel.getText()].sType()
 			self.contChanTypes[ctx.channel.getText()] = newChanType
+			if isinstance(ctx.plType, PiCalcParser.SessionTypeContext):
+				self.contChanTypes[ctx.payload.getText()] = ctx.plType.sType()
 			ipStrBuilder = ipStrBuilder + ", " + newChan + u" : ▲).●"
 			self.encFunc[ctx.channel.getText()] = newChan
 			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", ipStrBuilder, 1)
@@ -861,30 +1192,51 @@ class SPEListener(PiCalcListener):
 			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"★", u"▲", 1)
 	def enterInputSesSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
-		(gamma1, gamma2) = self.splitGamma(self.gamma, [ctx.channel.getText()])
-		chanType = gamma1.get(ctx.channel.getText())
+		trueChan = self.getReplacement(ctx.channel)
+		truePL = self.getReplacement(ctx.payload)
+		(gamma1, gamma2) = self.splitGamma(self.gamma, [trueChan.getText()])
+		chanType = gamma1.get(trueChan.getText())
 		payloadType = ctx.tType()
 		if isinstance(payloadType, PiCalcParser.BasicSesTypeContext):
 			payloadType = payloadType.basicSType()
+		elif isinstance(payloadType, PiCalcParser.SessionTypeContext):
+			payloadType = payloadType.sType()
 		if not isinstance(chanType, PiCalcParser.ChannelTypeContext):
 			if not isinstance(chanType, PiCalcParser.ReceiveContext):
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder = "ERROR: Typechecking failed due to " + ctx.channel.getText() + ". Input process on channel not of receive type.\n"
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder = "<span class='error'>ERROR: Typechecking rule T-In failed due to " + trueChan.getText() + ". Input process on channel not of receive type.</span>\n"
 				raise self.typecheckException
-			elif not isinstance(payloadType, type(chanType.tType().basicSType()) if isinstance(chanType.tType(), PiCalcParser.BasicSesTypeContext) else type(chanType.tType())):
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder = "ERROR: Typechecking failed due to " + ctx.payload.getText() + ". Input process payload has type annotation that does not match channel type.\n"
+			chanPLType = chanType.tType()
+			if isinstance(chanPLType, PiCalcParser.BasicSesTypeContext):
+				chanPLType = chanPLType.basicSType()
+			elif isinstance(chanPLType, PiCalcParser.SessionTypeContext):
+				chanPLType = chanPLType.sType()
+			if not isinstance(payloadType, type(chanPLType)):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder = "<span class='error'>ERROR: Typechecking rule T-In failed due to " + truePL.getText() + ". Input process payload has type annotation that does not match channel type.</span>\n"
 				raise self.typecheckException
 			else:
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Var▵◻", 1)
-				augmentations = {ctx.channel.getText(): chanType.sType(), ctx.payload.getText(): chanType.tType()}
+				augmentations = {trueChan.getText(): chanType.sType(), truePL.getText(): chanPLType}
 				gamma2 = self.augmentGamma(gamma2, augmentations)
 				self.gammaStack.append(gamma2)
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-In▵◻", 1)
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"◻▵T-In▵◻", 1)
+				self.printVariableTypeRule(trueChan, gamma1)
 		else:
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Var▵◻", 1)
-			augmentations = {ctx.channel.getText(): chanType, ctx.payload.getText(): chanType.tType()}
-			gamma2 = self.augmentGamma(gamma2, augmentations)
-			self.gammaStack.append(gamma2)
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-StndIn▵◻", 1)
+			chanPLType = chanType.tType()
+			if isinstance(chanPLType, PiCalcParser.BasicSesTypeContext):
+				chanPLType = chanPLType.basicSType()
+			elif isinstance(chanPLType, PiCalcParser.SessionTypeContext):
+				chanPLType = chanPLType.sType()
+			if not isinstance(payloadType, type(chanPLType)):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder = "<span class='error'>ERROR: Typechecking rule T-StndIn failed due to " + ctx.payload.getText() + ". Input process payload has type annotation that does not match channel type.</span>\n"
+				raise self.typecheckException
+			else:
+				augmentations = {ctx.channel.getText(): chanType, ctx.payload.getText(): chanPLType}
+				gamma2 = self.augmentGamma(gamma2, augmentations)
+				self.gammaStack.append(gamma2)
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"◻▵T-StndIn▵◻", 1)
+				self.printVariableTypeRule(trueChan, gamma1)
+	def enterInputSesLTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Input processes containing session types are not supported in linear-typed pi calculus.</span>\n"
+		raise self.typecheckException
 
 	def exitInputSes(self, ctx):
 		if self.doEncoding:
@@ -897,51 +1249,69 @@ class SPEListener(PiCalcListener):
 
 
 	def enterInputLin(self, ctx):
+		if self.doSesTypeChecking:
+			self.enterInputLinSTCh(ctx)
 		if self.doLinTypeChecking:
 			self.enterInputLinLTCh(ctx)
 		if self.doEncoding:
 			self.enterInputLinEnc(ctx)
 	# Raise error if linear version of input is used in encoding
 	def enterInputLinEnc(self, ctx):
-		self.encErrorStrBuilder = self.encErrorStrBuilder + "ERROR: Receive statements containing linear types and/or multiple payloads are not supported in session pi calculus.\n"
+		self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: Encoding failed. Input processes containing linear types and/or multiple payloads are not supported in session-typed pi calculus.</span>\n"
 		raise self.encodingException
+	def enterInputLinSTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Input processes containing linear types and/or multiple payloads are not supported in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
 	def enterInputLinLTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
-		(gamma1, gamma2) = self.combineGamma(self.gamma, [(ctx.channel.getText(), "Input")])
-		chanType = gamma1.get(ctx.channel.getText())
-		payloadTypes = copy.deepcopy(ctx.plType)
+		trueChan = self.getReplacement(ctx.channel)
+		truePLs = [self.getReplacement(pl) for pl in ctx.payloads]
+		(gamma1, gamma2) = self.combineGamma(self.gamma, [(trueChan.getText(), "Input")])
+		chanType = gamma1.get(trueChan.getText())
+		payloadTypes = copy.deepcopy(ctx.plTypes)
 		for i in range(len(payloadTypes)):
 			if isinstance(payloadTypes[i], PiCalcParser.BasicLinTypeContext):
 				payloadTypes[i] = payloadTypes[i].basicLType()
 		if not isinstance(chanType, PiCalcParser.ConnectionContext):
 			if not isinstance(chanType, PiCalcParser.LinearInputContext):
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.channel.getText() + ". Input process on channel not of input type.\n"
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Inp failed due to " + trueChan.getText() + ". Input process on channel not of input type.</span>\n"
 				raise self.typecheckException
 			else:
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Var▵◻", 1)
 				augmentations = {}
+				chanPLTypes = chanType.payloads
 				for i in range(len(payloadTypes)):
-					if not isinstance(payloadTypes[i], type(chanType.payload[i].basicLType()) if isinstance(chanType.payload[i], PiCalcParser.BasicLinTypeContext) else type(chanType.payload[i])):
-						self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.payload[i].getText() + ". Input process payload has type annotation that does not match channel type.\n"
+					if isinstance(chanPLTypes[i], PiCalcParser.BasicLinTypeContext):
+						chanPLTypes[i] = chanPLTypes[i].basicLType()
+					if not isinstance(payloadTypes[i], type(chanPLTypes[i])):
+						self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Inp failed due to " + truePLs[i].getText() + ". Input process payload has type annotation that does not match channel type.</span>\n"
 						raise self.typecheckException
-					augmentations[ctx.payload[i].getText()] = chanType.payload[i]
+					augmentations[truePLs[i].getText()] = chanPLTypes[i]
 				gamma2 = self.augmentGamma(gamma2, augmentations)
 				self.gammaStack.append(gamma2)
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Inp▵◻", 1)
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"◻▵Tπ-Inp▵◻", 1)
+				self.printVariableTypeRule(trueChan, gamma1)
 		else:
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Var▵◻", 1)
-			augmentations = {ctx.channel.getText(): chanType}
+			augmentations = {trueChan.getText(): chanType}
+			chanPLTypes = chanType.payloads
 			for i in range(len(payloadTypes)):
-				augmentations[ctx.payload[i].getText()] = chanType.payload[i]
+				if isinstance(chanPLTypes[i], PiCalcParser.BasicLinTypeContext):
+					chanPLTypes[i] = chanPLTypes[i].basicLType()
+				if not isinstance(payloadTypes[i], type(chanPLTypes[i])):
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-StndInp failed due to " + truePLs[i].getText() + ". Input process payload has type annotation that does not match channel type.</span>\n"
+					raise self.typecheckException
+				augmentations[truePLs[i].getText()] = chanPLTypes[i]
 			gamma2 = self.augmentGamma(gamma2, augmentations)
 			self.gammaStack.append(gamma2)
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-StndInp▵◻", 1)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"◻▵Tπ-StndInp▵◻", 1)
+			self.printVariableTypeRule(trueChan, gamma1)
 
 
 
 	def enterSelection(self, ctx):
 		if self.doSesTypeChecking:
 			self.enterSelectionSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterSelectionLTCh(ctx)
 		if self.doEncoding:
 			self.enterSelectionEnc(ctx)
 	# Create new channel and send as variant value
@@ -951,41 +1321,51 @@ class SPEListener(PiCalcListener):
 		self.checkCompStack(False)
 		newChan = self.generateChannelName()
 		newChanType = self.contChanTypes[ctx.channel.getText()]
-		selStrBuilder = "(new " + newChan + u" : ★) (send(" + self.encodeName(ctx.channel.getText()) + "," + ctx.selection.getText() + "_" + newChan + " : <\n"
-		for i in range(len(newChanType.option)):
-			selStrBuilder = selStrBuilder + "    " + newChanType.option[i].getText() +  u"_▲"
-			if i != len(newChanType.option)-1:
+		selStrBuilder = "(new " + newChan + u" : ★) (\n" + self.encStrIndent + "send(" + self.encodeName(ctx.channel.getText()) + "," + ctx.selection.getText() + "_" + newChan + " : <\n"
+		self.encStrIndent = self.encStrIndent + "  "
+		for i in range(len(newChanType.opts)):
+			selStrBuilder = selStrBuilder + self.encStrIndent + newChanType.opts[i].getText() +  u"_▲"
+			if i != len(newChanType.opts)-1:
 				selStrBuilder = selStrBuilder + ", \n"
-		selStrBuilder = selStrBuilder + u">).\n    ●)"
+		selStrBuilder = selStrBuilder + u">).\n" + self.encStrIndent[:-2] + u"●)"
 		self.encFunc[ctx.channel.getText()] = newChan
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", selStrBuilder, 1)
-		for i in range(len(newChanType.cont)):
+		self.encStrIndent = self.encStrIndent[:-2]
+		for i in range(len(newChanType.conts)):
+			self.encStrIndent = self.encStrIndent + "  "
 			typeWalker = ParseTreeWalker()
-			typeWalker.walk(self, newChanType.cont[i])
-			if newChanType.option[i].getText() == ctx.selection.getText():
+			typeWalker.walk(self, newChanType.conts[i])
+			self.encStrIndent = self.encStrIndent[:-2]
+			if newChanType.opts[i].getText() == ctx.selection.getText():
 				self.encodedStrBuilder = self.encodedStrBuilder.replace(u"★", u"▲", 1)
-				self.contChanTypes[ctx.channel.getText()] = newChanType.cont[i]
-				typeWalker.walk(self, newChanType.cont[i])
+				self.contChanTypes[ctx.channel.getText()] = newChanType.conts[i]
+				typeWalker.walk(self, newChanType.conts[i])
 	def enterSelectionSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
-		(gamma1, gamma2) = self.splitGamma(self.gamma, [ctx.channel.getText()])
-		chanType = gamma1.get(ctx.channel.getText())
+		trueChan = self.getReplacement(ctx.channel)
+		trueSel = self.getReplacement(ctx.selection)
+		(gamma1, gamma2) = self.splitGamma(self.gamma, [trueChan.getText()])
+		chanType = gamma1.get(trueChan.getText())
 		if not isinstance(chanType, PiCalcParser.SelectContext):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.channel.getText() + ". Select process on channel not of select type.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Sel failed due to " + trueChan.getText() + ". Select process on channel not of select type.</span>\n"
 			raise self.typecheckException
 		else:
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Var▵◻", 1)
-			for i in range(len(chanType.option)):
-				if chanType.option[i].getText() == ctx.selection.getText():
-					selType = chanType.cont[i]
-			gamma2 = self.augmentGamma(gamma2, {ctx.channel.getText(): selType})
+			for i in range(len(chanType.opts)):
+				if chanType.opts[i].getText() == trueSel.getText():
+					selType = chanType.conts[i]
+			gamma2 = self.augmentGamma(gamma2, {trueChan.getText(): selType})
 			self.gammaStack.append(gamma2)
-		self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Sel▵◻", 1)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"◻▵T-Sel▵◻", 1)
+			self.printVariableTypeRule(trueChan, gamma1)
+	def enterSelectionLTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Select processes are not supported in linear-typed pi calculus.</span>\n"
+		raise self.typecheckException
 
 	def exitSelection(self, ctx):
 		if self.doEncoding:
 			self.exitSelectionEnc(ctx)
 	def exitSelectionEnc(self, ctx):
+		self.encStrIndent = self.encStrIndent[:-2]
 		if self.branchStack != []:
 			self.branchStack.pop()
 		if self.compStack != []:
@@ -995,6 +1375,8 @@ class SPEListener(PiCalcListener):
 	def enterBranching(self, ctx):
 		if self.doSesTypeChecking:
 			self.enterBranchingSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterBranchingLTCh(ctx)
 		if self.doEncoding:
 			self.enterBranchingEnc(ctx)
 	# Receive value then use for case statement
@@ -1003,20 +1385,21 @@ class SPEListener(PiCalcListener):
 		self.checkCompStack(False)
 		caseVar = self.generateChannelName()
 		caseVarType = self.contChanTypes[ctx.channel.getText()]
-		for i in range(len(caseVarType.cont)-1, -1, -1):
+		for i in range(len(caseVarType.conts)-1, -1, -1):
 			cctCopy = copy.deepcopy(self.contChanTypes)
-			cctCopy[ctx.channel.getText()] = caseVarType.cont[i]
+			cctCopy[ctx.channel.getText()] = caseVarType.conts[i]
 			self.contChanTypesStack.append(cctCopy)
+		self.encStrIndent = self.encStrIndent + "  "
 		brnStrBuilder = "receive(" + self.encodeName(ctx.channel.getText()) + "," + caseVar + " : <\n"
-		for i in range(len(caseVarType.option)):
-			brnStrBuilder = brnStrBuilder + "    " + caseVarType.option[i].getText() + u"_▲"
-			if i != len(caseVarType.option)-1:
+		for i in range(len(caseVarType.opts)):
+			brnStrBuilder = brnStrBuilder + self.encStrIndent + caseVarType.opts[i].getText() + u"_▲"
+			if i != len(caseVarType.opts)-1:
 				brnStrBuilder = brnStrBuilder + ", \n"
-		brnStrBuilder = brnStrBuilder + ">).\n    case " + caseVar + " of { \n"
+		brnStrBuilder = brnStrBuilder + ">).\n" + self.encStrIndent[:-2] + "case " + caseVar + " of { \n"
 		newChan = self.generateChannelName()
-		for i in range(len(ctx.option)):
-			brnStrBuilder = brnStrBuilder + "    " + ctx.option[i].getText() + "_(" + newChan + u" : ▲)" + " > " + u"\n        ●"
-			if i != (len(ctx.option) - 1):
+		for i in range(len(ctx.opts)):
+			brnStrBuilder = brnStrBuilder + self.encStrIndent + ctx.opts[i].getText() + "_(" + newChan + u" : ▲)" + " > \n" + self.encStrIndent + u"●"
+			if i != (len(ctx.opts) - 1):
 				brnStrBuilder = brnStrBuilder + ", \n"
 			else:
 				brnStrBuilder = brnStrBuilder + " }"
@@ -1026,36 +1409,42 @@ class SPEListener(PiCalcListener):
 		self.branchStack.append("B")
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", brnStrBuilder, 1)
 		for i in range(2):
-			for i in range(len(caseVarType.cont)):
+			for i in range(len(caseVarType.conts)):
 				typeWalker = ParseTreeWalker()
-				typeWalker.walk(self, caseVarType.cont[i])
+				typeWalker.walk(self, caseVarType.conts[i])
 	def enterBranchingSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
-		(gamma1, gamma2) = self.splitGamma(self.gamma, [ctx.channel.getText()])
-		chanType = gamma1.get(ctx.channel.getText())
+		trueChan = self.getReplacement(ctx.channel)
+		trueOps = [self.getReplacement(op) for op in ctx.opts]
+		(gamma1, gamma2) = self.splitGamma(self.gamma, [trueChan.getText()])
+		chanType = gamma1.get(trueChan.getText())
 		if not isinstance(chanType, PiCalcParser.BranchContext):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.channel.getText() + ". Branch process on channel not of branch type.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Brch failed due to " + trueChan.getText() + ". Branch process on channel not of branch type.</span>\n"
 			raise self.typecheckException
 		else:
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Var▵◻", 1)
-			for i in range(len(chanType.cont)-1, -1, -1):
-				brchGamma = self.augmentGamma(gamma2, {ctx.channel.getText(): chanType.cont[i]})
+			for i in range(len(chanType.conts)-1, -1, -1):
+				brchGamma = self.augmentGamma(gamma2, {trueChan.getText(): chanType.conts[i]})
 				self.gammaStack.append(brchGamma)
-		self.tcStrIndent = self.tcStrIndent + "  "
-		brchTcStrBuilder = u"T-Brch\n" + self.tcStrIndent + "{"
-		for i in range(len(ctx.option)):
-			brchTcStrBuilder = brchTcStrBuilder + ctx.option[i].getText() + u" : ◻"
-			if i != (len(ctx.option) -1):
-				brchTcStrBuilder = brchTcStrBuilder + ";\n" + self.tcStrIndent
-			else:
-				self.tcStrIndent = self.tcStrIndent[:-2]
-				brchTcStrBuilder = brchTcStrBuilder + "}\n" + self.tcStrIndent
-		self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", brchTcStrBuilder, 1)
+			self.tcStrIndent = self.tcStrIndent + "  "
+			brchTcStrBuilder = u"◻▵T-Brch\n" + self.tcStrIndent + "{"
+			for i in range(len(trueOps)):
+				brchTcStrBuilder = brchTcStrBuilder + trueOps[i].getText() + u" : ◻"
+				if i != (len(trueOps) -1):
+					brchTcStrBuilder = brchTcStrBuilder + ";\n" + self.tcStrIndent
+				else:
+					self.tcStrIndent = self.tcStrIndent[:-2]
+					brchTcStrBuilder = brchTcStrBuilder + "}\n" + self.tcStrIndent
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", brchTcStrBuilder, 1)
+			self.printVariableTypeRule(trueChan, gamma1)
+	def enterBranchingLTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Branch processes are not supported in linear-typed pi calculus.</span>\n"
+		raise self.typecheckException
 
 	def exitBranching(self, ctx):
 		if self.doEncoding:
 			self.exitBranchingEnc(ctx)
 	def exitBranchingEnc(self, ctx):
+		self.encStrIndent = self.encStrIndent[:-2]
 		if self.branchStack != []:
 			self.branchStack.pop()
 		if self.compStack != []:
@@ -1078,7 +1467,8 @@ class SPEListener(PiCalcListener):
 		self.checkCompStack(True)
 		self.varNamesBackupStack.append(copy.deepcopy(self.usedVarNames))
 		self.compStack.append("C")
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", u"(● | ●)", 1)
+		self.encStrIndent = self.encStrIndent + "  "
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", u"( ●\n" + self.encStrIndent +  "|\n" + self.encStrIndent + u"● )", 1)
 	def enterCompositionSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
 		procWalker = ParseTreeWalker()
@@ -1114,6 +1504,7 @@ class SPEListener(PiCalcListener):
 		if self.doEncoding:
 			self.exitCompositionEnc(ctx)
 	def exitCompositionEnc(self, ctx):
+		self.encStrIndent = self.encStrIndent[:-2]
 		if self.compStack != []:
 			self.compStack.pop()
 		if self.varNamesBackupStack != []:
@@ -1123,6 +1514,8 @@ class SPEListener(PiCalcListener):
 	def enterSessionRestriction(self, ctx):
 		if self.doSesTypeChecking:
 			self.enterSessionRestrictionSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterSessionRestrictionLTCh(ctx)
 		if self.doEncoding:
 			self.enterSessionRestrictionEnc(ctx)
 	# Create new channel to replace both endpoints
@@ -1130,7 +1523,8 @@ class SPEListener(PiCalcListener):
 		newChan = self.generateChannelName()
 		for ep in ctx.endpoint:
 			self.encFunc[ep.getText()] = newChan
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "(new " + newChan + u" : ▲) (●)", 1)
+		self.encStrIndent = self.encStrIndent + "  "
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "(new " + newChan + u" : ▲) (\n" + self.encStrIndent + u"●\n" + self.encStrIndent + ")", 1)
 		if isinstance(ctx.sType(), PiCalcParser.NamedSTypeContext):
 			if ctx.sType().getText() in self.typeNames:
 				fullType = self.typeNames[ctx.sType().getText()]
@@ -1143,7 +1537,7 @@ class SPEListener(PiCalcListener):
 	def enterSessionRestrictionSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
 		if ctx.endpoint[0].getText() in self.gamma or ctx.endpoint[1].getText() in self.gamma:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.endpoint[0].getText() + " or " + ctx.endpoint[1].getText() + ". Attempting to restrict variable name already in use.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Res failed due to " + ctx.endpoint[0].getText() + " or " + ctx.endpoint[1].getText() + ". Attempting to restrict variable name already in use.</span>\n"
 			raise self.typecheckException
 		augmentations = {}
 		if isinstance(ctx.sType(), PiCalcParser.NamedSTypeContext):
@@ -1159,6 +1553,15 @@ class SPEListener(PiCalcListener):
 		newGamma = self.augmentGamma(self.gamma, augmentations)
 		self.gammaStack.append(newGamma)
 		self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Res \n" + self.tcStrIndent + "[" + ctx.endpoint[0].getText() + " : " + resType.getText().replace(",", ", ") + ", \n" + self.tcStrIndent + ctx.endpoint[1].getText() + " : " + resTypeDual.getText().replace(",", ", ") + u"]▵\n" + self.tcStrIndent + u"◻", 1)
+	def enterSessionRestrictionLTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Session restrictions are not supported in linear-typed pi calculus.</span>\n"
+		raise self.typecheckException
+
+	def exitSessionRestriction(self, ctx):
+		if self.doEncoding:
+			self.exitSessionRestrictionEnc(ctx)
+	def exitSessionRestrictionEnc(self, ctx):
+		self.encStrIndent = self.encStrIndent[:-2]
 
 
 	def enterChannelRestrictionNmd(self, ctx):
@@ -1170,24 +1573,25 @@ class SPEListener(PiCalcListener):
 			self.enterChannelRestrictionNmdEnc(ctx)
 	# Channel Restriction encoded homomorphically
 	def enterChannelRestrictionNmdEnc(self, ctx):
-		fullType = self.typeNames.get(ctx.typeName.text)
+		fullType = self.typeNames.get(ctx.namedType().getText())
 		if isinstance(fullType, PiCalcParser.LinearTypeContext):
-			self.encErrorStrBuilder = self.encErrorStrBuilder + "ERROR: Channel restrictions containing linear types are not supported in session pi calculus.\n"
+			self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Channel restrictions containing linear types are not supported in session pi calculus.</span>\n"
 			raise self.encodingException
 		elif isinstance(fullType, PiCalcParser.SessionTypeContext):
-			self.contChanTypes[ctx.value().getText()] = fullType			
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", u"(new ⬥ : ▲) (●)", 1)
+			self.contChanTypes[ctx.value().getText()] = fullType
+		self.encStrIndent = self.encStrIndent + "  "
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "(new " + ctx.value().getText() + u" : ▲) (\n" + self.encStrIndent + u"●\n" + self.encStrIndent + ")", 1)
 	def enterChannelRestrictionNmdSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
 		if ctx.value().getText() in self.gamma:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-StndRes failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.</span>\n"
 			raise self.typecheckException
-		fullType = self.typeNames.get(ctx.typeName.text)
+		fullType = self.typeNames.get(ctx.namedType().getText())
 		if isinstance(fullType, PiCalcParser.LinearTypeContext):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Channel restrictions containing linear types are not supported in session pi calculus.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Channel restrictions containing linear types are not supported in session pi calculus.</span>\n"
 			raise self.encodingException
 		elif isinstance(fullType, PiCalcParser.SessionTypeContext):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.value().getText() + ". Channel restriction on a session type.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-StndRes failed due to " + ctx.value().getText() + ". Channel restriction on a session type.</span>\n"
 			raise self.typecheckException
 		newGamma = self.augmentGamma(self.gamma, {ctx.value().getText() : fullType})
 		self.gammaStack.append(newGamma)
@@ -1195,11 +1599,14 @@ class SPEListener(PiCalcListener):
 	def enterChannelRestrictionNmdLTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
 		if ctx.value().getText() in self.gamma:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.\n"
+			if isinstance(fullType, PiCalcParser.NoCapabilityContext):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Res2 failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Res1 failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.</span>\n"
 			raise self.typecheckException
-		fullType = self.typeNames.get(ctx.typeName.text)
+		fullType = self.typeNames.get(ctx.namedType().getText())
 		if isinstance(fullType, PiCalcParser.TTypeContext) or isinstance(fullType, PiCalcParser.STypeContext):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Channel restrictions containing session types are not supported in linear pi calculus.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Channel restrictions containing session types are not supported in linear-typed pi calculus.</span>\n"
 		elif isinstance(fullType, PiCalcParser.ConnectionContext):
 			newGamma = self.augmentGamma(self.gamma, {ctx.value().getText() : fullType})
 			self.gammaStack.append(newGamma)
@@ -1214,42 +1621,68 @@ class SPEListener(PiCalcListener):
 			self.gammaStack.append(newGamma)
 			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Res1 \n" + self.tcStrIndent + "[" + ctx.value().getText() + " : " + fullType.getText().replace(",", ", ") + u"]▵\n" + self.tcStrIndent + u"◻", 1)
 
+	def exitChannelRestrictionNmd(self, ctx):
+		if self.doEncoding:
+			self.exitChannelRestrictionNmdEnc(ctx)
+	def exitChannelRestrictionNmdEnc(self, ctx):
+		self.encStrIndent = self.encStrIndent[:-2]
+
 
 	def enterChannelRestrictionSes(self, ctx):
 		if self.doSesTypeChecking:
 			self.enterChannelRestrictionSesSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterChannelRestrictionSesLTCh(ctx)
 		if self.doEncoding:
 			self.enterChannelRestrictionSesEnc(ctx)
 	# Channel Restriction encoded homomorphically
 	def enterChannelRestrictionSesEnc(self, ctx):
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", u"(new " + ctx.value().getText() + u" : ▲) (●)", 1)
+		self.encStrIndent = self.encStrIndent + "  "
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", u"(new " + ctx.value().getText() + u" : ▲) (\n" + self.encStrIndent + u"●\n" + self.encStrIndent + ")", 1)
 		self.contChanTypes[ctx.value().getText()] = ctx.tType()
 	def enterChannelRestrictionSesSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
 		if ctx.value().getText() in self.gamma:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-StndRes failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.</span>\n"
 			raise self.typecheckException
 		if isinstance(ctx.tType(), PiCalcParser.SessionTypeContext):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.value().getText() + ". Channel restriction on a session type.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-StndRes failed due to " + ctx.value().getText() + ". Channel restriction on a session type.</span>\n"
 			raise self.typecheckException
 		newGamma = self.augmentGamma(self.gamma, {ctx.value().getText() : ctx.tType()})
 		self.gammaStack.append(newGamma)
 		self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-StndRes \n" + self.tcStrIndent + "[" + ctx.value().getText() + " : " + ctx.tType().getText().replace(",", ", ") + u"]▵\n" + self.tcStrIndent + u"◻", 1)
+	def enterChannelRestrictionSesLTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Channel restrictions containing session types are not supported in linear-typed pi calculus.</span>\n"
+		raise self.typecheckException
+
+	def exitChannelRestrictionSes(self, ctx):
+		if self.doEncoding:
+			self.exitChannelRestrictionSesEnc(ctx)
+	def exitChannelRestrictionSesEnc(self, ctx):
+		self.encStrIndent = self.encStrIndent[:-2]
 
 
 	def enterChannelRestrictionLin(self, ctx):
+		if self.doSesTypeChecking:
+			self.enterChannelRestrictionLinSTCh(ctx)
 		if self.doLinTypeChecking:
 			self.enterChannelRestrictionLinLTCh(ctx)
 		if self.doEncoding:
 			self.enterChannelRestrictionLinEnc(ctx)
 	# Raise error if linear version of channel restriction is used in encoding
 	def enterChannelRestrictionLinEnc(self, ctx):
-		self.encErrorStrBuilder = self.encErrorStrBuilder + "ERROR: Channel restrictions containing linear types are not supported in session pi calculus.\n"
+		self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: Encoding failed. Channel restrictions containing linear types are not supported in session-typed pi calculus.</span>\n"
 		raise self.encodingException
+	def enterChannelRestrictionLinSTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Channel restrictions containing linear types are not supported in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
 	def enterChannelRestrictionLinLTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
 		if ctx.value().getText() in self.gamma:
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.\n"
+			if isinstance(ctx.linearType(), PiCalcParser.NoCapabilityContext):
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Res2 failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Res1 failed due to " + ctx.value().getText() + ". Attempting to restrict variable name already in use.</span>\n"
 			raise self.typecheckException
 		if isinstance(ctx.linearType(), PiCalcParser.NoCapabilityContext):
 			newGamma = self.augmentGamma(self.gamma, {ctx.value().getText() : ctx.linearType()})
@@ -1267,38 +1700,440 @@ class SPEListener(PiCalcListener):
 
 
 	def enterCase(self, ctx):
+		if self.doSesTypeChecking:
+			self.enterCaseSTCh(ctx)
 		if self.doLinTypeChecking:
 			self.enterCaseLTCh(ctx)
 		if self.doEncoding:
 			self.enterCaseEnc(ctx)
-	# Case is not native to session pi calculus, so encode homomorphically and display warning
 	def enterCaseEnc(self, ctx):
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", u"case ⬥ of {⬥ > ●, ⬥ > ●}", 1)
-		self.warnStrBuilder = self.warnStrBuilder + "WARNING: Case statements are not native to session pi calculus.\n"
+		self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: Encoding failed. Case processes not supported in session-typed pi calculus.</span>\n"
+		raise self.encodingException
+	def enterCaseSTCh(self, ctx):
+		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed. Case processes not supported in session-typed pi calculus.</span>\n"
+		raise self.typecheckException
 	def enterCaseLTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
-		(gamma1, gamma2) = self.combineGamma(self.gamma, [(ctx.case.getText(), "")])
-		caseType = gamma1.get(ctx.case.getText())
+		trueCase = self.getReplacement(ctx.case)
+		trueOps = [self.getReplacement(op) for op in ctx.opts]
+		(gamma1, gamma2) = self.combineGamma(self.gamma, [(trueCase.getText(), "")])
+		caseType = gamma1.get(trueCase.getText())
 		if not isinstance(caseType, PiCalcParser.VariantTypeContext):
-			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "ERROR: Typechecking failed due to " + ctx.case.getText() + ". Case statement with case variable not of variant type.\n"
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Case failed due to " + trueCase.getText() + ". Case statement with case variable not of variant type.</span>\n"
 			raise self.typecheckException
 		else:
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Var▵◻", 1)
-			for i in range(len(caseType.cont)-1, -1, -1):
-				caseGamma = self.augmentGamma(gamma2, {ctx.option[i].value().getText(): caseType.cont[i]})
+			for i in range(len(caseType.conts)-1, -1, -1):
+				caseGamma = self.augmentGamma(gamma2, {trueOps[i].value().getText(): caseType.conts[i]})
 				self.gammaStack.append(caseGamma)
 		self.tcStrIndent = self.tcStrIndent + "  "
-		caseTcStrBuilder = u"Tπ-Case\n" + self.tcStrIndent + "{"
-		for i in range(len(ctx.option)):
-			caseTcStrBuilder = caseTcStrBuilder + ctx.option[i].ID().getText() + u" : ◻"
-			if i != (len(ctx.option) -1):
+		caseTcStrBuilder = u"◻▵Tπ-Case\n" + self.tcStrIndent + "{"
+		for i in range(len(trueOps)):
+			caseTcStrBuilder = caseTcStrBuilder + trueOps[i].ID().getText() + u" : ◻"
+			if i != (len(trueOps) -1):
 				caseTcStrBuilder = caseTcStrBuilder + ";\n" + self.tcStrIndent
 			else:
 				caseTcStrBuilder = caseTcStrBuilder + "}\n" + self.tcStrIndent[:-2]
 		self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", caseTcStrBuilder, 1)
+		self.printVariableTypeRule(trueCase, gamma1)
 
 
 
+	## EXPRESSIONS
+
+	# Given an ANTLR context for an expression with 2 operands, return the types of those two operands
+	def getOperandTypes(self, exprCtx):
+		if isinstance(exprCtx.value(0), PiCalcParser.NamedValueContext):
+			val1Type = self.gamma.get(exprCtx.value(0).getText())
+		else:
+			if self.doSesTypeChecking:
+				val1Type = self.getBasicSesType(exprCtx.value(0))
+			else:
+				val1Type = self.getBasicLinType(exprCtx.value(0))
+		if isinstance(exprCtx.value(1), PiCalcParser.NamedValueContext):
+			val2Type = self.gamma.get(exprCtx.value(1).getText())
+		else:
+			if self.doSesTypeChecking:
+				val2Type = self.getBasicSesType(exprCtx.value(1))
+			else:
+				val2Type = self.getBasicLinType(exprCtx.value(1))
+		if isinstance(val1Type, PiCalcParser.BasicSesTypeContext):
+			val1Type = val1Type.basicSType()
+		elif isinstance(val1Type, PiCalcParser.BasicLinTypeContext):
+			val1Type = val1Type.basicLType()
+		if isinstance(val2Type, PiCalcParser.BasicSesTypeContext):
+			val2Type = val2Type.basicSType()
+		elif isinstance(val2Type, PiCalcParser.BasicLinTypeContext):
+			val2Type = val2Type.basicLType()
+		return val1Type, val2Type
+
+
+	def enterEql(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterEqlTCh(ctx)
+	def enterEqlTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if not isinstance(val1Type, type(val2Type)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Equal failed due to " + ctx.getText() + ". Equality not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Equal failed due to " + ctx.getText() + ". Equality not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Equal (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Equal (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+			
+
+
+	def enterInEql(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterInEqlTCh(ctx)
+	def enterInEqlTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if not isinstance(val1Type, type(val2Type)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Inequal failed due to " + ctx.getText() + ". Inequality not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Inequal failed due to " + ctx.getText() + ". Inequality not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Inequal (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Inequal (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterIntAdd(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterIntAddTCh(ctx)
+	def enterIntAddTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SIntegerContext) or not isinstance(val2Type, PiCalcParser.SIntegerContext)) and (not isinstance(val1Type, PiCalcParser.LIntegerContext) or not isinstance(val2Type, PiCalcParser.LIntegerContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Add failed due to " + ctx.getText() + ". Addition not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Add failed due to " + ctx.getText() + ". Addition not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Add (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Add (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterIntSub(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterIntSubTCh(ctx)
+	def enterIntSubTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SIntegerContext) or not isinstance(val2Type, PiCalcParser.SIntegerContext)) and (not isinstance(val1Type, PiCalcParser.LIntegerContext) or not isinstance(val2Type, PiCalcParser.LIntegerContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Sub failed due to " + ctx.getText() + ". Subtraction not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Sub failed due to " + ctx.getText() + ". Subtraction not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Sub (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Sub (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterIntMult(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterIntMultTCh(ctx)
+	def enterIntMultTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SIntegerContext) or not isinstance(val2Type, PiCalcParser.SIntegerContext)) and (not isinstance(val1Type, PiCalcParser.LIntegerContext) or not isinstance(val2Type, PiCalcParser.LIntegerContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Mult failed due to " + ctx.getText() + ". Multiplication not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Mult failed due to " + ctx.getText() + ". Multiplication not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Mult (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Mult (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterIntDiv(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterIntDivTCh(ctx)
+	def enterIntDivTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SIntegerContext) or not isinstance(val2Type, PiCalcParser.SIntegerContext)) and (not isinstance(val1Type, PiCalcParser.LIntegerContext) or not isinstance(val2Type, PiCalcParser.LIntegerContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Div failed due to " + ctx.getText() + ". Division not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Div failed due to " + ctx.getText() + ". Division not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Div (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Div (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterIntMod(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterIntModTCh(ctx)
+	def enterIntModTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SIntegerContext) or not isinstance(val2Type, PiCalcParser.SIntegerContext)) and (not isinstance(val1Type, PiCalcParser.LIntegerContext) or not isinstance(val2Type, PiCalcParser.LIntegerContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Mod failed due to " + ctx.getText() + ". Modulo not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Mod failed due to " + ctx.getText() + ". Modulo not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Mod (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Mod (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterIntGT(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterIntGTTCh(ctx)
+	def enterIntGTTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SIntegerContext) or not isinstance(val2Type, PiCalcParser.SIntegerContext)) and (not isinstance(val1Type, PiCalcParser.LIntegerContext) or not isinstance(val2Type, PiCalcParser.LIntegerContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Greater failed due to " + ctx.getText() + ". Ordered comparison not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Greater failed due to " + ctx.getText() + ". Ordered comparison not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Greater (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Greater (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterIntGTEq(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterIntGTEqTCh(ctx)
+	def enterIntGTEqTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SIntegerContext) or not isinstance(val2Type, PiCalcParser.SIntegerContext)) and (not isinstance(val1Type, PiCalcParser.LIntegerContext) or not isinstance(val2Type, PiCalcParser.LIntegerContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-GreaterEq failed due to " + ctx.getText() + ". Ordered comparison not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-GreaterEq failed due to " + ctx.getText() + ". Ordered comparison not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-GreaterEq (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-GreaterEq (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterIntLT(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterIntLTTCh(ctx)
+	def enterIntLTTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SIntegerContext) or not isinstance(val2Type, PiCalcParser.SIntegerContext)) and (not isinstance(val1Type, PiCalcParser.LIntegerContext) or not isinstance(val2Type, PiCalcParser.LIntegerContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Less failed due to " + ctx.getText() + ". Ordered comparison not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Less failed due to " + ctx.getText() + ". Ordered comparison not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Less (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Less (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterIntLTEq(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterIntLTEqTCh(ctx)
+	def enterIntLTEqTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SIntegerContext) or not isinstance(val2Type, PiCalcParser.SIntegerContext)) and (not isinstance(val1Type, PiCalcParser.LIntegerContext) or not isinstance(val2Type, PiCalcParser.LIntegerContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-LessEq failed due to " + ctx.getText() + ". Ordered comparison not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-LessEq failed due to " + ctx.getText() + ". Ordered comparison not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-LessEq (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-LessEq (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterStrConcat(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterStrConcatTCh(ctx)
+	def enterStrConcatTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SStringContext) or not isinstance(val2Type, PiCalcParser.SStringContext)) and (not isinstance(val1Type, PiCalcParser.LStringContext) or not isinstance(val2Type, PiCalcParser.LStringContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Concat failed due to " + ctx.getText() + ". Concatenation not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Concat failed due to " + ctx.getText() + ". Concatenation not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Concat (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Concat (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterBoolNot(self, ctx):
+		if self.doSesTypeChecking:
+			self.enterBoolNotSTCh(ctx)
+		if self.doLinTypeChecking:
+			self.enterBoolNotLTCh(ctx)
+	def enterBoolNotSTCh(self, ctx):
+		if isinstance(ctx.value(), PiCalcParser.NamedValueContext):
+			valType = self.gamma.get(ctx.value().getText())
+		else:
+			valType = self.getBasicSesType(ctx.value())
+		if isinstance(valType, PiCalcParser.BasicSesTypeContext):
+			valType = valType.basicSType()
+		if not isinstance(valType, PiCalcParser.SBooleanContext):
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Not failed due to " + ctx.getText() + ". Logical negation not defined on type " + val1Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Not (◻)", 1)
+			self.printVariableTypeRule(ctx.value(), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+	def enterBoolNotLTCh(self, ctx):
+		if isinstance(ctx.value(), PiCalcParser.NamedValueContext):
+			valType = self.gamma.get(ctx.value().getText())
+		else:
+			valType = self.getBasicSesType(ctx.value())
+		if isinstance(valType, PiCalcParser.BasicLinTypeContext):
+			valType = valType.basicLType()
+		if not isinstance(valType, PiCalcParser.LBooleanContext):
+			self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Not failed due to " + ctx.getText() + ". Logical negation not defined on type " + val1Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Not (◻)", 1)
+			self.printVariableTypeRule(ctx.value(), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+	def enterBoolAnd(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterBoolAndTCh(ctx)
+	def enterBoolAndTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SBooleanContext) or not isinstance(val2Type, PiCalcParser.SBooleanContext)) and (not isinstance(val1Type, PiCalcParser.LBooleanContext) or not isinstance(val2Type, PiCalcParser.LBooleanContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-And failed due to " + ctx.getText() + ". Logical conjunction not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-And failed due to " + ctx.getText() + ". Logical conjunction not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-And (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-And (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterBoolOr(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterBoolOrTCh(ctx)
+	def enterBoolOrTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SBooleanContext) or not isinstance(val2Type, PiCalcParser.SBooleanContext)) and (not isinstance(val1Type, PiCalcParser.LBooleanContext) or not isinstance(val2Type, PiCalcParser.LBooleanContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Or failed due to " + ctx.getText() + ". Logical disjunction not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Or failed due to " + ctx.getText() + ". Logical disjunction not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Or (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Or (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+	def enterBoolXor(self, ctx):
+		if self.doSesTypeChecking or self.doLinTypeChecking:
+			self.enterBoolXorTCh(ctx)
+	def enterBoolXorTCh(self, ctx):
+		val1Type, val2Type = self.getOperandTypes(ctx)
+		if (not isinstance(val1Type, PiCalcParser.SBooleanContext) or not isinstance(val2Type, PiCalcParser.SBooleanContext)) and (not isinstance(val1Type, PiCalcParser.LBooleanContext) or not isinstance(val2Type, PiCalcParser.LBooleanContext)):
+			if self.doSesTypeChecking:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Xor failed due to " + ctx.getText() + ". Exclusive disjunction not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			else:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule Tπ-Xor failed due to " + ctx.getText() + ". Exclusive disjunction not defined on types " + val1Type.getText() + " and " + val2Type.getText() + ".</span>\n"
+			raise self.typecheckException
+		else:
+			if self.doSesTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"T-Xor (◻▵◻)", 1)
+			elif self.doLinTypeChecking:
+				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Xor (◻▵◻)", 1)
+			self.printVariableTypeRule(ctx.value(0), self.exprGamma)
+			self.printVariableTypeRule(ctx.value(1), self.exprGamma)
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"☆", u"◻")
+
+
+
+
+	## TYPES
 	## Since ▼ represents a placeholder dualed type, if encodedStrBuilder contains a ▼ before a ▲,
 	## the next type must be encoded as its dual instead.
 	## Due to the properites of the encoding of dual types,
@@ -1349,20 +2184,27 @@ class SPEListener(PiCalcListener):
 	# Encode a branch as a linear input of a variant value
 	def enterBranchEnc(self, ctx):
 		dual = self.isNextDual()
+		self.encStrIndent = self.encStrIndent + "  "
 		if dual:
-			typeStrBuilder = "lo[<"
+			typeStrBuilder = "lo[<\n" + self.encStrIndent
 		else:
-			typeStrBuilder = "li[<"
-		for i in range(len(ctx.option)):
-			typeStrBuilder = typeStrBuilder + ctx.option[i].getText() + u"_▲"
-			if i != (len(ctx.option) - 1):
-				typeStrBuilder = typeStrBuilder + ", \n    "
+			typeStrBuilder = "li[<\n" + self.encStrIndent
+		for i in range(len(ctx.opts)):
+			typeStrBuilder = typeStrBuilder + ctx.opts[i].getText() + u"_▲"
+			if i != (len(ctx.opts) - 1):
+				typeStrBuilder = typeStrBuilder + ", \n" + self.encStrIndent
 			else:
 				typeStrBuilder = typeStrBuilder + ">]"
 		if dual:
 			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▼", typeStrBuilder, 1)
 		else:
 			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▲", typeStrBuilder, 1)
+
+	def exitBranch(self, ctx):
+		if self.doEncoding:
+			self.exitBranchEnc(ctx)
+	def exitBranchEnc(self, ctx):
+		self.encStrIndent = self.encStrIndent[:-2]
 
 
 	def enterSelect(self, ctx):
@@ -1371,20 +2213,27 @@ class SPEListener(PiCalcListener):
 	# Encode a select as a linear output of a variant value, with the dual of the sTypes
 	def enterSelectEnc(self, ctx):
 		dual = self.isNextDual()
+		self.encStrIndent = self.encStrIndent + "  "
 		if dual:
-			typeStrBuilder = "li[<"
+			typeStrBuilder = "li[<\n" + self.encStrIndent
 		else:
-			typeStrBuilder = "lo[<"
-		for i in range(len(ctx.option)):
-			typeStrBuilder = typeStrBuilder + ctx.option[i].getText() + u"_▼"
-			if i != (len(ctx.option) - 1):
-				typeStrBuilder = typeStrBuilder + ", \n    "
+			typeStrBuilder = "lo[<\n" + self.encStrIndent
+		for i in range(len(ctx.opts)):
+			typeStrBuilder = typeStrBuilder + ctx.opts[i].getText() + u"_▼"
+			if i != (len(ctx.opts) - 1):
+				typeStrBuilder = typeStrBuilder + ", \n" + self.encStrIndent
 			else:
 				typeStrBuilder = typeStrBuilder + ">]"
 		if dual:
 			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▼", typeStrBuilder, 1)
 		else:
 			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▲", typeStrBuilder, 1)
+
+	def exitSelect(self, ctx):
+		if self.doEncoding:
+			self.exitSelectEnc(ctx)
+	def exitSelectEnc(self, ctx):
+		self.encStrIndent = self.encStrIndent[:-2]
 
 
 	# Encode basic types, channel types and type names homomorphically
@@ -1393,16 +2242,19 @@ class SPEListener(PiCalcListener):
 		if self.doEncoding:
 			self.enterNamedTTypeEnc(ctx)
 	def enterNamedTTypeEnc(self, ctx):
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▲", self.encodeName(ctx.name.text), 1)
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▲", self.encodeName(ctx.namedType().getText()), 1)
 
 	def enterNamedSType(self, ctx):
 		if self.doEncoding:
 			self.enterNamedSTypeEnc(ctx)
 	def enterNamedSTypeEnc(self, ctx):
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▲", self.encodeName(ctx.name.text), 1)
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▲", self.encodeName(ctx.namedType().getText()), 1)
 
-	# def enterNamedLinTypeEnc(self, ctx):
-	# 	self.encodedStrBuilder = self.encodedStrBuilder.replace("▲", ctx.name.text)
+	def enterNamedType(self, ctx):
+		if self.doEncoding:
+			self.enterNamedTypeEnc(ctx)
+	def enterNamedTypeEnc(self, ctx):
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▲", self.encodeName(ctx.getText()), 1)
 
 	def enterChannelType(self, ctx):
 		if self.doEncoding:
@@ -1435,25 +2287,9 @@ class SPEListener(PiCalcListener):
 		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"▲", "lString", 1)
 
 
-	def enterUnitValue(self, ctx):
-		if self.doEncoding:
-			self.enterUnitValueEnc(ctx)
-	# Unit value encoded homomorphically
-	def enterUnitValueEnc(self, ctx):
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"⬥", "*", 1)
-
-
-	def enterName(self, ctx):
-		if self.doEncoding:
-			self.enterNameEnc(ctx)
-	# In theory, may be unneeded?
-	def enterNameEnc(self, ctx):
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"⬥", ctx.getText(), 1)
-
-
 	def enterVariantValue(self, ctx):
 		if self.doEncoding:
 			self.enterVariantValueEnc(ctx)
-	# In theory, may be unneeded? Variant value also not native to session pi calculus
 	def enterVariantValueEnc(self, ctx):
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"⬥", u"l_⬥", 1)
+		self.encErrorStrBuilder = self.encErrorStrBuilder + "<span class='error'>ERROR: Encoding failed. Variant values not supported in session-typed pi calculus.</span>\n"
+		raise self.encodingException

@@ -283,12 +283,12 @@ class PiCalcListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by PiCalcParser#VariantValue.
-    def enterVariantValue(self, ctx):
+    # Enter a parse tree produced by PiCalcParser#ExprValue.
+    def enterExprValue(self, ctx):
         pass
 
-    # Exit a parse tree produced by PiCalcParser#VariantValue.
-    def exitVariantValue(self, ctx):
+    # Exit a parse tree produced by PiCalcParser#ExprValue.
+    def exitExprValue(self, ctx):
         pass
 
 
@@ -316,6 +316,159 @@ class PiCalcListener(ParseTreeListener):
 
     # Exit a parse tree produced by PiCalcParser#BooleanValue.
     def exitBooleanValue(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#VariantValue.
+    def enterVariantValue(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#VariantValue.
+    def exitVariantValue(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#Eql.
+    def enterEql(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#Eql.
+    def exitEql(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#InEql.
+    def enterInEql(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#InEql.
+    def exitInEql(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#IntAdd.
+    def enterIntAdd(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#IntAdd.
+    def exitIntAdd(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#IntSub.
+    def enterIntSub(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#IntSub.
+    def exitIntSub(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#IntMult.
+    def enterIntMult(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#IntMult.
+    def exitIntMult(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#IntDiv.
+    def enterIntDiv(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#IntDiv.
+    def exitIntDiv(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#IntMod.
+    def enterIntMod(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#IntMod.
+    def exitIntMod(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#IntGT.
+    def enterIntGT(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#IntGT.
+    def exitIntGT(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#IntGTEq.
+    def enterIntGTEq(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#IntGTEq.
+    def exitIntGTEq(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#IntLT.
+    def enterIntLT(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#IntLT.
+    def exitIntLT(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#IntLTEq.
+    def enterIntLTEq(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#IntLTEq.
+    def exitIntLTEq(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#StrConcat.
+    def enterStrConcat(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#StrConcat.
+    def exitStrConcat(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#BoolNot.
+    def enterBoolNot(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#BoolNot.
+    def exitBoolNot(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#BoolAnd.
+    def enterBoolAnd(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#BoolAnd.
+    def exitBoolAnd(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#BoolOr.
+    def enterBoolOr(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#BoolOr.
+    def exitBoolOr(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#BoolXor.
+    def enterBoolXor(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#BoolXor.
+    def exitBoolXor(self, ctx):
         pass
 
 
@@ -397,6 +550,15 @@ class PiCalcListener(ParseTreeListener):
 
     # Exit a parse tree produced by PiCalcParser#SString.
     def exitSString(self, ctx):
+        pass
+
+
+    # Enter a parse tree produced by PiCalcParser#namedType.
+    def enterNamedType(self, ctx):
+        pass
+
+    # Exit a parse tree produced by PiCalcParser#namedType.
+    def exitNamedType(self, ctx):
         pass
 
 

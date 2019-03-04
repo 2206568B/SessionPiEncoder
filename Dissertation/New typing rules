@@ -1,0 +1,136 @@
+T-True
+
+un(G)
+-------------
+G |- True : Bool
+
+T-False
+
+un(G)
+-------------
+G |- False : Bool
+
+T-Integer
+
+un(G) and n in Z|
+---------------
+G |- n : Int
+
+
+T-String
+
+un(G) and l = "..."
+--------------
+G |- l : String
+
+
+T-Equal
+
+un(G), G |- x : T, y : T
+--------------
+G |- x == y : Bool
+
+
+T-Inequal
+
+un(G), G |- x : T, y : T
+--------------
+G |- x != y : Bool
+
+
+T-Add
+
+un(G), G |- x : Int, y : Int
+--------------
+G |- x + y : Int
+
+
+T-Sub
+
+un(G), G |- x : Int, y : Int
+--------------
+G |- x - y : Int
+
+
+T-Mult
+
+un(G), G |- x : Int, y : Int
+--------------
+G |- x * y : Int
+
+
+T-Div
+
+un(G), G |- x : Int, y : Int
+--------------
+G |- x / y : Int
+
+
+T-Mod
+
+un(G), G |- x : Int, y : Int
+--------------
+G |- x % y : Int
+
+
+T-Greater
+
+un(G), G |- x : Int, y : Int
+--------------
+G |- x > y : Bool
+
+
+T-GreaterEqual
+
+un(G), G |- x : Int, y : Int
+--------------
+G |- x >= y : Bool
+
+
+T-Less
+
+un(G), G |- x : Int, y : Int
+--------------
+G |- x < y : Bool
+
+
+T-LessEqual
+
+un(G), G |- x : Int, y : Int
+--------------
+G |- x <= y : Bool
+
+
+T-Concat
+
+un(G), G |- x : String, y : String
+--------------
+G |- x ++ y : String
+
+
+T-Not
+
+un(G), G |- x : Bool
+--------------
+G |- NOT x : Bool
+
+
+T-And
+
+un(G), G |- x : Bool, y : Bool
+--------------
+G |- x AND y : Bool
+
+
+T-Or
+
+un(G), G |- x : Bool, y : Bool
+--------------
+G |- x OR y : Bool
+
+
+T-Xor
+
+un(G), G |- x : Bool, y : Bool
+--------------
+G |- x XOR y : Bool

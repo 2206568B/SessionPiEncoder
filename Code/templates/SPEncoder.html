@@ -17,27 +17,35 @@
 		<!-- Main body of page -->
 		<div id="wrapper-row">
 			<div id="left-col" class="column">
-				<h2>Session Pi</h2>
+				<h2>Session-Typed Pi Calculus</h2>
 				<textarea id="sepi"></textarea>
-				<div id="button-row">
-					<button id="run-sepi">Run</button>
-					<button id="tc-sepi">Typecheck</button>
-				</div>
+			</div>
+			<div id="right-col" class="column">
+				<h2>Linear-Typed Pi Calculus</h2>
+				<textarea id="lipi"></textarea>
+			</div>
+		</div>
+		<div id="button-row">
+			<div>
+				<button id="run-sepi" disabled title="Also typechecks before executing">Execute</button>
+				<button id="tc-sepi" disabled>Typecheck</button>
+			</div>
+			<div class="splitter">
+				<button id="encode" disabled title="Also typechecks while encoding">Encode</button>
+			</div>
+			<div>
+				<button id="run-lipi" disabled title="Also typechecks before executing">Execute</button>
+				<button id="tc-lipi" disabled>Typecheck</button>
+			</div>
+		</div>
+		<div id="wrapper-row">
+			<div id="left-col" class="column">
 				<div class="terminal">
 					<div id="term-header">Session Pi Terminal</div>
 					<div id="sepi-term"></div>
 				</div>
 			</div>
-			<div class="splitter">
-				<button id="encode">Encode</button>
-			</div>
 			<div id="right-col" class="column">
-				<h2>Linear Pi</h2>
-				<textarea id="lipi"></textarea>
-				<div id="button-row">
-					<button id="run-lipi">Run</button>
-					<button id="tc-lipi">Typecheck</button>
-				</div>
 				<div class="terminal">
 					<div id="term-header">Linear Pi Terminal</div>
 					<div id="lipi-term"></div>
