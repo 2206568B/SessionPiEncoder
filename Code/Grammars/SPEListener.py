@@ -867,7 +867,7 @@ class SPEListener(PiCalcListener):
 			self.enterTerminationEnc(ctx)
 	# Termination encoded homomorphically
 	def enterTerminationEnc(self, ctx):
-		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "end", 1)
+		self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", "stop", 1)
 	def enterTerminationSTCh(self, ctx):
 		self.gamma = self.gammaStack.pop()
 		if self.sesLinGamma(self.gamma):
@@ -979,7 +979,7 @@ class SPEListener(PiCalcListener):
 			elif isinstance(chanPLType, PiCalcParser.SessionTypeContext):
 				chanPLType = chanPLType.sType()
 			if not isinstance(payloadType, type(chanPLType)):
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking ruel T-Out failed due to " + truePL.getText() + ". Output process payload does not match channel type.</span>\n"
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Out failed due to " + truePL.getText() + ". Output process payload does not match channel type.</span>\n"
 				raise self.typecheckException
 			else:
 				augmentations = {trueChan.getText(): chanType.sType()}

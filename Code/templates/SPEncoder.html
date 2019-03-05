@@ -1,11 +1,17 @@
 <!doctype html>
 <html style="height: 100%">
 	<title>Session Pi Encoder</title>
-	<h1>Session Pi Encoder</h1>
 	<head>
 		<link href="{{url_for('static', filename='SPEncoder.css') }}" type="text/css" rel="stylesheet" />
 	</head>
 	<body style="height: 100%">
+		<div id="header-row">
+			<h1>Session Pi Encoder</h1>
+			<div id="nav-links">
+				<b><span class="currentpage">Main Page</span></b>
+				<b><a href="{{url_for('guide') }}">User Guide</a></b>
+			</div>
+		</div>
 		<!-- Loading jQuery and custom JS -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery-3.3.1.min.js') }}">\x3C/script>')</script>

@@ -1,0 +1,165 @@
+<!doctype html>
+<html style="height: 100%">
+	<title>Session Pi Encoder</title>
+	<head>
+		<link href="{{url_for('static', filename='SPEncoder.css') }}" type="text/css" rel="stylesheet" />
+	</head>
+	<body>
+		<div>
+			<div id="header-row">
+				<h1>Session Pi Encoder</h1>
+				<div id="nav-links">
+					<b><a href="{{url_for('main_page') }}">Main Page</a></b>
+					<b><span class="currentpage">User Guide</span></b>
+				</div>
+			</div>
+			<h2>Syntax Guide</h2>
+			<h3>Declarations</h3>
+			<p>
+				Your code should be structured as a list of declarations, followed by a pi calculus process. This section describes the valid declarations that can be made. In this section, P represents an arbitrary process.
+				<ul>
+					<li>Type Declaration - <span class="code">type var varType</span> e.g. <span class="code">type alpha sInt</span> - This is used to declare to type of a variable.</li>
+					<br>
+					<li>Variable Assignment - <span class="code">var = value</span> e.g. <span class="code">alpha = 3</span> - This is used to assign a value to a variable which can take a value (e.g. integers, strings or booleans).</li>
+					<br>
+					<li>Type Declaration and Assignment - <span class="code">type var varType = val</span> e.g. <span class="code">type alpha sInt = 3</span> - This combines the above two into one declaration.</li>
+					<br>
+					<li>Type Naming - <span class="code">type typeName := fullType</span> e.g. <span class="code">type msg := sString</span> - This assigns a name to a particular type, so that that name may be used later in place of that type.</li>
+					<br>
+					<li>Process Naming - <span class="code">processName(dummyVar : dummyType) := fullProcess</span> e.g. <span class="code">client(a : !sInt.?sInt.end) := P</span> - This assigns a name to a particular process, so that that name may be used later in place of that process. The declaration includes a dummy variable of a specified type, which is replaced with a variable passed into the process when called later, similarly to an argument to a function.</li>
+				</ul>
+			</p>
+			<h3>Session-typed Pi Calculus</h3>
+			<h3 class="subheader">Processes</h3>
+			<p>
+				In the following section, P, Q and R represent arbitrary processes, x and y represent session endpoints, z represents a standard channel and w and v represent arbitrary values.
+				<ul>
+					<li>Parallel Composition - <span class="code">(process | process)</span> e.g. <span class="code">(P | Q)</span> - This allows two processes to run in parallel, allowing them to communicate with each other.</li>
+					<br>
+					<li>Output - <span class="code">send(channel, payload).process</span> e.g. <span class="code">send(x, v).P</span> - This process sends a value as a <span class="code">payload</span> from <span class="code">channel</span> to the corresponding session endpoint, or to itself if <span class="code">channel</span> is a standard channel. This process is the counterpart to Input.</li>
+					<br>
+					<li>Input - <span class="code">receive(channel, payload : payloadType).process</span> e.g. <span class="code">receive(x, w : sInt).P</span> - This process receives a value as a <span class="code">payload</span> of type <span class="code">payloadType</span> on <span class="code">channel</span> that has been sent by the corresponding session endpoint, or by itself if <span class="code">channel</span> is a standard channel. This process is the counterpart to Output.</li>
+					<br>
+					<li>Branch - <span class="code">branch(channel){ label1 : process1 ... labelN : processN }</span> e.g. <span class="code">branch(x){ alpha : P, beta : Q, gamma : R }</span> - This process acts as a branching point into multiple options of processes to continue to. When some option is selected by a Select process on the counterpart to <span class="code">channel</span>, this process continues with the process corresponding to the option selected. This process is the counterpart to Select.</li>
+					<br>
+					<li>Select - <span class="code">select(channel, selection).process</span> e.g. <span class="code">select(x, alpha).P</span> - This process selects which branch should be taken by a Branch process on the counterpart to <span class="code">channel</span>. This process is the counterpart to Branch.</li>
+					<br>
+					<li>Inaction - <span class="code">stop</span> - This process terminates. It is used when a process has no further operations to perform, and should therefore be ended.</li>
+					<br>
+					<li>Session Restriction - <span class="code">(new endpoint1 endpoint2 : ep1Type) (process)</span> e.g. <span class="code">(new x y : ?sInt.end) (P)</span> - This process creates a new pair of session endpoints. The type annotation is the type of the first endpoint, and the second endpoint's type is the dual of that type.</li>
+					<br>
+					<li>Channel Restriction - <span class="code">(new channel : channelType) (process)</span> e.g. <span class="code">(new z : #sInt) (P)</span> - This process creates a new standard channel. The type annotation is the type of the channel.</li>
+					<br>
+					<li>Named Process - <span class="code">processName(var)</span> e.g. <span class="code">client(x))</span> - This process calls back to a process which had been given a name in the declarations. The variable passed in replaces the dummy variable used in the declaration.</li>
+				</ul>
+			</p>
+			<h3 class="subheader">Types</h3>
+			<p>
+				In this section, T represent an arbitrary type and S represents an arbitrary session type.
+			</p>
+			<h4 class="subheader">Session Types</h4>
+			<p>
+				Session types are a subset of types in Session-typed Pi Calculus. A session is comprised of two endpoints, which communicate only with each other. Their communication is ordered by the operations they perform, and the type of one endpoint is the dual (or opposite) of the other. Each endpoint of a session is known to only one process.
+			</p>
+			<ul>
+				<li>Output - <span class="code">!type.sessionType</span> e.g. <span class="code">!sInt.S</span> - This type is for sending values along a session, and it corresponds to Output processes.</li>
+				<br>
+				<li>Input - <span class="code">?type.sessionType</span> e.g. <span class="code">?sInt.S</span> - This type is for receiving values that have been sent along a session, and it corresponds to Input processes.</li>
+				<br>
+				<li>Branch - <span class="code">&{label1 : sessionType1 ... labelN : sessionTypeN}</span> e.g. <span class="code">&{alpha : !sInt.S, beta : !sBool.S, gamma : ?sBool.S}</span> - This type is for branching into multiple options of types to continue to, and it corresponds to Branch processes.</li>
+				<br>
+				<li>Select - <span class="code">+{label1 : sessionType1 ... labelN : sessionTypeN}</span> e.g. <span class="code">+{alpha : !sInt.S, beta : !sBool.S, gamma : ?sBool.S}</span> - This type is for selecting a type for a corresponding Branch type to continue to, and it corresponds to Select processes. Although a Select process only contains one of the options, the Select type still contains all options.</li>
+				<br>
+				<li>Termination - <span class="code">end</span> - This type is for when a session type is no longer being used, and it corresponds to Inaction processes.</li>
+				<br>
+				<li>Named Process - <span class="code">processName(var)</span> e.g. <span class="code">client(x))</span> - This process calls back to a process which had been given a name in the declarations. The variable passed in replaces the dummy variable used in the declaration.</li>
+			</ul>
+			<h4 class="subheader">Other Types</h4>
+			<p>
+				These types are the types found in standard pi-calculus.
+				<ul>
+					<li>Channel - <span class="code">#type</span> e.g. <span class="code">#sInt</span> - This is the standard channel for communication. Standard channels can be known to multiple processes, and values sent on a standard channel are received on the same channel. A standard channel can send values of only one type, but can send values of that type as many times as needed.</li>
+					<br>
+					<li>Unit Type - <span class="code">sUnit</span> - This type is used as a basic, minimal type. Values of this type contain no information, and can be seen as simply the presence of a value.</li>
+					<br>
+					<li>Boolean - <span class="code">sBool</span> - True or False.</li>
+					<br>
+					<li>Integer - <span class="code">sInt</span> - Positive or negative integers.</li>
+					<br>
+					<li>String - <span class="code">sString</span> - Any string of letters or numbers, surrounded by quotation marks.</li>
+				</ul>
+			</p>
+			<h3>Linear-typed Pi Calculus</h3>
+			<h3 class="subheader">Processes</h3>
+			<p>
+				In the following section, P, Q and R represent arbitrary processes, x represents a standard channel and w and v represent arbitrary values.
+				<ul>
+					<li>Parallel Composition - <span class="code">(process | process)</span> e.g. <span class="code">(P | Q)</span> - This allows two processes to run in parallel, allowing them to communicate with each other.</li>
+					<br>
+					<li>Output - <span class="code">send(channel, payload1 ... payloadN).process</span> e.g. <span class="code">send(x, v1, v2, v3).P</span> - This process sends values as <span class="code">payloads</span> over <span class="code">channel</span>. This process is the counterpart to Input.</li>
+					<br>
+					<li>Input - <span class="code">receive(channel, payload1 : plType1 ... payloadN : plTypeN).process</span> e.g. <span class="code">receive(x, w1 : lInt, w2 : lInt, w3 : lInt).P</span> - This process receives values as <span class="code">payloads</span> where <span class="code">payloadI</span> is of type <span class="code">payloadTypeI</span> over <span class="code">channel</span> that has been sent over <span class="code">channel</span>. This process is the counterpart to Output.</li>
+					<br>
+					<li>Case - <span class="code">case choice of {label1_channel > process1 ... labelN_channel > processN}</span> e.g. <span class="code">case v of {alpha_x > P, beta_x > Q, gamma_x > R}</span> - This process acts as a branching point into multiple options of processes to continue to, based on some variant value <span class="code">choice</span>.</li>
+					<br>
+					<li>Inaction - <span class="code">stop</span> - This process terminates. It is used when a process has no further operations to perform, and should therefore be ended.</li>
+					<br>
+					<li>Channel Restriction - <span class="code">(new channel : channelType)</span> e.g. <span class="code">(new x : #[lInt])</span> - This process creates a new linear or standard channel. The type annotation is the type of the channel.</li>
+				</ul>
+			</p>
+			<h3 class="subheader">Types</h3>
+			<p>
+				<ul>
+					<li>Linear Output - <span class="code">lo[type1 ... typeN]</span> e.g. <span class="code">lo[lInt]</span> - This type is a linear channel with the capability to send some unordered sequence of types only once, and it corresponds to Output processes.</li>
+					<br>
+					<li>Linear Input - <span class="code">li[type1 ... typeN]</span> e.g. <span class="code">li[lInt]</span> - This type is a linear channel with the capability to receive some unordered sequence of types only once, and it corresponds to Input processes.</li>
+					<br>
+					<li>Linear Connection - <span class="code">l#[type1 ... typeN]</span> e.g. <span class="code">l#[lInt]</span> - This type is the combination of Linear Output and Linear Input, i.e. it is a linear channel with the capability to send some unordered sequence of types only once, and receive the same sequence only once. As a value of type Linear Input without some value with the same name of type Linear Output in some other process, and vice versa, whenever you create a Linear Input or Linear Output, this actually implicitly creates a Linear Connection instead. For readability purposes, it may be useful to use the convention of creating a channel as the capability which is used in the process creating it, or in the left process of a parallel composition.</li>
+					<br>
+					<li>No Capability - <span class="code">empty[]</span> - This type is a linear channel that has used all of its capabilities, i.e. it is a channel that can no longer do anything.</li>
+					<br>
+					<li>Standard Channel - <span class="code">#[type1 ... typeN]</span> e.g. <span class="code">#[lInt, lBool]</span> - This is the standard channel for communication. Unlike linear channels, it is unrestricted in how many times it can be used.</li>
+					<br>
+					<li>Variant Type - <span class="code">&lt;label1_type1 ... labelN_typeN&gt;</span> e.g. <span class="code">&lt;alpha_li[lInt], beta_lo[lInt], gamma_li[lBool]&gt;</span> - This type represents when a value can be of multiple different types. Values with variant types are used in Case processes to decide which process to continue to.</li>
+					<br>
+					<li>Unit Type - <span class="code">lUnit</span> - This type is used as a basic, minimal type. Values of this type contain no information, and can be seen as simply the presence of a value.</li>
+					<br>
+					<li>Boolean - <span class="code">lBool</span> - True or False.</li>
+					<br>
+					<li>Integer - <span class="code">lInt</span> - Positive or negative integers.</li>
+					<br>
+					<li>String - <span class="code">lString</span> - Any string of letters or numbers, surrounded by quotation marks.</li>
+				</ul>
+			<h3>Expressions</h3>
+			<p>
+				These are the basic expressions you can perform on the basic types, Integer, String and Bool.
+				<ul>
+					<li>Equality - <span class="code">(val1 == val2)</span></li>
+					<li>Inequality - <span class="code">(val1 != val2)</span></li>
+					<li>Addition - <span class="code">(int1 + int2)</span></li>
+					<li>Subtraction - <span class="code">(int1 - int2)</span></li>
+					<li>Multiplication - <span class="code">(int1 * int2)</span></li>
+					<li>Division - <span class="code">(int1 / int2)</span></li>
+					<li>Modulo - <span class="code">(int1 % int2)</span></li>
+					<li>Greater Than - <span class="code">(int1 > int2)</span></li>
+					<li>Greater Than or Equal To - <span class="code">(int1 >= int2)</span></li>
+					<li>Less Than - <span class="code">(int1 < int2)</span></li>
+					<li>Less Than or Equal To - <span class="code">(int1 <= int2)</span></li>
+					<li>Concatenation - <span class="code">(str1 ++ str2)</span></li>
+					<li>Logical Negation - <span class="code">(NOT bool)</span></li>
+					<li>Logical Conjunction - <span class="code">(bool1 AND bool2)</span></li>
+					<li>Logical Disjunction - <span class="code">(bool1 OR bool2)</span></li>
+					<li>Exclusive Disjunction - <span class="code">(bool1 XOR bool2)</span></li>
+				</ul>
+			</p>
+			<h3>Notes</h3>
+			<p>
+				<ul>
+					<li>The encoding from session-typed pi calculus into linear-typed pi calculus generates channels with the names c, c', c'', etc. To avoid confusion, avoid using those names yourself.</li>
+					<br>
+					<li>The words 'type', end', 'stop', 'case', 'sUnit', 'sInt', 'sString', 'sBool', 'lUnit', 'lInt', 'lString', 'lBool' and 'NOT' are keywords that cannot be used as variable names. Using them as variable names produces unexpected results, as the parser cannot interpret this correctly. Other keywords, such as 'send', 'receive' and others can be used as variable names without error, but it is still recommended you do not use these as variable names to avoid confusion.</li>
+				</ul>
+			</p>
+		</div>
+	</body>
+</html>
