@@ -152,10 +152,40 @@
 					<li>Exclusive Disjunction - <span class="code">(bool1 XOR bool2)</span></li>
 				</ul>
 			</p>
+			<h3>Typing Rules</h3>
+			<p>
+				This section presents the typing rules used in the typechecking of your processes. Typechecking uses a typing context &Gamma;, which keeps track of what type each named value is. The typechecker starts by gathering the initial &Gamma; from your declarations, and then applies these rules to your process. In each rule, whether the bottom half is true (i.e. whether the process is well-typed under a particular &Gamma;) is tested by checking whether the top half is true. In these rules, P and Q represent arbitrary processes, x, y and v represents arbitrary values, T represents an arbitrary type in session-types, S represents an arbitrary session type, and &tau; represents an arbitrary type in linear-types.
+			</p>
+			<h4 class="subheader">Session-typed Processes</h4>
+			<img src="{{url_for ('static', filename='images/SesProcTypeRules.png') }}">
+			<h4 class="subheader">Linear-typed Processes</h4>
+			<img src="{{url_for ('static', filename='images/LinProcTypeRules.png') }}">
+			<h4 class="subheader">Values and Expressions</h4>
+			<p>
+				Presented below the typing rules for values and expressions in session-typed Pi Calculus. The rules in linear-typed Pi Calculus are near-identical, with the only differences being the types sUnit, sInt, sBool and sString being replaced with lUnit, lInt, lBool and lString respectively, and the presence of an additional rule, which is also presented below.
+			</p>
+			<img src="{{url_for ('static', filename='images/ExprTypeRules.png') }}">
+			<p>
+				This rule is the aforementioned additional rule present in linear-typed Pi Calculus, and not in session-typed Pi Calculus.
+			</p>
+			<img src="{{url_for ('static', filename='images/LValTypeRule.png') }}">
+			<h3>Encoding</h3>
+			<p>
+				This section presents the rules by which your process is encoded. The encoding uses a renaming function f (where the output f(x) is denoted f<sub>x</sub>) where names are replaced either with themselves, or a newly created name. This is used to pass continuation channels so that communication between two processes can continue after the linear channels they had previously communicated on have been used up and no longer have any capabilities. That is, the encoding is based around the idea of adding to each comunication the channel on which the next communication will happen. In these encoding rules, P and Q represent arbitrary processes, x and y represents an arbitrary pair of session endpoints, z represents an arbitrary standard channel, c represents a continuation channel, v and w represent arbitrary values, T represents an arbitrary type in session-types and S represents an arbitrary session type.
+			</p>
+			<img src="{{url_for ('static', filename='images/EncodingRules.png') }}">
+			<h3>Execution</h3>
+			<p>
+				This section presents the reduction rules used to execute your process. The execution of a process is the application of these rules repeatedly until either all processes are inaction, i.e. the process has terminated successfully, or a reduction cannot be performed on the remaining processes, i.e. the process is incorrect and cannot be fully executed. In these rules, the &rarr; operator denotes that the first operand can be reduced to the second, and the [v/w] syntax denotes variable replacement, that is, that the variable w has been replaced with the variable v as a result of the reduction. These rules, within both session-typed and linear-typed Pi Calculus, can be split into two groups: the reductions themselves, and rules stating implications of the reduction. P and Q represent arbitrary processes, x and y represents an arbitrary pair of session endpoints, z represents an arbitrary standard channel and v and w represent arbitrary values.
+			</p>
+			<h4 class="subheader">Session-typed Processes</h4>
+			<img src="{{url_for ('static', filename='images/SesProcReducRules.png') }}">
+			<h4 class="subheader">Linear-typed Processes</h4>
+			<img src="{{url_for ('static', filename='images/LinProcReducRules.png') }}">
 			<h3>Notes</h3>
 			<p>
 				<ul>
-					<li>The encoding from session-typed pi calculus into linear-typed pi calculus generates channels with the names c, c', c'', etc. To avoid confusion, avoid using those names yourself.</li>
+					<li>The encoding from session-typed pi calculus into linear-typed pi calculus generates channels with the names c, c', c'', etc. Using these names yourself is therefore not advised, to avoid confusion, although it does still work correctly.</li>
 					<br>
 					<li>The words 'type', end', 'stop', 'case', 'sUnit', 'sInt', 'sString', 'sBool', 'lUnit', 'lInt', 'lString', 'lBool' and 'NOT' are keywords that cannot be used as variable names. Using them as variable names produces unexpected results, as the parser cannot interpret this correctly. Other keywords, such as 'send', 'receive' and others can be used as variable names without error, but it is still recommended you do not use these as variable names to avoid confusion.</li>
 				</ul>

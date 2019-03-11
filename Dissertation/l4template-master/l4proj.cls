@@ -29,7 +29,7 @@
   \usepackage{FiraMono}
   \usepackage{FiraSans}
   \usepackage{textcomp}
-  \usepackage{babel}
+  \usepackage[english]{babel}
   \usepackage[T1]{fontenc}
 \else
   % make sure the fonts are actually set
@@ -159,17 +159,18 @@ textfont=it,tableposition=above]{caption}
           
           \color{UniBlue}
             \noindent
-            {\Huge  \@title \par}%
-            \Large
-            \lineskip .75em%
-            \noindent
-            \begin{tabular}[t]{@{}l}%
-              \textbf{\@author}
-            \end{tabular}\par%
-            \@date
+            {\Huge \scshape  \@title \par}%
+            
+            
+            
+            
           
         \end{center}
- 
+        \vfill
+        {\Large
+        \textbf{\@author}\\
+        \@date}
+            
 
     
   \end{titlepage}%
@@ -243,6 +244,22 @@ textfont=it,tableposition=above]{caption}
 
 }
 
+% highlight boxes
+\usepackage{tcolorbox}
+\newenvironment{highlight}
+{\begin{tcolorbox}[notitle,boxrule=0pt,colback=green!10,colframe=green!10]}
+{
+\end{tcolorbox}
+}
+
+\newenvironment{highlight_title}[1]
+{\begin{tcolorbox}[title=#1,boxrule=2pt,colback=green!10,colframe=green!20,coltitle=black,fonttitle=\bfseries]}
+{
+\end{tcolorbox}
+}
+
+
+
 % adjust margins
 \setlength{\parindent}{0pt}
 
@@ -250,11 +267,13 @@ textfont=it,tableposition=above]{caption}
 % use (a) in figures
 \captionsetup{subrefformat=parens}
 
-
+% Algorithm typesetting package
+\usepackage[plain, noline, shortend, linesnumberedhidden]{algorithm2e}
+\SetAlFnt{\sffamily \small}
 
 % adjust spacing
-\titlespacing{\section}{0pt}{1.5\baselineskip}{2pt plus 3pt minus 3pt}
-\titlespacing{\subsection}{0pt}{\baselineskip}{-2pt plus 4pt minus 1pt}
+\titlespacing{\section}{10pt}{1.5\baselineskip}{8pt plus 3pt minus 3pt}
+\titlespacing{\subsection}{10pt}{\baselineskip}{8pt plus 4pt minus 1pt}
 \titleformat{\subsubsection}[runin]{\bfseries }{}{}{}[]
 \titlespacing{\chapter}{0pt}{0pt}{40pt plus 10pt minus 5pt} 
 

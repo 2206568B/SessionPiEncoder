@@ -75,25 +75,25 @@ def run_sepi():
 @app.route("/run_lipi")
 def run_lipi():
 	code = request.args.get('lipi_code', "", type=str)
-	try:
-		lexer_input = InputStream(code)
-		lexer = PiCalcLexer(lexer_input)
-		stream = CommonTokenStream(lexer)
-		parser = PiCalcParser(stream)
-		tree = parser.encInput()
-		listener = SPEListener(False, True, False, [])
-		listener.doOperations(tree)
-		tcStr, tcErr = listener.getTypeCheckResults()
-		if tcErr != "":
-			return jsonify(encoded = "", output = tcErr)
-		else:
-			runner = SPERunner(False, True)
-			runner.doExecution(tree)
-			exStr, exErr = runner.getExecutionResults()
-			outputStr = tcStr + tcErr + exStr + exErr
-			return jsonify(output = outputStr)
-	except:
-		return jsonify(encoded = "", output = "<span class='error'>ERROR: An error occured while trying to parse your input. Please check that it is valid.\n</span>")
+	# try:
+	lexer_input = InputStream(code)
+	lexer = PiCalcLexer(lexer_input)
+	stream = CommonTokenStream(lexer)
+	parser = PiCalcParser(stream)
+	tree = parser.encInput()
+	listener = SPEListener(False, True, False, [])
+	listener.doOperations(tree)
+	tcStr, tcErr = listener.getTypeCheckResults()
+	if tcErr != "":
+		return jsonify(encoded = "", output = tcErr)
+	else:
+		runner = SPERunner(False, True)
+		runner.doExecution(tree)
+		exStr, exErr = runner.getExecutionResults()
+		outputStr = tcStr + tcErr + exStr + exErr
+		return jsonify(output = outputStr)
+	# except:
+		# return jsonify(encoded = "", output = "<span class='error'>ERROR: An error occured while trying to parse your input. Please check that it is valid.\n</span>")
 
 
 @app.route("/tc_sepi")

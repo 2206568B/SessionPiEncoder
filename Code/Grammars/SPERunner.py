@@ -533,30 +533,30 @@ class SPERunner(PiCalcListener):
 								reductionMade = True
 						elif isinstance(self.parProcs[i], PiCalcParser.CaseContext):
 							for k in range(len(self.parProcs[i].opts)):
-								if self.getReplacement(i, self.parProcs[i].case).variantVal().ID().getText() == self.parProcs[i].opts[k].ID().getText():
-									rPiCaseStrBuilder = "Selecting case " + self.getReplacement(i, self.parProcs[i].case).variantVal().ID().getText() + " out of cases "
+								if self.getReplacement(i, self.parProcs[i].case).ID().getText() == self.parProcs[i].opts[k].ID().getText():
+									rPiCaseStrBuilder = "Selecting case " + self.getReplacement(i, self.parProcs[i].case).ID().getText() + " out of cases "
 									for l in range(len(self.parProcs[i].opts)):
 										rPiCaseStrBuilder = rPiCaseStrBuilder + self.parProcs[i].opts[l].ID().getText()
 										if l != len(self.parProcs[i].opts)-1:
 											rPiCaseStrBuilder = rPiCaseStrBuilder + ", "
-									rPiCaseStrBuilder = rPiCaseStrBuilder + ", replacing " + self.parProcs[i].opts[k].value().getText() + " with " + self.getReplacement(i, self.parProcs[i].case).variantVal().value().getText() + u". (Rπ-Case)\n"
+									rPiCaseStrBuilder = rPiCaseStrBuilder + ", replacing " + self.parProcs[i].opts[k].value().getText() + " with " + self.getReplacement(i, self.parProcs[i].case).value().getText() + u". (Rπ-Case)\n"
 									self.executionStrBuilder = self.executionStrBuilder + rPiCaseStrBuilder
-									self.replacements[i][self.parProcs[i].opts[k].value().getText()] = self.getReplacement(i, self.parProcs[i].case).variantVal().value()
+									self.replacements[i][self.parProcs[i].opts[k].value().getText()] = self.getReplacement(i, self.parProcs[i].case).value()
 									self.parProcs[i] = self.parProcs[i].conts[k]
 									reductionMade = True
 									break;
 						## Vice-versa of above, code repeated so output message can be constructed
 						elif isinstance(self.parProcs[j], PiCalcParser.CaseContext):
 							for k in range(len(self.parProcs[j].opts)):
-								if self.getReplacement(j, self.parProcs[j].case).variantVal().ID().getText() == self.parProcs[j].opts[k].ID().getText():
-									rPiCaseStrBuilder = "Selecting case " + self.getReplacement(j, self.parProcs[j].case).variantVal().ID().getText() + " out of cases "
+								if self.getReplacement(j, self.parProcs[j].case).ID().getText() == self.parProcs[j].opts[k].ID().getText():
+									rPiCaseStrBuilder = "Selecting case " + self.getReplacement(j, self.parProcs[j].case).ID().getText() + " out of cases "
 									for l in range(len(self.parProcs[j].opts)):
 										rPiCaseStrBuilder = rPiCaseStrBuilder + self.parProcs[j].opts[l].ID().getText()
 										if l != len(self.parProcs[j].opts)-1:
 											rCaseStrBuilder = rCaseStrBuilder + ", "
-									rPiCaseStrBuilder = rPiCaseStrBuilder + ", replacing " + self.parProcs[j].opts[k].value().getText() + " with " + self.getReplacement(j, self.parProcs[j].case).variantVal().value().getText() + u". (Rπ-Case)\n"
+									rPiCaseStrBuilder = rPiCaseStrBuilder + ", replacing " + self.parProcs[j].opts[k].value().getText() + " with " + self.getReplacement(j, self.parProcs[j].case).value().getText() + u". (Rπ-Case)\n"
 									self.executionStrBuilder = self.executionStrBuilder + rPiCaseStrBuilder
-									self.replacements[j][self.parProcs[j].opts[k].value().getText()] = self.getReplacement(j, self.parProcs[j].case).variantVal().value()
+									self.replacements[j][self.parProcs[j].opts[k].value().getText()] = self.getReplacement(j, self.parProcs[j].case).value()
 									self.parProcs[j] = self.parProcs[j].conts[k]
 									reductionMade = True
 									break;

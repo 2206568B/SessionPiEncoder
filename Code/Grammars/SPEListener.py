@@ -351,16 +351,16 @@ class SPEListener(PiCalcListener):
 		elif isinstance(varCtx, PiCalcParser.IntegerValueContext):
 			if self.doSesTypeChecking:
 				if self.sesLinGamma(gamma):
-					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Integer failed. Context is still linear.</span>\n"
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Int failed. Context is still linear.</span>\n"
 					raise self.typecheckException
 				else:
-					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-Integer", 1)
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-Int", 1)
 			elif self.doLinTypeChecking:
 				if self.sesLinGamma(gamma):
-					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-Integer failed. Context is still linear.</span>\n"
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-Int failed. Context is still linear.</span>\n"
 					raise self.typecheckException
 				else:
-					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Integer", 1)
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Int", 1)
 		elif isinstance(varCtx, PiCalcParser.StringValueContext):
 			if self.doSesTypeChecking:
 				if self.sesLinGamma(gamma):
@@ -403,25 +403,26 @@ class SPEListener(PiCalcListener):
 		elif isinstance(varCtx, PiCalcParser.UnitValueContext):
 			if self.doSesTypeChecking:
 				if self.sesLinGamma(gamma):
-					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Unit failed. Context is still linear.</span>\n"
+					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-Val failed. Context is still linear.</span>\n"
 					raise self.typecheckException
 				else:
-					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-Unit", 1)
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", "T-Val", 1)
 			elif self.doLinTypeChecking:
 				if self.sesLinGamma(gamma):
 					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-Unit failed. Context is still linear.</span>\n"
 					raise self.typecheckException
 				else:
 					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Unit", 1)
-		elif isinstance(varCtx, PiCalcParser.VariantValueContext):
+		elif isinstance(varCtx, PiCalcParser.VariantValContext):
 			if self.doSesTypeChecking:
 				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking failed due to " + varCtx.getText() + ". Variant values are not allowed in session-typed pi calculus.</span>\n"
 				raise self.typecheckException
 			if self.doLinTypeChecking:
-				if varCtx.variantVal().value().getText() not in gamma:
+				if varCtx.value().getText() not in gamma:
 					self.tcErrorStrBuilder = self.tcErrorStrBuilder + u"<span class='error'>ERROR: Typechecking rule Tπ-LVal (" + varCtx.getText() + ") failed. Variant value " + varCtx.variantVal().getText() + "'s channel " + varCtx.variantVal().value().getText() + "not in context.</span>\n"
 					raise self.typecheckException
-				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-LVal (" + varCtx.getText() + ")", 1)
+				else:
+					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-LVal (" + varCtx.getText() + ")", 1)
 		elif isinstance(varCtx, PiCalcParser.ExprValueContext):
 			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"☆", 1)
 			self.exprGamma = gamma
