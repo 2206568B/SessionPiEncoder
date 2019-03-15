@@ -42,7 +42,7 @@ class SPEListener(PiCalcListener):
 		## replacedVars is used to keep track of which variables are replaced due to named processes
 		##   i.e. if there is a process name declaration proc(a : T), and the main process contains proc(x),
 		##   a is replaced with x, so replacedVars[a] = x
-		self.typeCheckStrBuilder = u"<span class='success'>Typechecking successful.</span> Rules used: \n◻"
+		self.typeCheckStrBuilder = u"<span class='success'>Typechecking successful.</span> Rules used: \n◻\n"
 		self.tcStrIndent = ""
 		self.tcErrorStrBuilder = ""
 		self.gamma = {}
@@ -1185,6 +1185,8 @@ class SPEListener(PiCalcListener):
 			self.contChanTypes[ctx.channel.getText()] = newChanType
 			if isinstance(ctx.plType, PiCalcParser.SessionTypeContext):
 				self.contChanTypes[ctx.payload.getText()] = ctx.plType.sType()
+			elif isinstance(ctx.plType, PiCalcParser.ChannelTypeContext):
+				self.contChanTypes[ctx.payload.getText()] = ctx.plType
 			ipStrBuilder = ipStrBuilder + ", " + newChan + u" : ▲).●"
 			self.encFunc[ctx.channel.getText()] = newChan
 			self.encodedStrBuilder = self.encodedStrBuilder.replace(u"●", ipStrBuilder, 1)

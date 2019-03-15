@@ -28,7 +28,7 @@ processPrim : processSec                                                        
             ;
 
 processSec  : name=ID '(' value ')'                                                                                                   # NamedProcess
-            | 'stop'                                                                                                                   # Termination
+            | 'stop'                                                                                                                  # Termination
             /** Send and Receive can have multiple payloads in linear pi calculus */
             | 'send(' channel=value (',' payloads+=value)+ ').' processSec                                                            # Output
             | '(new ' value ':' namedType ') (' processPrim ')'                                                                       # ChannelRestrictionNmd

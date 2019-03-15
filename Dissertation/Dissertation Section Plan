@@ -6,20 +6,29 @@
 2. Background
   2.1 Pi Calculus
   2.2 Session types
+    2.2.1 Typechecking
+    2.2.2 Execution
   2.3 Linear types
+    2.3.1 Typechecking
+    2.3.2 Execution
   2.4 Encoding
 
 3. Design
-  ???
+  3.1 Web interface
+  3.2 Syntax
+  3.3 Typing extensions
 
 4. Implementation
-  4.1 Web interface
-  4.2 Encoding
-  4.3 Typechecking
-  4.4 Running
+  4.1 Architecture
+  4.2 Web interface
+  4.3 Encoding
+  4.4 Typechecking
+  4.5 Execution
 
 5. Evaluation
   5.1 Correctness
   5.2 User-study
 
 6. Conclusion
+  6.1 Related Work
+  6.2 Future Work
