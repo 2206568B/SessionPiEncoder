@@ -374,7 +374,7 @@ class SPEListener(PiCalcListener):
 					raise self.typecheckException
 				else:
 					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-String", 1)
-		elif isinstance(varCtx, PiCalcParser.BooleanValueContext) and varCtx.getText == "True":
+		elif isinstance(varCtx, PiCalcParser.BooleanValueContext) and varCtx.getText() == "True":
 			if self.doSesTypeChecking:
 				if self.sesLinGamma(gamma):
 					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-True failed. Context is still linear.</span>\n"
@@ -387,7 +387,7 @@ class SPEListener(PiCalcListener):
 					raise self.typecheckException
 				else:
 					self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-True", 1)
-		elif isinstance(varCtx, PiCalcParser.BooleanValueContext) and varCtx.getText == "False":
+		elif isinstance(varCtx, PiCalcParser.BooleanValueContext) and varCtx.getText() == "False":
 			if self.doSesTypeChecking:
 				if self.sesLinGamma(gamma):
 					self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: Typechecking rule T-False failed. Context is still linear.</span>\n"
@@ -429,11 +429,11 @@ class SPEListener(PiCalcListener):
 
 
 	def getTypeCheckResults(self):
-		oldStr = self.typeCheckStrBuilder
-		self.typeCheckStrBuilder = self.typeCheckStrBuilder.translate({ord(c): None for c in u"◻"})
-		if self.tcErrorStrBuilder == "" and self.encErrorStrBuilder == "":
-			if oldStr != self.typeCheckStrBuilder:
-				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: The typechecking encountered some kind of problem and could not be performed. Please check that your code is valid.</span>\n"
+		# oldStr = self.typeCheckStrBuilder
+		# self.typeCheckStrBuilder = self.typeCheckStrBuilder.translate({ord(c): None for c in u"◻"})
+		# if self.tcErrorStrBuilder == "" and self.encErrorStrBuilder == "":
+		# 	if oldStr != self.typeCheckStrBuilder:
+		# 		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: The typechecking encountered some kind of problem and could not be performed. Please check that your code is valid.</span>\n"
 		if self.tcErrorStrBuilder != "" or self.encErrorStrBuilder != "":
 			self.typeCheckStrBuilder = ""
 		else:
