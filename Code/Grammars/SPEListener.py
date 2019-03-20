@@ -42,7 +42,7 @@ class SPEListener(PiCalcListener):
 		## replacedVars is used to keep track of which variables are replaced due to named processes
 		##   i.e. if there is a process name declaration proc(a : T), and the main process contains proc(x),
 		##   a is replaced with x, so replacedVars[a] = x
-		self.typeCheckStrBuilder = u"<span class='success'>Typechecking successful.</span> Rules used: \n◻\n"
+		self.typeCheckStrBuilder = u"Rules used: \n◻\n"
 		self.tcStrIndent = ""
 		self.tcErrorStrBuilder = ""
 		self.gamma = {}
@@ -439,6 +439,9 @@ class SPEListener(PiCalcListener):
 		else:
 			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"▵", ", ")
 			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace("\n\n", "\n")
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace("<", "&lt;")
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(">", "&gt;")
+			self.typeCheckStrBuilder = self.typeCheckStrBuilder + "<span class='success'>Typechecking successful.</span> "
 		return (self.typeCheckStrBuilder, self.tcErrorStrBuilder)
 
 
@@ -1699,6 +1702,7 @@ class SPEListener(PiCalcListener):
 			typeAnnDual = self.getLinTypeDual(ctx.linearType())
 			newGamma = self.augmentGamma(self.gamma, {ctx.value().getText() : ctx.linearType(), ctx.value().getText() + u"▼" : typeAnnDual})
 			self.gammaStack.append(newGamma)
+			print(ctx.linearType().getText().replace(",", ", "))
 			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"Tπ-Res1 \n" + self.tcStrIndent + "[" + ctx.value().getText() + " : " + ctx.linearType().getText().replace(",", ", ") + u"]▵\n" + self.tcStrIndent + u"◻", 1)
 
 
