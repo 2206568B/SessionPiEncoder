@@ -441,7 +441,7 @@ class SPEListener(PiCalcListener):
 			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace("\n\n", "\n")
 			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace("<", "&lt;")
 			self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(">", "&gt;")
-			self.typeCheckStrBuilder = self.typeCheckStrBuilder + "<span class='success'>Typechecking successful.</span> "
+			self.typeCheckStrBuilder = "<span class='success'>Typechecking successful.</span> " + self.typeCheckStrBuilder
 		return (self.typeCheckStrBuilder, self.tcErrorStrBuilder)
 
 
