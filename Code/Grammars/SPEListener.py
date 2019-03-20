@@ -429,11 +429,11 @@ class SPEListener(PiCalcListener):
 
 
 	def getTypeCheckResults(self):
-		# oldStr = self.typeCheckStrBuilder
-		# self.typeCheckStrBuilder = self.typeCheckStrBuilder.translate({ord(c): None for c in u"◻"})
-		# if self.tcErrorStrBuilder == "" and self.encErrorStrBuilder == "":
-		# 	if oldStr != self.typeCheckStrBuilder:
-		# 		self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: The typechecking encountered some kind of problem and could not be performed. Please check that your code is valid.</span>\n"
+		oldStr = self.typeCheckStrBuilder
+		self.typeCheckStrBuilder = self.typeCheckStrBuilder.translate({ord(c): None for c in u"◻"})
+		if self.tcErrorStrBuilder == "" and self.encErrorStrBuilder == "":
+			if oldStr != self.typeCheckStrBuilder:
+				self.tcErrorStrBuilder = self.tcErrorStrBuilder + "<span class='error'>ERROR: The typechecking encountered some kind of problem and could not be performed. Please check that your code is valid.</span>\n"
 		if self.tcErrorStrBuilder != "" or self.encErrorStrBuilder != "":
 			self.typeCheckStrBuilder = ""
 		else:
@@ -1232,7 +1232,7 @@ class SPEListener(PiCalcListener):
 				self.tcErrorStrBuilder = self.tcErrorStrBuilder = "<span class='error'>ERROR: Typechecking rule T-StndIn failed due to " + ctx.payload.getText() + ". Input process payload has type annotation that does not match channel type.</span>\n"
 				raise self.typecheckException
 			else:
-				augmentations = {ctx.channel.getText(): chanType, ctx.payload.getText(): chanPLType}
+				augmentations = {trueChan.getText(): chanType, truePL.getText(): chanPLType}
 				gamma2 = self.augmentGamma(gamma2, augmentations)
 				self.gammaStack.append(gamma2)
 				self.typeCheckStrBuilder = self.typeCheckStrBuilder.replace(u"◻", u"◻▵T-StndIn▵◻", 1)
