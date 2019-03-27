@@ -1,0 +1,224 @@
+@article{MILNER19921,
+title = "A calculus of mobile processes, I",
+journal = "Information and Computation",
+volume = "100",
+number = "1",
+pages = "1 - 40",
+year = "1992",
+issn = "0890-5401",
+doi = "https://doi.org/10.1016/0890-5401(92)90008-4",
+url = "http://www.sciencedirect.com/science/article/pii/0890540192900084",
+author = "Robin Milner and Joachim Parrow and David Walker",
+abstract = "We present the π-calculus, a calculus of communicating systems in which one can naturally express processes which have changing structure. Not only may the component agents of a system be arbitrarily linked, but a communication between neighbours may carry information which changes that linkage. The calculus is an extension of the process algebra CCS, following work by Engberg and Nielsen, who added mobility to CCS while preserving its algebraic properties. The π-calculus gains simplicity by removing all distinction between variables and constants; communication links are identified by names, and computation is represented purely as the communication of names across links. After an illustrated description of how the π-calculus generalises conventional process algebras in treating mobility, several examples exploiting mobility are given in some detail. The important examples are the encoding into the π-calculus of higher-order functions (the λ-calculus and combinatory algebra), the transmission of processes as values, and the representation of data structures as processes. The paper continues by presenting the algebraic theory of strong bisimilarity and strong equivalence, including a new notion of equivalence indexed by distinctions—i.e., assumptions of inequality among names. These theories are based upon a semantics in terms of a labeled transition system and a notion of strong bisimulation, both of which are expounded in detail in a companion paper. We also report briefly on work-in-progress based upon the corresponding notion of weak bisimulation, in which internal actions cannot be observed."
+}
+
+@book{milner1980calculus,
+  title={A Calculus of Communicating Systems},
+  author={Milner, R.},
+  isbn={9783540102359},
+  lccn={sf92020465},
+  series={Lecture Notes in Computer Science},
+  url={https://books.google.co.uk/books?id=7L1PAQAAIAAJ},
+  year={1980},
+  publisher={Springer-Verlag}
+}
+
+@InProceedings{HondaLangPrim,
+author="Honda, Kohei
+and Vasconcelos, Vasco T.
+and Kubo, Makoto",
+editor="Hankin, Chris",
+title="Language primitives and type discipline for structured communication-based programming",
+booktitle="Programming Languages and Systems",
+year="1998",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="122--138",
+abstract="We introduce basic language constructs and a type discipline as a foundation of structured communication-based concurrent programming. The constructs, which are easily translatable into the summation-less asynchronous $\pi$-calculus, allow programmers to organise programs as a combination of multiple flows of (possibly unbounded) reciprocal interactions in a simple and elegant way, subsuming the preceding communication primitives such as method invocation and rendez-vous. The resulting syntactic structure is exploited by a type discipline {\`a} la ML, which offers a high-level type abstraction of interactive behaviours of programs as well as guaranteeing the compatibility of interaction patterns between processes in a well-typed program. After presenting the formal semantics, the use of language constructs is illustrated through examples, and the basic syntactic results of the type discipline are established. Implementation concerns are also addressed.",
+isbn="978-3-540-69722-0"
+}
+
+@article{VASCONCELOS201252,
+title = "Fundamentals of session types",
+journal = "Information and Computation",
+volume = "217",
+pages = "52 - 70",
+year = "2012",
+issn = "0890-5401",
+doi = "https://doi.org/10.1016/j.ic.2012.05.002",
+url = "http://www.sciencedirect.com/science/article/pii/S0890540112001022",
+author = "Vasco T. Vasconcelos",
+abstract = "We present a reconstruction of session types in a linear pi calculus where types are qualified as linear or unrestricted. Linearly qualified communication channels are guaranteed to occur in exactly one thread, possibly multiple times; unrestricted (or shared) channels may appear in an unbounded number of threads. In our language each channel is characterized by two distinct variables, one used for reading, the other for writing; scope restriction binds together two variables, thus establishing the correspondence between the two ends of the same channel. This mechanism allows a precise control of resources via a conventional linear type system. Furthermore, the uniform treatment of linear and shared channels leads to a surprisingly simply theory which, in addition, extends typability when compared to traditional systems for session types. We build the language gradually, starting from simple input/output, then adding recursive types, replication and finally choice. We also present an algorithmic type checking system."
+}
+
+@article{Kobayashi:1999:LP:330249.330251,
+ author = {Kobayashi, Naoki and Pierce, Benjamin C. and Turner, David N.},
+ title = {Linearity and the Pi-calculus},
+ journal = {ACM Trans. Program. Lang. Syst.},
+ issue_date = {Sept. 1999},
+ volume = {21},
+ number = {5},
+ month = sep,
+ year = {1999},
+ issn = {0164-0925},
+ pages = {914--947},
+ numpages = {34},
+ url = {http://doi.acm.org/10.1145/330249.330251},
+ doi = {10.1145/330249.330251},
+ acmid = {330251},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {concurrency, confluence, linear types, pi-calculus, process calculi},
+} 
+
+@InProceedings{OderskyPolarized,
+author="Odersky, Martin",
+editor="Thiagarajan, P. S.",
+title="Polarized name passing",
+booktitle="Foundations of Software Technology and Theoretical Computer Science",
+year="1995",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="324--337",
+abstract="We study a refinement of name passing in a process calculus, where names have input and output polarities. Building on a simple asynchronous reduction semantics, we develop a notion of polarized bisimulation and show that it is a congruence. We then give an encoding of Moggi's computational lambda calculus in polarized $\pi$ which preserves all of Moggi's observational equivalences except the $\eta$-value rule.",
+isbn="978-3-540-49263-4"
+}
+
+@article{pierce_sangiorgi_1996, title={Typing and subtyping for mobile processes}, 
+volume={6}, 
+DOI={10.1017/S096012950007002X}, 
+number={5}, 
+journal={Mathematical Structures in Computer Science}, 
+publisher={Cambridge University Press}, 
+author={Pierce, Benjamin and Sangiorgi, Davide}, 
+year={1996}, 
+pages={409–453}
+}
+
+@article{SANGIORGI199834,
+title = "An Interpretation of Typed Objects into Typed $\pi$-Calculus",
+journal = "Information and Computation",
+volume = "143",
+number = "1",
+pages = "34 - 73",
+year = "1998",
+issn = "0890-5401",
+doi = "https://doi.org/10.1006/inco.1998.2711",
+url = "http://www.sciencedirect.com/science/article/pii/S0890540198927110",
+author = "Davide Sangiorgi",
+abstract = "An interpretation of Abadi and Cardelli's first-order functionobject calculusinto a typedπ-calculus is presented. The interpretation validates the subtyping relation and the typing judgements of the object calculus and is computationally adequate. This is the first interpretation of a typed object-oriented language into a process calculus. The study intends to offer a contribution to understanding on the one hand, the relationship betweenπ-calculus types and conventional types of programming languages and on the other hand, the usefulness of theπ-calculus as a metalanguage for the semantics of typed object-oriented languages. The type language for theπ-calculus has Pierce and Sangiorgi's I/O annotations, to separate the capabilities of reading and writing on a channel and variant types. Technical contributions of the paper are the presentation ofvariant typesfor theπ-calculus and their typing and subtyping properties, and an analysis of behavioural equivalences in aπ-calculus with variant types."
+}
+
+@article{DARDHA2017253,
+title = "Session types revisited",
+journal = "Information and Computation",
+volume = "256",
+pages = "253 - 286",
+year = "2017",
+issn = "0890-5401",
+doi = "https://doi.org/10.1016/j.ic.2017.06.002",
+url = "http://www.sciencedirect.com/science/article/pii/S0890540117300962",
+author = "Ornela Dardha and Elena Giachino and Davide Sangiorgi",
+keywords = "Session types, -Calculus, Linear types, Variant types, Encoding",
+abstract = "Session types are a formalism used to model structured communication-based programming. A binary session type describes communication by specifying the type and direction of data exchanged between two parties. When session types and session processes are added to the syntax of standard π-calculus they give rise to additional separate syntactic categories. As a consequence, when new type features are added, there is duplication of effort in the theory: the proofs of properties must be checked both on standard types and on session types. We show that session types are encodable into standard π-types, relying on linear and variant types. Besides being an expressivity result, the encoding (i) removes the above redundancies in the syntax, and (ii) the properties of session types are derived as straightforward corollaries, exploiting the corresponding properties of standard π-types. The robustness of the encoding is tested on a few extensions of session types, including subtyping, polymorphism and higher-order communications."
+}
+
+@inproceedings{Dardha:2012:STR:2370776.2370794,
+ author = {Dardha, Ornela and Giachino, Elena and Sangiorgi, Davide},
+ title = {Session Types Revisited},
+ booktitle = {Proceedings of the 14th Symposium on Principles and Practice of Declarative Programming},
+ series = {PPDP '12},
+ year = {2012},
+ isbn = {978-1-4503-1522-7},
+ location = {Leuven, Belgium},
+ pages = {139--150},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2370776.2370794},
+ doi = {10.1145/2370776.2370794},
+ acmid = {2370794},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {encoding, linear types, pi-calculus, session types},
+} 
+
+@misc{FlaskDocs,
+key = {Pocoo Team},
+title = {Foreword - {Flask 1.0.2 Documentation}},
+howpublished = {\url{http://flask.pocoo.org/docs/1.0/foreword/}},
+note = {Accessed : 20/3/2019},
+year = {2010}
+}
+
+@misc{Python,
+key = {Python Software Foundation},
+title = {{Welcome to Python.org}},
+howpublished = {\url{https://www.python.org/}},
+note = {Accessed : 26/3/2019},
+year = {2001}
+}
+
+@misc{Antlr,
+author = {Terrence Parr},
+title = {{ANTLR}},
+howpublished = {\url{https://www.antlr.org/}},
+note = {Accessed : 20/3/2019},
+year = {2014}
+}
+
+@misc{CodeMirror,
+key = {CodeMirror Team},
+title = {{CodeMirror}},
+howpublished = {\url{https://codemirror.net/}},
+note = {Accessed : 25/3/2019},
+year = {2011},
+}
+
+
+@article{padovani_2017, 
+title={A simple library implementation of binary sessions}, 
+volume={27}, 
+DOI={10.1017/S0956796816000289}, 
+journal={Journal of Functional Programming},
+publisher={Cambridge University Press}, 
+author={Luca Padovani}, 
+year={2017}, 
+pages={e4}
+}
+
+@InProceedings{lchannels-scalas,
+author = {Scalas, Alceste and Yoshida, Nobuko},
+title = {{Lightweight Session Programming in Scala}},
+booktitle = {30th European Conference on Object-Oriented Programming (ECOOP 2016)},
+pages = {21:1--21:28},
+series = {Leibniz International Proceedings in Informatics (LIPIcs)},
+ISBN = {978-3-95977-014-9},
+ISSN = {1868-8969},
+year = {2016},
+volume = {56},
+editor = {Shriram Krishnamurthi and Benjamin S. Lerner},
+publisher = {Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik},
+address = {Dagstuhl, Germany},
+URL = {http://drops.dagstuhl.de/opus/volltexte/2016/6115},
+URN = {urn:nbn:de:0030-drops-61156},
+doi = {10.4230/LIPIcs.ECOOP.2016.21},
+annote = {Keywords: session types, Scala, concurrency}
+}
+
+@InProceedings{scribble-scala,
+author = {Alceste Scalas and Ornela Dardha and Raymond Hu and Nobuko Yoshida},
+title = {{A Linear Decomposition of Multiparty Sessions for Safe Distributed Programming}},
+booktitle = {31st European Conference on Object-Oriented Programming (ECOOP 2017)},
+pages = {24:1--24:31},
+series = {Leibniz International Proceedings in Informatics (LIPIcs)},
+ISBN = {978-3-95977-035-4},
+ISSN = {1868-8969},
+year = {2017},
+volume = {74},
+editor = {Peter M{\"u}ller},
+publisher = {Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik},
+address = {Dagstuhl, Germany},
+URL = {http://drops.dagstuhl.de/opus/volltexte/2017/7263},
+URN = {urn:nbn:de:0030-drops-72637},
+doi = {10.4230/LIPIcs.ECOOP.2017.24},
+annote = {Keywords: process calculi, session types, concurrent programming, Scala}
+}
